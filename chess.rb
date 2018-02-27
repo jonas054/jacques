@@ -4,6 +4,7 @@ require_relative 'board'
 
 # TODO:
 # - Draw due to repeated moves
+# - En passant
 # - Smarter selection of moves
 # - Human opponent
 ALL_DIRECTIONS =
@@ -11,6 +12,10 @@ ALL_DIRECTIONS =
 ROOK_DIRECTIONS = [-1, 0, 1].repeated_permutation(2).reject do |x, y|
   x.abs == y.abs
 end
+KNIGHT_DIRECTIONS = [1, 2, -1, -2].permutation(2).select do |x, y|
+  x.abs + y.abs == 3
+end
+BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 
 class Chess
   def initialize
@@ -92,13 +97,11 @@ class Chess
             end
           end
         when '♞', '♘'
-          [1, 2, -1, -2].permutation(2).select do |x, y|
-            x.abs + y.abs == 3
-          end.each do |r, c|
+          KNIGHT_DIRECTIONS.each do |r, c|
             add_move_if_legal(result, board, row, col, row + r, col + c)
           end
         when '♝', '♗'
-          [-1, 1].repeated_permutation(2).each do |y, x|
+          BISHOP_DIRECTIONS.each do |y, x|
             (1...Board::SIZE).each do |scale|
               new_row = row + y * scale
               new_col = col + x * scale

@@ -43,7 +43,7 @@ class Chess
            row == last_move[2] && col == last_move[3]
           square_color = :yellow
         end
-        print Rainbow(" #{@board[row][col]} ").bg(square_color)
+        print Rainbow(" #{@board[row][col]} ").bg(square_color).fg(:black)
       end
       puts
     end

@@ -23,7 +23,7 @@ class Chess
 
   def run
     puts @board.draw
-    i = 0
+    i = -1
     loop do
       i += 1
       color = i.even? ? :white : :black
@@ -45,17 +45,29 @@ class Chess
     my_moves = legal_moves(who_to_move, @board)
     return nil if my_moves.empty?
 
-    taking_moves = my_moves.select { |move| move =~ /x/ }
-    if @board.king_is_taken_by?(taking_moves)
-      raise "King taken by #{who_to_move}!"
-    end
+    checking_moves = my_moves.select { |move| is_checking_move?(move) }
+    best_moves = if checking_moves.any?
+                     checking_moves
+                   else
+                     my_moves.select { |move| move =~ /x/ }
+                   end
 
-    chosen_move = (taking_moves.any? ? taking_moves : my_moves).sample
+    chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     start_row, start_col = @board.get_coordinates(chosen_move[0, 2])
     new_row, new_col = @board.get_coordinates(chosen_move[-2..-1])
     @board.move(start_row, start_col, new_row, new_col)
     [start_row, start_col, new_row, new_col]
+  end
+
+  def is_checking_move?(move)
+    row, col = @board.get_coordinates(move[0, 2])
+    new_row, new_col = @board.get_coordinates(move[-2..-1])
+    new_board = Board.new(@board)
+    color_of_moving_piece = new_board.color_at(row, col)
+    other_color = (color_of_moving_piece == :white) ? :black : :white
+    new_board.move(row, col, new_row, new_col)
+    is_checked?(new_board, other_color)
   end
 
   def legal_moves(who_to_move, board)

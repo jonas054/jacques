@@ -1,11 +1,15 @@
 # coding: utf-8
+
 require 'rainbow'
 require_relative 'board'
 
 # TODO:
-# - Draw due to repeated moves
 # - En passant
-# - Smarter selection of moves
+# - Castling
+# - Semi-smart selection of piece at pawn promotion (i.e. knight if that leads
+#   to immediate checkmate)
+# - Smarter selection of moves (scoring engine)
+# - Opening book
 # - Human opponent
 ALL_DIRECTIONS =
   [-1, 0, 1].repeated_permutation(2).reject { |y, x| x == 0 && y == 0 }
@@ -29,16 +33,23 @@ class Chess
   def run
     puts @board.draw
     i = -1
+    positions = []
     loop do
       i += 1
       color = i.even? ? :white : :black
       move = make_move(i / 2 + 1, color)
+
       if move.nil?
-        return is_checked?(@board, color) ? "Checkmate" : "Stalemate"
+        return is_checked?(@board, color) ? 'Checkmate' : 'Stalemate'
       end
 
       puts draw(move)
-      return "Draw" if @board.only_kings_left?
+      return 'Draw' if @board.only_kings_left?
+
+      positions << @board.notation
+      if positions.count(@board.notation) > 2
+        return 'Draw due to threefold repetition'
+      end
     end
   end
 
@@ -52,10 +63,10 @@ class Chess
 
     checking_moves = my_moves.select { |move| is_checking_move?(move) }
     best_moves = if checking_moves.any?
-                     checking_moves
-                   else
-                     my_moves.select { |move| move =~ /x/ }
-                   end
+                   checking_moves
+                 else
+                   my_moves.select { |move| move =~ /x/ }
+                 end
 
     chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"

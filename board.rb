@@ -1,4 +1,5 @@
 # coding: utf-8
+
 require 'rainbow'
 
 class Board
@@ -24,6 +25,10 @@ class Board
         end
       end
     end
+  end
+
+  def notation
+    @squares.join('/')
   end
 
   def current

@@ -16,6 +16,8 @@ class Board
   WHITE_PIECES = '♔♕♖♗♘♙'.freeze
   BLACK_PIECES = '♜♞♝♛♚♟'.freeze
 
+  attr_reader :previous
+
   def initialize(original = nil)
     @squares = INITIAL_BOARD.join('-').split(/-/)
     if original
@@ -25,6 +27,11 @@ class Board
         end
       end
     end
+  end
+
+  def setup(contents)
+    @squares = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '').
+               split(/\n/).map { |row| row + ' ' * (8- row.length) }
   end
 
   def notation
@@ -77,6 +84,7 @@ class Board
   end
 
   def move(start_row, start_col, new_row, new_col)
+    @previous = Board.new(self)
     piece = @squares[start_row][start_col]
     @squares[new_row][new_col] =
       if %w[♙ ♟].include?(piece) && (new_row == 0 || new_row == SIZE - 1)

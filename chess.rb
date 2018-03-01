@@ -4,7 +4,6 @@ require 'rainbow'
 require_relative 'board'
 
 # TODO:
-# - En passant
 # - Castling
 # - Semi-smart selection of piece at pawn promotion (i.e. knight if that leads
 #   to immediate checkmate)
@@ -24,6 +23,10 @@ BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 class Chess
   def initialize
     @board = Board.new
+  end
+
+  def setup(contents)
+    @board.setup(contents)
   end
 
   def main
@@ -90,10 +93,10 @@ class Chess
     result = []
     Board::SIZE.times.each do |row|
       Board::SIZE.times.each do |col|
-        piece = board.get(row, col)
         piece_color = board.color_at(row, col)
         next unless piece_color == who_to_move
 
+        piece = board.get(row, col)
         other_color = (piece_color == :white) ? :black : :white
         case piece
         when '♜', '♖'
@@ -138,7 +141,7 @@ class Chess
             end
           end
         when '♟', '♙'
-          direction = piece == '♟' ? 1 : -1
+          direction = (piece == '♟') ? 1 : -1
           add_move_if_legal(result, board, row, col, row + direction, col,
                             :cannot_take)
           add_move_if_legal(result, board, row, col, row + direction, col + 1,
@@ -150,10 +153,28 @@ class Chess
             add_move_if_legal(result, board, row, col, row + 2 * direction, col,
                               :cannot_take)
           end
+          if row == (piece_color == :black ? 4 : 3)
+            add_en_passant_if_legal(result, board, row, col, 1)
+            add_en_passant_if_legal(result, board, row, col, -1)
+          end
         end
       end
     end
     result
+  end
+
+  private def add_en_passant_if_legal(result, board, row, col, col_delta)
+    piece = board.get(row, col)
+    opposite_piece = (piece == '♟') ? '♙' : '♟'
+    direction = (piece == '♟') ? 1 : -1
+    return unless (0..7).include?(col + col_delta)
+
+    if board.get(row, col + col_delta) == opposite_piece &&
+       board.previous.get(row + 2 * direction, col + col_delta) ==
+       opposite_piece
+      add_move_if_legal(result, board, row, col, row + direction, col + col_delta,
+                        :must_take_en_passant)
+    end
   end
 
   def add_move_if_legal(result, board, row, col, new_row, new_col,
@@ -165,7 +186,6 @@ class Chess
       color_of_moving_piece = new_board.color_at(row, col)
       new_board.move(row, col, new_row, new_col)
 
-      # puts new_board.draw
       @just_looking = true
       is_checked = is_checked?(new_board, color_of_moving_piece)
       @just_looking = false
@@ -179,6 +199,8 @@ class Chess
                  taking
                when :can_take
                  board.empty?(new_row, new_col) || taking
+               when :must_take_en_passant
+                 true # conditions already checked
                end
     if is_legal
       result << (position(row, col) + (taking ? 'x' : '') +

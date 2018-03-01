@@ -5,6 +5,7 @@ require_relative 'board'
 class TestBoard < Test::Unit::TestCase
   def setup
     @board = Board.new
+    Rainbow.enabled = false
   end
 
   def test_initialization
@@ -64,7 +65,6 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_draw
-    Rainbow.enabled = false
     assert_equal(("8 ♜  ♞  ♝  ♛  ♚  ♝  ♞  ♜ \n" +
                   "7 ♟  ♟  ♟  ♟  ♟  ♟  ♟  ♟ \n" +
                   "6                        \n" +
@@ -81,5 +81,17 @@ class TestBoard < Test::Unit::TestCase
     assert_true @board.king_is_taken_by?(['d7xe6'])
     assert_true @board.king_is_taken_by?(['f7xe6'])
     assert_false @board.king_is_taken_by?(['f7xh6'])
+  end
+
+  def test_previous
+    @board.move(6, 4, 5, 4)
+    assert_equal ['♜♞♝♛♚♝♞♜',
+                  '♟♟♟♟♟♟♟♟',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '♙♙♙♙♙♙♙♙',
+                  '♖♘♗♕♔♗♘♖'], @board.previous.current
   end
 end

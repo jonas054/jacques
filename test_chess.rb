@@ -8,15 +8,16 @@ class TestChess < Test::Unit::TestCase
     @chess = Chess.new
     $stdout = StringIO.new
     srand 1
+    @last_move = []
   end
 
   def teardown
     $stdout = STDOUT
   end
 
-  def test_10_moves
+  def test_5_moves
     @last_move = nil
-    (1..10).each do |turn|
+    (1..5).each do |turn|
       @chess.make_move(turn, :white)
       @last_move = @chess.make_move(turn, :black)
     end
@@ -31,16 +32,6 @@ class TestChess < Test::Unit::TestCase
       4...d8xd7
       5.c4xd5
       5...d7xd5
-      6.g2g4
-      6...d5xd2
-      7.c1xd2
-      7...c8xg4
-      8.f2f4
-      8...g4xe2
-      9.e1xe2
-      9...g7g5
-      10.f4xg5
-      10...a8c8
     TEXT
     assert_equal <<~TEXT, draw
       8 ♜ ♝ ♚♝♞♜
@@ -136,19 +127,46 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
-  def move_white
+  private def move_white
     @last_move = @chess.make_move(@turn += 1, :white)
   end
 
-  def move_black
+  private def move_black
     @last_move = @chess.make_move(@turn, :black)
   end
 
-  def draw
+  def test_setup
+    assert_equal <<~TEXT, draw
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6
+      5
+      4
+      3
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    new_position = <<~TEXT
+      8 ♜♞♝♛♚♝♞
+      7 ♟♟♟♟♟
+      6       ♟
+      5      ♟
+      4
+      3     ♙  ♜
+      2 ♙♙♙♙ ♙♙
+      1 ♖♘♗ ♔♗♘♖
+        abcdefgh
+    TEXT
+    @chess.setup(new_position)
+    assert_equal new_position, draw
+  end
+
+  private def draw
     convert(@chess.draw(@last_move))
   end
 
-  def convert(s)
+  private def convert(s)
     s.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?$/,
            '\1 \2\3\4\5\6\7\8\9')
      .gsub(/ +$/, '')

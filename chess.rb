@@ -129,6 +129,20 @@ class Chess
           ALL_DIRECTIONS.each do |y, x|
             add_move_if_legal(result, board, row, col, row + y, col + x)
           end
+          # 1. TODO: Kungen får inte stå i schack; man kan alltså inte undkomma
+          # en schack genom att rockera.
+          # 2. TODO: Varken kungen eller det torn som används för rockaden får
+          # ha flyttats tidigare under partiet.
+          # 3. TODO: Inget fält mellan kungen och tornet får vara besatt av en
+          # annan pjäs; det får alltså inte stå någon annan pjäs emellan dem,
+          # oavsett färg.
+          # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
+          # får vara hotat av någon av motståndarens pjäser; man kan alltså
+          # inte flytta in i schack.
+          # unless is_checked?(board, piece_color)
+          #   # King-side castle
+          #   # Queen-side castle
+          # end
         when '♛', '♕'
           ALL_DIRECTIONS.each do |y, x|
             (1...Board::SIZE).each do |scale|
@@ -172,8 +186,8 @@ class Chess
     if board.get(row, col + col_delta) == opposite_piece &&
        board.previous.get(row + 2 * direction, col + col_delta) ==
        opposite_piece
-      add_move_if_legal(result, board, row, col, row + direction, col + col_delta,
-                        :must_take_en_passant)
+      add_move_if_legal(result, board, row, col, row + direction,
+                        col + col_delta, :must_take_en_passant)
     end
   end
 

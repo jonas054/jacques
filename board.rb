@@ -30,8 +30,11 @@ class Board
   end
 
   def setup(contents)
-    @squares = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '').
-               split(/\n/).map { |row| row + ' ' * (8- row.length) }
+    @previous = Board.new(self)
+    lines = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '').
+            gsub('▒', ' ').lines.map(&:chomp)
+    lines += [''] * (8 - lines.size)
+    @squares = lines.map { |row| row + ' ' * (8- row.length) }
   end
 
   def notation
@@ -86,8 +89,13 @@ class Board
   def move(start_row, start_col, new_row, new_col)
     @previous = Board.new(self)
     piece = @squares[start_row][start_col]
+    is_pawn = %w[♙ ♟].include?(piece)
+    if is_pawn && start_col != new_col && empty?(new_row, new_col)
+      # Taking en passant
+      @squares[start_row][new_col] = EMPTY_SQUARE
+    end
     @squares[new_row][new_col] =
-      if %w[♙ ♟].include?(piece) && (new_row == 0 || new_row == SIZE - 1)
+      if is_pawn && (new_row == 0 || new_row == SIZE - 1)
         (piece == '♙') ? '♕' : '♛'
       else
         piece

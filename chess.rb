@@ -73,15 +73,15 @@ class Chess
 
     chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
-    start_row, start_col = @board.get_coordinates(chosen_move[0, 2])
-    new_row, new_col = @board.get_coordinates(chosen_move[-2..-1])
+    start_row, start_col = @board.get_coordinates(chosen_move[/^[a-h][1-8]/])
+    new_row, new_col = @board.get_coordinates(chosen_move[/[a-h][1-8]$/])
     @board.move(start_row, start_col, new_row, new_col)
     [start_row, start_col, new_row, new_col]
   end
 
   def is_checking_move?(move)
-    row, col = @board.get_coordinates(move[0, 2])
-    new_row, new_col = @board.get_coordinates(move[-2..-1])
+    row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
+    new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
     new_board = Board.new(@board)
     color_of_moving_piece = new_board.color_at(row, col)
     other_color = (color_of_moving_piece == :white) ? :black : :white
@@ -167,8 +167,11 @@ class Chess
             add_move_if_legal(result, board, row, col, row + 2 * direction, col,
                               :cannot_take)
           end
+          # Missing test: Changed '4' to '5'
+          # Missing test: Changed 'if ' to 'if true || '
           if row == (piece_color == :black ? 4 : 3)
             add_en_passant_if_legal(result, board, row, col, 1)
+            # Missing test: Changed '1' to '2'
             add_en_passant_if_legal(result, board, row, col, -1)
           end
         end
@@ -178,6 +181,8 @@ class Chess
   end
 
   private def add_en_passant_if_legal(result, board, row, col, col_delta)
+    # Missing test: Changed 'piece = board.get(row, col)' to 'piece = 0'
+    # Missing test: Changed 'piece = board.get(row, col)' to 'piece = nil'
     piece = board.get(row, col)
     opposite_piece = (piece == '♟') ? '♙' : '♟'
     direction = (piece == '♟') ? 1 : -1
@@ -194,7 +199,8 @@ class Chess
   def add_move_if_legal(result, board, row, col, new_row, new_col,
                         take = :can_take)
     return if board.outside_board?(new_row, new_col)
-    taking = board.taking?(row, col, new_row, new_col)
+    taking = board.taking?(row, col, new_row, new_col) ||
+             take == :must_take_en_passant
     unless @just_looking
       new_board = Board.new(board)
       color_of_moving_piece = new_board.color_at(row, col)

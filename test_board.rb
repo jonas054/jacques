@@ -121,11 +121,6 @@ class TestBoard < Test::Unit::TestCase
     assert_true @board.outside_board?(0, -1)
   end
 
-  def test_color_at_predicate
-    assert_true @board.color_at?(:black, 0, 0)
-    assert_true @board.color_at?(:white, 7, 0)
-  end
-
   def test_color_at
     assert_equal :black, @board.color_at(0, 0)
     assert_equal :white, @board.color_at(7, 0)

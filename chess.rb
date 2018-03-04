@@ -109,9 +109,9 @@ class Chess
               new_row = row + y * scale
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
-              break if board.color_at?(piece_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == piece_color
               yield board, row, col, new_row, new_col, :can_take
-              break if board.color_at?(other_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♞', '♘'
@@ -124,9 +124,9 @@ class Chess
               new_row = row + y * scale
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
-              break if board.color_at?(piece_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == piece_color
               yield board, row, col, new_row, new_col, :can_take
-              break if board.color_at?(other_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♚', '♔'
@@ -153,9 +153,9 @@ class Chess
               new_row = row + y * scale
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
-              break if board.color_at?(piece_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == piece_color
               yield board, row, col, new_row, new_col, :can_take
-              break if board.color_at?(other_color, new_row, new_col)
+              break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♟', '♙'

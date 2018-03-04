@@ -67,16 +67,9 @@ class Board
     row < 0 || row >= SIZE || col < 0 || col >= SIZE
   end
 
-  def color_at?(color, row, col)
-    color_at(row, col) == color
-  end
-
   def color_at(row, col)
-    piece = get(row, col)
-    if WHITE_PIECES.include?(piece) then :white
-    elsif BLACK_PIECES.include?(piece) then :black
-    else :none
-    end
+    return :none if empty?(row, col)
+    WHITE_PIECES.include?(get(row, col)) ? :white : :black
   end
 
   def taking?(row, col, new_row, new_col)

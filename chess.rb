@@ -73,9 +73,13 @@ class Chess
     best_moves = if checking_moves.any?
                    checking_moves
                  else
-                   my_moves.select { |move| move =~ /x/ }
+                   castling_moves = my_moves.select { |m| is_castling_move?(m) }
+                   if castling_moves.any?
+                     castling_moves
+                   else
+                     my_moves.select { |move| move =~ /x/ }
+                   end
                  end
-
     chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     start_row, start_col = @board.get_coordinates(chosen_move[/^[a-h][1-8]/])
@@ -92,6 +96,12 @@ class Chess
     other_color = (color_of_moving_piece == :white) ? :black : :white
     new_board.move(row, col, new_row, new_col)
     is_checked?(new_board, other_color)
+  end
+
+  def is_castling_move?(move)
+    row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
+    new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
+    %w[♚ ♔].include?(@board.get(row, col)) && (new_col - col).abs == 2
   end
 
   def legal_moves(who_to_move, board, &block)
@@ -133,20 +143,29 @@ class Chess
           ALL_DIRECTIONS.each do |y, x|
             yield board, row, col, row + y, col + x, :can_take
           end
+          if col == 4 && (row == 7 && piece == '♔' || row == 0 && piece == '♚')
+            rook = (piece == '♔') ? '♖' : '♜'
+            # King-side castle
+            if board.empty?(row, 5) && board.empty?(row, 6) &&
+               board.get(row, 7) == rook
+              yield board, row, col, row, col + 2, :cannot_take
+            end
+            # Queen-side castle
+            if board.empty?(row, 3) && board.empty?(row, 2) &&
+               board.empty?(row, 1) && board.get(row, 0) == rook
+              yield board, row, col, row, col - 2, :cannot_take
+            end
+          end
           # 1. TODO: Kungen får inte stå i schack; man kan alltså inte undkomma
           # en schack genom att rockera.
           # 2. TODO: Varken kungen eller det torn som används för rockaden får
           # ha flyttats tidigare under partiet.
-          # 3. TODO: Inget fält mellan kungen och tornet får vara besatt av en
+          # 3. Inget fält mellan kungen och tornet får vara besatt av en
           # annan pjäs; det får alltså inte stå någon annan pjäs emellan dem,
           # oavsett färg.
           # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
           # får vara hotat av någon av motståndarens pjäser; man kan alltså
           # inte flytta in i schack.
-          # unless is_checked?(board, piece_color)
-          #   # King-side castle
-          #   # Queen-side castle
-          # end
         when '♛', '♕'
           ALL_DIRECTIONS.each do |y, x|
             (1...Board::SIZE).each do |scale|

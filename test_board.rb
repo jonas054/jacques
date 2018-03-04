@@ -104,6 +104,98 @@ class TestBoard < Test::Unit::TestCase
                   '♖♘♗ ♔♗♘♖'], @board.current
   end
 
+  def test_white_castles_on_king_side
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+    @board.move(7, 4, 7, 6)
+    assert_equal ['        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '     ♖♔ '], @board.current
+  end
+
+  def test_white_castles_on_queen_side
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ♖ ▒ ♔ ▒
+        abcdefgh
+    TEXT
+    @board.move(7, 4, 7, 2)
+    assert_equal ['        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '  ♔♖    '], @board.current
+  end
+
+  def test_black_castles_on_king_side
+    @board.setup(<<~TEXT)
+      8  ▒ ▒♚▒ ♜
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    @board.move(0, 4, 0, 6)
+    assert_equal ['     ♜♚ ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        '], @board.current
+  end
+
+  def test_black_castles_on_queen_side
+    @board.setup(<<~TEXT)
+      8 ♜▒ ▒♚▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    @board.move(0, 4, 0, 2)
+    assert_equal ['  ♚♜    ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        '], @board.current
+  end
+
   def test_get
     assert_equal '♜', @board.get(0, 0)
   end

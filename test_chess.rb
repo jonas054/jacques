@@ -33,17 +33,18 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_run_repetition_draw
+    srand 9
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines 10, <<~TEXT
-      86...f7g8
-      8  ▒ ▒ ▒♚▒
-      7 ▒ ▒ ▒ ▒
-      6  ▒ ▒ ▒ ▒
-      5 ▒ ▒ ▒ ▒♟
-      4  ▒ ▒♔▒ ♙
-      3 ▒ ▒ ▒ ▒
+      43.f2e1
+      8  ▒ ▒ ▒ ▒
+      7 ♚ ▒ ♟ ▒
+      6  ▒ ▒♙▒ ▒
+      5 ▒ ▒ ♙ ▒
+      4  ▒ ▒ ▒ ♟
+      3 ▒ ▒ ▒ ▒♙
       2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ▒ ▒
+      1 ▒ ▒ ♔ ▒
         abcdefgh
     TEXT
   end
@@ -404,6 +405,114 @@ class TestChess < Test::Unit::TestCase
       3 ▒ ▒ ▒ ▒
       2  ▒ ▒ ▒ ▒
       1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+  end
+
+  def test_white_castles_on_king_side
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔  ♖
+        abcdefgh
+    TEXT
+    move_white
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕ ♖♔
+        abcdefgh
+    TEXT
+  end
+
+  def test_white_castles_on_queen_side
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖   ♔♗♘♖
+        abcdefgh
+    TEXT
+    move_white
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1   ♔♖ ♗♘♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_castles_on_king_side
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚  ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜♞♝♛ ♜♚
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_castles_on_queen_side
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜   ♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8   ♚♜ ♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
   end

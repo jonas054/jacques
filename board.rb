@@ -89,11 +89,19 @@ class Board
     end
     @squares[new_row][new_col] =
       if is_pawn && (new_row == 0 || new_row == SIZE - 1)
+        # Pawn promotion
         (piece == '♙') ? '♕' : '♛'
       else
         piece
       end
     @squares[start_row][start_col] = EMPTY_SQUARE
+    # Castling
+    if (new_col - start_col).abs == 2 && %w[♔ ♚].include?(piece)
+      rook_start_col = new_col > start_col ? 7 : 0
+      rook = @squares[start_row][rook_start_col]
+      @squares[start_row][rook_start_col] = EMPTY_SQUARE
+      @squares[start_row][start_col + (new_col - start_col) / 2] = rook
+    end
   end
 
   def draw(last_move = [])

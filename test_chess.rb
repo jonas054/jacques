@@ -368,6 +368,46 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_wrong_rank_for_en_passant
+    @turn = 1
+    setup_board <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ♟
+      6  ▒ ▒ ▒ ♙
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    setup_board <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒♟♙
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    move_white
+    # Black only moved one step, so taking en passant is not allowed. White
+    # makes the ony possible move.
+    assert_board <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒♙
+      6  ▒ ▒ ▒♟▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+  end
+
   private def move_white
     @last_move = @chess.make_move(@turn += 1, :white)
   end

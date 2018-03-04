@@ -61,7 +61,12 @@ class Chess
   end
 
   def make_move(turn, who_to_move)
-    my_moves = legal_moves(who_to_move, @board)
+    my_moves = []
+    legal_moves(who_to_move,
+                @board) do |board, row, col, new_row, new_col, take|
+      add_move_if_legal(my_moves, board, row, col, new_row, new_col, take)
+    end
+
     return nil if my_moves.empty?
 
     checking_moves = my_moves.select { |move| is_checking_move?(move) }
@@ -89,8 +94,7 @@ class Chess
     is_checked?(new_board, other_color)
   end
 
-  def legal_moves(who_to_move, board)
-    result = []
+  def legal_moves(who_to_move, board, &block)
     Board::SIZE.times.each do |row|
       Board::SIZE.times.each do |col|
         piece_color = board.color_at(row, col)
@@ -106,13 +110,13 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at?(piece_color, new_row, new_col)
-              add_move_if_legal(result, board, row, col, new_row, new_col)
+              yield board, row, col, new_row, new_col, :can_take
               break if board.color_at?(other_color, new_row, new_col)
             end
           end
         when '♞', '♘'
           KNIGHT_DIRECTIONS.each do |r, c|
-            add_move_if_legal(result, board, row, col, row + r, col + c)
+            yield board, row, col, row + r, col + c, :can_take
           end
         when '♝', '♗'
           BISHOP_DIRECTIONS.each do |y, x|
@@ -121,13 +125,13 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at?(piece_color, new_row, new_col)
-              add_move_if_legal(result, board, row, col, new_row, new_col)
+              yield board, row, col, new_row, new_col, :can_take
               break if board.color_at?(other_color, new_row, new_col)
             end
           end
         when '♚', '♔'
           ALL_DIRECTIONS.each do |y, x|
-            add_move_if_legal(result, board, row, col, row + y, col + x)
+            yield board, row, col, row + y, col + x, :can_take
           end
           # 1. TODO: Kungen får inte stå i schack; man kan alltså inte undkomma
           # en schack genom att rockera.
@@ -150,39 +154,29 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at?(piece_color, new_row, new_col)
-              add_move_if_legal(result, board, row, col, new_row, new_col)
+              yield board, row, col, new_row, new_col, :can_take
               break if board.color_at?(other_color, new_row, new_col)
             end
           end
         when '♟', '♙'
           direction = (piece == '♟') ? 1 : -1
-          add_move_if_legal(result, board, row, col, row + direction, col,
-                            :cannot_take)
-          add_move_if_legal(result, board, row, col, row + direction, col + 1,
-                            :must_take)
-          add_move_if_legal(result, board, row, col, row + direction, col - 1,
-                            :must_take)
+          yield board, row, col, row + direction, col, :cannot_take
+          yield board, row, col, row + direction, col + 1, :must_take
+          yield board, row, col, row + direction, col - 1, :must_take
           if row == (piece == '♟' ? 1 : 6) &&
              board.empty?(row + direction, col)
-            add_move_if_legal(result, board, row, col, row + 2 * direction, col,
-                              :cannot_take)
+            yield board, row, col, row + 2 * direction, col, :cannot_take
           end
-          # Missing test: Changed '4' to '5'
-          # Missing test: Changed 'if ' to 'if true || '
           if row == (piece_color == :black ? 4 : 3)
-            # Missing test: Changed '1' to '2'
-            add_en_passant_if_legal(result, board, row, col, 1)
-            add_en_passant_if_legal(result, board, row, col, -1)
+            add_en_passant_if_legal(board, row, col, 1, &block)
+            add_en_passant_if_legal(board, row, col, -1, &block)
           end
         end
       end
     end
-    result
   end
 
-  private def add_en_passant_if_legal(result, board, row, col, col_delta)
-    # Missing test: Changed 'piece = board.get(row, col)' to 'piece = 0'
-    # Missing test: Changed 'piece = board.get(row, col)' to 'piece = nil'
+  private def add_en_passant_if_legal(board, row, col, col_delta)
     piece = board.get(row, col)
     opposite_piece = (piece == '♟') ? '♙' : '♟'
     direction = (piece == '♟') ? 1 : -1
@@ -191,13 +185,12 @@ class Chess
     if board.get(row, col + col_delta) == opposite_piece &&
        board.previous.get(row + 2 * direction, col + col_delta) ==
        opposite_piece
-      add_move_if_legal(result, board, row, col, row + direction,
-                        col + col_delta, :must_take_en_passant)
+      yield board, row, col, row + direction, col + col_delta,
+            :must_take_en_passant
     end
   end
 
-  def add_move_if_legal(result, board, row, col, new_row, new_col,
-                        take = :can_take)
+  def add_move_if_legal(result, board, row, col, new_row, new_col, take)
     return if board.outside_board?(new_row, new_col)
     taking = board.taking?(row, col, new_row, new_col) ||
              take == :must_take_en_passant
@@ -234,7 +227,11 @@ class Chess
   end
 
   def is_checked?(board, color)
-    moves = legal_moves((color == :white) ? :black : :white, board)
+    moves = []
+    other_color = (color == :white) ? :black : :white
+    legal_moves(other_color, board) do |b, row, col, new_row, new_col, take|
+      add_move_if_legal(moves, b, row, col, new_row, new_col, take)
+    end
     board.king_is_taken_by?(moves.select { |move| move =~ /x/ })
   end
 end

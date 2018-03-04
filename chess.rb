@@ -170,8 +170,8 @@ class Chess
           # Missing test: Changed '4' to '5'
           # Missing test: Changed 'if ' to 'if true || '
           if row == (piece_color == :black ? 4 : 3)
-            add_en_passant_if_legal(result, board, row, col, 1)
             # Missing test: Changed '1' to '2'
+            add_en_passant_if_legal(result, board, row, col, 1)
             add_en_passant_if_legal(result, board, row, col, -1)
           end
         end

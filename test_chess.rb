@@ -18,7 +18,7 @@ class TestChess < Test::Unit::TestCase
   def test_run_draw
     srand 4
     assert_equal 'Draw', @chess.run
-    assert_equal clean(<<~TEXT), convert($stdout.string.lines.last(10).join)
+    assert_output_lines 10, <<~TEXT
       62...f7xe6
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
@@ -34,7 +34,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_run_repetition_draw
     assert_equal 'Draw due to threefold repetition', @chess.run
-    assert_equal clean(<<~TEXT), convert($stdout.string.lines.last(10).join)
+    assert_output_lines 10, <<~TEXT
       86...f7g8
       8  ▒ ▒ ▒♚▒
       7 ▒ ▒ ▒ ▒
@@ -51,7 +51,7 @@ class TestChess < Test::Unit::TestCase
   def test_run_checkmate
     srand 390
     assert_equal 'Checkmate', @chess.run
-    assert_equal clean(<<~TEXT), convert($stdout.string.lines.last(30).join)
+    assert_output_lines 30, <<~TEXT
       3.d1h5
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟ ♟
@@ -86,7 +86,7 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_run_stalemate
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8  ▒ ▒ ▒ ♔
       7 ▒ ▒ ▒♚▒
       6  ▒ ▒ ▒♛▒
@@ -118,7 +118,7 @@ class TestChess < Test::Unit::TestCase
       5.c4xd5
       5...d7xd5
     TEXT
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜▒♝▒♚♝♞♜
       7 ♟ ♟ ♟♟♟♟
       6  ▒ ▒ ▒ ▒
@@ -143,7 +143,7 @@ class TestChess < Test::Unit::TestCase
     # The white queen is developed too early. A black pawn seizes the
     # opportunity and attacks the queen. Looks lite a smart move, but it's just
     # dumb luck.
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟ ▒♟
       6  ▒ ▒ ▒♟▒
@@ -158,7 +158,7 @@ class TestChess < Test::Unit::TestCase
     move_white
     # The white queen follows the simple rule to always take when it's
     # possible, even though the black pawn is defended by another pawn.
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟ ▒♟
       6  ▒ ▒ ▒♕▒
@@ -172,7 +172,7 @@ class TestChess < Test::Unit::TestCase
 
     move_black
     # This other pawn follows the same rule and takes the queen.
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟ ▒
       6  ▒ ▒ ▒♟▒
@@ -188,7 +188,7 @@ class TestChess < Test::Unit::TestCase
     move_black
     # The black rook takes a pawn because it can, but leaves itself open to
     # retaliation.
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞▒
       7 ♟♟♟♟♟ ▒
       6  ▒ ▒ ▒♟▒
@@ -212,16 +212,8 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
-  private def move_white
-    @last_move = @chess.make_move(@turn += 1, :white)
-  end
-
-  private def move_black
-    @last_move = @chess.make_move(@turn, :black)
-  end
-
   def test_setup
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
@@ -247,9 +239,9 @@ class TestChess < Test::Unit::TestCase
     assert_equal new_position, draw
   end
 
-  def test_en_passant
+  def test_white_takes_en_passant
     @turn = 1
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
@@ -260,7 +252,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟▒♟
       6  ▒ ▒ ▒ ▒
@@ -272,7 +264,7 @@ class TestChess < Test::Unit::TestCase
         abcdefgh
     TEXT
     move_white
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟▒♟
       6  ▒ ▒ ▒♙▒
@@ -285,9 +277,47 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_black_takes_en_passant
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟ ♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ♟ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟ ♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ♟♙▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙ ♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟ ♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ♟
+      2 ♙♙♙♙♙♙ ♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
   def test_too_late_for_en_passant
     @turn = 1
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
@@ -298,7 +328,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟▒♟
       6  ▒ ▒ ▒ ▒
@@ -309,7 +339,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    @chess.setup(clean(<<~TEXT))
+    setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟▒♟
       6  ▒ ▒ ▒ ▒
@@ -325,7 +355,7 @@ class TestChess < Test::Unit::TestCase
     # Taking the black pawn en passant is only allowed immediately after the
     # black pawn takes two steps forward. In this case white has made another
     # move in-between, so it can't take the black pawn.
-    assert_equal clean(<<~TEXT), draw
+    assert_board <<~TEXT
       8 ♜♞♝♛♚♝ ♜
       7 ♟♟♟♟♟♟▒♟
       6  ▒ ▒ ♞ ▒
@@ -336,6 +366,27 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
+  end
+
+  private def move_white
+    @last_move = @chess.make_move(@turn += 1, :white)
+  end
+
+  private def move_black
+    @last_move = @chess.make_move(@turn, :black)
+  end
+
+  private def setup_board(text)
+    @chess.setup(clean(text))
+  end
+
+  private def assert_board(text)
+    assert_equal clean(text), draw
+  end
+
+  private def assert_output_lines(nr_of_lines, text)
+    assert_equal clean(text),
+                 convert($stdout.string.lines.last(nr_of_lines).join)
   end
 
   private def draw
@@ -349,7 +400,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def clean(s)
-    s.gsub('▒', ' ')
-     .gsub(/ +$/, '')
+    s.gsub('▒', ' ').gsub(/ +$/, '')
   end
 end

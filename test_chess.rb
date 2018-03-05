@@ -419,7 +419,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1 ♖♘♗♕♔  ♖
+      1 ♖♘♗♕♔ ▒♖
         abcdefgh
     TEXT
     move_white
@@ -431,7 +431,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1 ♖♘♗♕ ♖♔
+      1 ♖♘♗♕▒♖♔
         abcdefgh
     TEXT
   end
@@ -446,7 +446,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1 ♖   ♔♗♘♖
+      1 ♖ ▒ ♔♗♘♖
         abcdefgh
     TEXT
     move_white
@@ -458,7 +458,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1   ♔♖ ♗♘♖
+      1 ▒ ♔♖▒♗♘♖
         abcdefgh
     TEXT
   end
@@ -466,7 +466,7 @@ class TestChess < Test::Unit::TestCase
   def test_black_castles_on_king_side
     @turn = 1
     setup_board <<~TEXT
-      8 ♜♞♝♛♚  ♜
+      8 ♜♞♝♛♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -478,7 +478,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_black
     assert_board <<~TEXT
-      8 ♜♞♝♛ ♜♚
+      8 ♜♞♝♛ ♜♚▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -493,7 +493,7 @@ class TestChess < Test::Unit::TestCase
   def test_black_castles_on_queen_side
     @turn = 1
     setup_board <<~TEXT
-      8 ♜   ♚♝♞♜
+      8 ♜▒ ▒♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -505,7 +505,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_black
     assert_board <<~TEXT
-      8   ♚♜ ♝♞♜
+      8  ▒♚♜ ♝♞♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -513,6 +513,60 @@ class TestChess < Test::Unit::TestCase
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
       1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_white_cannot_castle_due_to_check
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ♜ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙ ♙♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+    move_white
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ♜ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙ ♙♙♙
+      1 ♖ ▒ ▒♔▒♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_cannot_castle_due_to_check
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜   ♚  ♜
+      7 ♟♟♟♟ ♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜    ♚ ♜
+      7 ♟♟♟♟ ♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘
         abcdefgh
     TEXT
   end

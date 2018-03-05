@@ -62,8 +62,8 @@ class Chess
 
   def make_move(turn, who_to_move)
     my_moves = []
-    legal_moves(who_to_move,
-                @board) do |board, row, col, new_row, new_col, take|
+    legal_moves(who_to_move, @board,
+                :is_top_level_call) do |board, row, col, new_row, new_col, take|
       add_move_if_legal(my_moves, board, row, col, new_row, new_col, take)
     end
 
@@ -104,7 +104,7 @@ class Chess
     %w[♚ ♔].include?(@board.get(row, col)) && (new_col - col).abs == 2
   end
 
-  def legal_moves(who_to_move, board, &block)
+  def legal_moves(who_to_move, board, is_top_level_call, &block)
     Board::SIZE.times.each do |row|
       Board::SIZE.times.each do |col|
         piece_color = board.color_at(row, col)
@@ -143,29 +143,33 @@ class Chess
           ALL_DIRECTIONS.each do |y, x|
             yield board, row, col, row + y, col + x, :can_take
           end
+          # 1. Kungen får inte stå i schack; man kan alltså inte undkomma en
+          # schack genom att rockera.
+          # 2. TODO: Varken kungen eller det torn som används för rockaden får
+          # ha flyttats tidigare under partiet.
+          # 3. Inget fält mellan kungen och tornet får vara besatt av en annan
+          # pjäs; det får alltså inte stå någon annan pjäs emellan dem, oavsett
+          # färg.
+          # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
+          # får vara hotat av någon av motståndarens pjäser; man kan alltså
+          # inte flytta in i schack.
           if col == 4 && (row == 7 && piece == '♔' || row == 0 && piece == '♚')
             rook = (piece == '♔') ? '♖' : '♜'
             # King-side castle
             if board.empty?(row, 5) && board.empty?(row, 6) &&
                board.get(row, 7) == rook
-              yield board, row, col, row, col + 2, :cannot_take
+              if is_top_level_call && !is_checked?(board, piece_color)
+                yield board, row, col, row, col + 2, :cannot_take
+              end
             end
             # Queen-side castle
             if board.empty?(row, 3) && board.empty?(row, 2) &&
                board.empty?(row, 1) && board.get(row, 0) == rook
-              yield board, row, col, row, col - 2, :cannot_take
+              if is_top_level_call && !is_checked?(board, piece_color)
+                yield board, row, col, row, col - 2, :cannot_take
+              end
             end
           end
-          # 1. TODO: Kungen får inte stå i schack; man kan alltså inte undkomma
-          # en schack genom att rockera.
-          # 2. TODO: Varken kungen eller det torn som används för rockaden får
-          # ha flyttats tidigare under partiet.
-          # 3. Inget fält mellan kungen och tornet får vara besatt av en
-          # annan pjäs; det får alltså inte stå någon annan pjäs emellan dem,
-          # oavsett färg.
-          # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
-          # får vara hotat av någon av motståndarens pjäser; man kan alltså
-          # inte flytta in i schack.
         when '♛', '♕'
           ALL_DIRECTIONS.each do |y, x|
             (1...Board::SIZE).each do |scale|
@@ -248,7 +252,8 @@ class Chess
   def is_checked?(board, color)
     moves = []
     other_color = (color == :white) ? :black : :white
-    legal_moves(other_color, board) do |b, row, col, new_row, new_col, take|
+    legal_moves(other_color, board,
+                !:is_top_level_call) do |b, row, col, new_row, new_col, take|
       add_move_if_legal(moves, b, row, col, new_row, new_col, take)
     end
     board.king_is_taken_by?(moves.select { |move| move =~ /x/ })

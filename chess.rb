@@ -80,6 +80,7 @@ class Chess
                      my_moves.select { |move| move =~ /x/ }
                    end
                  end
+
     chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     start_row, start_col = @board.get_coordinates(chosen_move[/^[a-h][1-8]/])
@@ -153,20 +154,41 @@ class Chess
           # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
           # får vara hotat av någon av motståndarens pjäser; man kan alltså
           # inte flytta in i schack.
-          if col == 4 && (row == 7 && piece == '♔' || row == 0 && piece == '♚')
-            rook = (piece == '♔') ? '♖' : '♜'
-            # King-side castle
-            if board.empty?(row, 5) && board.empty?(row, 6) &&
-               board.get(row, 7) == rook
-              if is_top_level_call && !is_checked?(board, piece_color)
-                yield board, row, col, row, col + 2, :cannot_take
+          if is_top_level_call && col == 4
+            royalty_row = (piece == '♔') ? 7 : 0
+            if row == royalty_row
+              rook = (piece == '♔') ? '♖' : '♜'
+              # King-side castle
+              if board.empty?(row, 5) && board.empty?(row, 6) &&
+                 board.get(row, 7) == rook
+                attacked = false
+                legal_moves(other_color, board,
+                            false) do |_, _, _, new_row, new_col, _|
+                  if new_row == royalty_row && (4..6).include?(new_col)
+                    attacked = true
+                    break
+                  end
+                end
+
+                unless attacked
+                  yield board, row, col, row, col + 2, :cannot_take
+                end
               end
-            end
-            # Queen-side castle
-            if board.empty?(row, 3) && board.empty?(row, 2) &&
-               board.empty?(row, 1) && board.get(row, 0) == rook
-              if is_top_level_call && !is_checked?(board, piece_color)
-                yield board, row, col, row, col - 2, :cannot_take
+              # Queen-side castle
+              if board.empty?(row, 3) && board.empty?(row, 2) &&
+                 board.empty?(row, 1) && board.get(row, 0) == rook
+                attacked = false
+                legal_moves(other_color, board,
+                            false) do |_, _, _, new_row, new_col, _|
+                  if new_row == royalty_row && (1..4).include?(new_col)
+                    attacked = true
+                    break
+                  end
+                end
+
+                unless attacked
+                  yield board, row, col, row, col - 2, :cannot_take
+                end
               end
             end
           end

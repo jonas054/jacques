@@ -571,6 +571,60 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_white_cannot_castle_due_to_empty_squares_being_attacked
+    @turn = 1
+    setup_board <<~TEXT
+      8  ♞♝♛♚♝♞
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒♜ ♜▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙▒♙▒♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+    move_white
+    assert_board <<~TEXT
+      8  ♞♝♛♚♝♞
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒♜ ♜▒
+      4  ▒♙▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙ ▒♙▒♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_cannot_castle_due_to_empty_squares_being_attacked
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜   ♚  ♜
+      7 ♟♟♟ ♟ ♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♖ ♖ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ♙♙♙♙♙♙▒
+      1 ▒♘♗♕♔♗♘
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜   ♚  ♜
+      7  ♟♟ ♟ ♟♟
+      6 ♟▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♖ ♖ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ♙♙♙♙♙♙▒
+      1 ▒♘♗♕♔♗♘
+        abcdefgh
+    TEXT
+  end
+
   private def move_white
     @last_move = @chess.make_move(@turn += 1, :white)
   end

@@ -625,6 +625,168 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_white_cannot_castle_because_its_king_has_moved
+    board = Board.new
+    @chess = Chess.new(board)
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖ ▒  ♔▒♖
+        abcdefgh
+    TEXT
+    board.move(7, 5, 7, 4)
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+    move_white    
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒♙▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙ ♙♙♙♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_cannot_castle_because_its_king_has_moved
+    board = Board.new
+    @chess = Chess.new(board)
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜   ♚  ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    board.move(0, 4, 0, 5)
+    board.move(0, 5, 0, 4)
+    move_black  
+    assert_board <<~TEXT
+      8 ♜   ♚ ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_white_cannot_castle_because_rooks_have_moved
+    srand 2
+    board = Board.new
+    @chess = Chess.new(board)
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖ ▒ ♔  ♖
+        abcdefgh
+    TEXT
+    board.move(7, 7, 7, 6)
+    board.move(7, 6, 7, 7)
+    board.move(7, 0, 7, 1)
+    board.move(7, 1, 7, 0)
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+    move_white    
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒
+      2 ♙♙♙♙ ♙♙♙
+      1 ♖ ▒ ♔ ▒♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_black_cannot_castle_because_rooks_have_moved
+    srand 2
+    board = Board.new
+    @chess = Chess.new(board)
+    @turn = 1
+    setup_board <<~TEXT
+      8 ♜   ♚  ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    board.move(0, 0, 0, 1)
+    board.move(0, 1, 0, 0)
+    board.move(0, 7, 0, 6)
+    board.move(0, 6, 0, 7)
+    assert_board <<~TEXT
+      8 ♜   ♚  ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜   ♚  ♜
+      7  ♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ♟ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♙♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
   private def move_white
     @last_move = @chess.make_move(@turn += 1, :white)
   end

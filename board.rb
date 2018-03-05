@@ -27,6 +27,9 @@ class Board
         end
       end
     end
+    @movements = {}
+    @movements[:white] = {}
+    @movements[:black] = {}
   end
 
   def setup(contents)
@@ -79,10 +82,36 @@ class Board
       WHITE_PIECES.include?(get(new_row, new_col))
   end
 
+  def king_has_moved?(color)
+    @movements[color][:king]
+  end
+
+  def king_side_rook_has_moved?(color)
+    @movements[color][:king_side_rook]
+  end
+
+  def queen_side_rook_has_moved?(color)
+    @movements[color][:queen_side_rook]
+  end
+
   def move(start_row, start_col, new_row, new_col)
     @previous = Board.new(self)
     piece = @squares[start_row][start_col]
-    is_pawn = %w[♙ ♟].include?(piece)
+    color = color_at(start_row, start_col)
+
+    case piece
+    when '♙', '♟'
+      is_pawn = true
+    when '♔', '♚'
+      is_king = true
+      @movements[color][:king] = true
+    when '♖', '♜'
+      case start_col
+      when 0 then @movements[color][:queen_side_rook] = true
+      when 7 then @movements[color][:king_side_rook] = true
+      end
+    end
+
     if is_pawn && start_col != new_col && empty?(new_row, new_col)
       # Taking en passant
       @squares[start_row][new_col] = EMPTY_SQUARE
@@ -96,7 +125,7 @@ class Board
       end
     @squares[start_row][start_col] = EMPTY_SQUARE
     # Castling
-    if (new_col - start_col).abs == 2 && %w[♔ ♚].include?(piece)
+    if (new_col - start_col).abs == 2 && is_king
       rook_start_col = new_col > start_col ? 7 : 0
       rook = @squares[start_row][rook_start_col]
       @squares[start_row][rook_start_col] = EMPTY_SQUARE

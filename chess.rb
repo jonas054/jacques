@@ -21,8 +21,8 @@ end
 BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 
 class Chess
-  def initialize
-    @board = Board.new
+  def initialize(board = nil)
+    @board = board || Board.new
   end
 
   def setup(contents)
@@ -170,7 +170,9 @@ class Chess
                   end
                 end
 
-                unless attacked
+                unless attacked ||
+                       board.king_has_moved?(piece_color) ||
+                       board.king_side_rook_has_moved?(piece_color)
                   yield board, row, col, row, col + 2, :cannot_take
                 end
               end
@@ -186,7 +188,9 @@ class Chess
                   end
                 end
 
-                unless attacked
+                unless attacked ||
+                       board.king_has_moved?(piece_color) ||
+                       board.queen_side_rook_has_moved?(piece_color)
                   yield board, row, col, row, col - 2, :cannot_take
                 end
               end

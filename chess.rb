@@ -40,7 +40,12 @@ class Chess
     loop do
       i += 1
       color = i.even? ? :white : :black
-      move = make_move(i / 2 + 1, color)
+      turn = i / 2 + 1
+      move = if ARGV.include?('-h') && color == :white
+        get_human_move(turn)
+      else
+        make_move(turn, color)
+      end
 
       if move.nil?
         return is_checked?(@board, color) ? 'Checkmate' : 'Stalemate'
@@ -58,6 +63,11 @@ class Chess
 
   def draw(args)
     @board.draw(args)
+  end
+
+  def get_human_move(turn)
+    print "White move: #{turn}."
+    move_piece($stdin.gets.chomp)
   end
 
   def make_move(turn, who_to_move)
@@ -83,6 +93,10 @@ class Chess
 
     chosen_move = (best_moves.any? ? best_moves : my_moves).sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
+    move_piece(chosen_move)
+  end
+
+  def move_piece(chosen_move)
     start_row, start_col = @board.get_coordinates(chosen_move[/^[a-h][1-8]/])
     new_row, new_col = @board.get_coordinates(chosen_move[/[a-h][1-8]$/])
     @board.move(start_row, start_col, new_row, new_col)

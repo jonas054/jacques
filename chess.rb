@@ -29,11 +29,11 @@ class Chess
     @board.setup(contents)
   end
 
-  def main
-    puts run
+  def main(args)
+    puts run(args)
   end
 
-  def run
+  def run(args = [])
     puts @board.draw
     i = -1
     positions = []
@@ -41,7 +41,7 @@ class Chess
       i += 1
       color = i.even? ? :white : :black
       turn = i / 2 + 1
-      move = if ARGV.include?('-h') && color == :white
+      move = if args.include?('-h') && color == :white
         get_human_move(turn)
       else
         make_move(turn, color)
@@ -66,8 +66,14 @@ class Chess
   end
 
   def get_human_move(turn)
-    print "White move: #{turn}."
-    move_piece($stdin.gets.chomp)
+    move = nil
+    loop do
+      print "White move: #{turn}."
+      move = $stdin.gets.chomp
+      break if legal?(move)
+      puts 'Illegal move'
+    end
+    move_piece(move)
   end
 
   def make_move(turn, who_to_move)
@@ -119,9 +125,23 @@ class Chess
     %w[♚ ♔].include?(@board.get(row, col)) && (new_col - col).abs == 2
   end
 
-  def legal_moves(who_to_move, board, is_top_level_call, &block)
+  def legal?(move)
+    row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
+    new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
+    legal_moves(@board.color_at(row, col), @board, true,
+                [row, col]) do |_, _, _, nr, nc, _|
+      return true if nr == new_row && nc == new_col
+    end
+    false
+  end
+
+  def legal_moves(who_to_move, board, is_top_level_call, only_from = nil, &block)
     Board::SIZE.times.each do |row|
+      next if only_from && row != only_from[0]
+
       Board::SIZE.times.each do |col|
+        next if only_from && col != only_from[1]
+
         piece_color = board.color_at(row, col)
         next unless piece_color == who_to_move
 
@@ -300,4 +320,4 @@ class Chess
   end
 end
 
-Chess.new.main if $PROGRAM_NAME == __FILE__
+Chess.new.main(ARGV) if $PROGRAM_NAME == __FILE__

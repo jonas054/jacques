@@ -9,6 +9,7 @@ class TestChess < Test::Unit::TestCase
     $stdout = StringIO.new
     srand 1
     @last_move = []
+    @turn = 1
   end
 
   def teardown
@@ -241,7 +242,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_white_takes_en_passant
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -279,7 +279,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_black_takes_en_passant
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟ ♟♟
@@ -317,7 +316,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_too_late_for_en_passant
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -370,7 +368,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_wrong_rank_for_en_passant
-    @turn = 1
     setup_board <<~TEXT
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ♟
@@ -410,7 +407,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_white_castles_on_king_side
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -437,7 +433,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_white_castles_on_queen_side
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -464,7 +459,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_black_castles_on_king_side
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -491,7 +485,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_black_castles_on_queen_side
-    @turn = 1
     setup_board <<~TEXT
       8 ♜▒ ▒♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -518,9 +511,8 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_white_cannot_castle_due_to_check
-    @turn = 1
     setup_board <<~TEXT
-      8 ♜♞♝♛♚♝♞
+      8 ♜♞♝♛♚♝♞▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ♜ ▒
@@ -532,7 +524,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_white
     assert_board <<~TEXT
-      8 ♜♞♝♛♚♝♞
+      8 ♜♞♝♛♚♝♞▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ♜ ▒
@@ -545,9 +537,8 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_black_cannot_castle_due_to_check
-    @turn = 1
     setup_board <<~TEXT
-      8 ♜   ♚  ♜
+      8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟ ♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -559,7 +550,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_black
     assert_board <<~TEXT
-      8 ♜    ♚ ♜
+      8 ♜▒ ▒ ♚ ♜
       7 ♟♟♟♟ ♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -572,9 +563,8 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_white_cannot_castle_due_to_empty_squares_being_attacked
-    @turn = 1
     setup_board <<~TEXT
-      8  ♞♝♛♚♝♞
+      8  ♞♝♛♚♝♞▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒♜ ♜▒
@@ -586,7 +576,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_white
     assert_board <<~TEXT
-      8  ♞♝♛♚♝♞
+      8  ♞♝♛♚♝♞▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒♜ ♜▒
@@ -599,9 +589,8 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_black_cannot_castle_due_to_empty_squares_being_attacked
-    @turn = 1
     setup_board <<~TEXT
-      8 ♜   ♚  ♜
+      8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟ ♟ ♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -613,8 +602,8 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_black
     assert_board <<~TEXT
-      8 ♜   ♚  ♜
-      7  ♟♟ ♟ ♟♟
+      8 ♜▒ ▒♚▒ ♜
+      7 ▒♟♟ ♟ ♟♟
       6 ♟▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ♖ ♖ ▒
@@ -628,7 +617,6 @@ class TestChess < Test::Unit::TestCase
   def test_white_cannot_castle_because_its_king_has_moved
     board = Board.new
     @chess = Chess.new(board)
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -637,7 +625,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1 ♖ ▒  ♔▒♖
+      1 ♖ ▒ ▒♔▒♖
         abcdefgh
     TEXT
     board.move(7, 5, 7, 4)
@@ -669,9 +657,8 @@ class TestChess < Test::Unit::TestCase
   def test_black_cannot_castle_because_its_king_has_moved
     board = Board.new
     @chess = Chess.new(board)
-    @turn = 1
     setup_board <<~TEXT
-      8 ♜   ♚  ♜
+      8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -685,7 +672,7 @@ class TestChess < Test::Unit::TestCase
     board.move(0, 5, 0, 4)
     move_black  
     assert_board <<~TEXT
-      8 ♜   ♚ ♜
+      8 ♜▒ ▒♚▒♜▒
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -701,7 +688,6 @@ class TestChess < Test::Unit::TestCase
     srand 2
     board = Board.new
     @chess = Chess.new(board)
-    @turn = 1
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -746,9 +732,8 @@ class TestChess < Test::Unit::TestCase
     srand 2
     board = Board.new
     @chess = Chess.new(board)
-    @turn = 1
     setup_board <<~TEXT
-      8 ♜   ♚  ♜
+      8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -763,7 +748,7 @@ class TestChess < Test::Unit::TestCase
     board.move(0, 7, 0, 6)
     board.move(0, 6, 0, 7)
     assert_board <<~TEXT
-      8 ♜   ♚  ♜
+      8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -775,8 +760,8 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_black
     assert_board <<~TEXT
-      8 ♜   ♚  ♜
-      7  ♟♟♟♟♟♟♟
+      8 ♜▒ ▒♚▒ ♜
+      7 ▒♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ♟ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
@@ -784,6 +769,46 @@ class TestChess < Test::Unit::TestCase
       2 ♙♙♙♙♙♙♙♙
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
+    TEXT
+  end
+
+  def test_human_interaction
+    # The first move is legal, the second one is not. The user will be prompted
+    # for a correct move, which the last one is.
+    $stdin = StringIO.new(<<~TEXT)
+      e2e4
+      e1e3
+      e1e2
+    TEXT
+    @chess.get_human_move(1)
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♙▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙ ♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black    
+    @chess.get_human_move(2)
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7  ♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ♟ ▒ ▒ ▒
+      4  ▒ ▒♙▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2 ♙♙♙♙♔♙♙♙
+      1 ♖♘♗♕▒♗♘♖
+        abcdefgh
+    TEXT
+    assert_equal <<~TEXT.chomp, $stdout.string
+      White move: 1.1...a7a5
+      White move: 2.Illegal move
+      White move: 2.
     TEXT
   end
 

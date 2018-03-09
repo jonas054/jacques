@@ -20,69 +20,69 @@ class TestChess < Test::Unit::TestCase
     srand 4
     assert_equal 'Draw', @chess.run
     assert_output_lines 10, <<~TEXT
-      62...f7xe6
+      69.g2xg3
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
-      6  ▒ ▒♚▒ ▒
+      6  ▒ ▒ ▒♚▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ♔
       2  ▒ ▒ ▒ ▒
-      1 ▒ ▒♔▒ ▒
+      1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
   end
 
   def test_run_repetition_draw
-    srand 9
+    srand 2
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines 10, <<~TEXT
-      43.f2e1
-      8  ▒ ▒ ▒ ▒
-      7 ♚ ▒ ♟ ▒
-      6  ▒ ▒♙▒ ▒
-      5 ▒ ▒ ♙ ▒
-      4  ▒ ▒ ▒ ♟
-      3 ▒ ▒ ▒ ▒♙
-      2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ♔ ▒
+      20...a4a5
+      8 ♜♞♝▒ ♝♞♜
+      7 ♟♟▒ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ♚ ▒♘▒ ▒
+      4  ▒♕▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖ ♗ ♔ ♘♖
         abcdefgh
     TEXT
   end
 
   def test_run_checkmate
-    srand 390
+    srand 7
     assert_equal 'Checkmate', @chess.run
     assert_output_lines 30, <<~TEXT
-      3.d1h5
-      8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ♟
+      12...a8xa2
+      8  ♞♝▒ ▒♞▒
+      7 ▒ ♛♟♟♟♚♜
       6  ▒ ▒ ▒ ♟
-      5 ▒ ▒ ▒♟▒♕
-      4  ▒ ▒♙▒ ▒
-      3 ▒ ♙ ▒ ▒
-      2 ♙♙ ♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
+      5 ▒♟♟ ▒ ▒
+      4  ▒ ▒ ▒♙♙
+      3 ▒♙▒ ▒ ▒
+      2 ♜▒♙♙♙♙ ▒
+      1   ▒ ♔♗♘♖
         abcdefgh
-      3...g7g6
-      8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ▒
-      6  ▒ ▒ ▒♟♟
-      5 ▒ ▒ ▒♟▒♕
-      4  ▒ ▒♙▒ ▒
-      3 ▒ ♙ ▒ ▒
-      2 ♙♙ ♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
+      13.h4h5
+      8  ♞♝▒ ▒♞▒
+      7 ▒ ♛♟♟♟♚♜
+      6  ▒ ▒ ▒ ♟
+      5 ▒♟♟ ▒ ▒♙
+      4  ▒ ▒ ▒♙▒
+      3 ▒♙▒ ▒ ▒
+      2 ♜▒♙♙♙♙ ▒
+      1   ▒ ♔♗♘♖
         abcdefgh
-      4.h5xg6
-      8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ▒
-      6  ▒ ▒ ▒♕♟
-      5 ▒ ▒ ▒♟▒
-      4  ▒ ▒♙▒ ▒
-      3 ▒ ♙ ▒ ▒
-      2 ♙♙ ♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
+      13...a2a1
+      8  ♞♝▒ ▒♞▒
+      7 ▒ ♛♟♟♟♚♜
+      6  ▒ ▒ ▒ ♟
+      5 ▒♟♟ ▒ ▒♙
+      4  ▒ ▒ ▒♙▒
+      3 ▒♙▒ ▒ ▒
+      2  ▒♙♙♙♙ ▒
+      1 ♜ ▒ ♔♗♘♖
         abcdefgh
     TEXT
   end
@@ -110,24 +110,24 @@ class TestChess < Test::Unit::TestCase
     end
     assert_equal <<~TEXT, $stdout.string
       1.c2c4
-      1...d7d5
+      1...e7e5
       2.d1a4
-      2...b7b5
-      3.a4xb5
-      3...b8d7
-      4.b5xd7
-      4...d8xd7
-      5.c4xd5
-      5...d7xd5
+      2...g8e7
+      3.a4xd7
+      3...e8xd7
+      4.g2g3
+      4...d7d6
+      5.c4c5
+      5...d6xc5
     TEXT
     assert_board <<~TEXT
-      8 ♜▒♝▒♚♝♞♜
-      7 ♟ ♟ ♟♟♟♟
+      8 ♜♞♝♛ ♝ ♜
+      7 ♟♟♟ ♞♟♟♟
       6  ▒ ▒ ▒ ▒
-      5 ▒ ▒♛▒ ▒
+      5 ▒ ♚ ♟ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙ ♙♙♙♙♙
+      3 ▒ ▒ ▒ ♙
+      2 ♙♙ ♙♙♙ ♙
       1 ♖♘♗ ♔♗♘♖
         abcdefgh
     TEXT
@@ -142,75 +142,74 @@ class TestChess < Test::Unit::TestCase
       move_white
       move_black
     end
-    # The white queen is developed too early. A black pawn seizes the
-    # opportunity and attacks the queen. Looks lite a smart move, but it's just
-    # dumb luck.
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ▒♟
-      6  ▒ ▒ ▒♟▒
-      5 ▒ ▒ ▒♟▒♕
+      7 ♟♟♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒ ▒♟▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒
-      2 ♙♙♙♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
-        abcdefgh
-    TEXT
-
-    move_white
-    # The white queen follows the simple rule to always take when it's
-    # possible, even though the black pawn is defended by another pawn.
-    assert_board <<~TEXT
-      8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ▒♟
-      6  ▒ ▒ ▒♕▒
-      5 ▒ ▒ ▒♟▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒
-      2 ♙♙♙♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
-        abcdefgh
-    TEXT
-
-    move_black
-    # This other pawn follows the same rule and takes the queen.
-    assert_board <<~TEXT
-      8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟ ▒
-      6  ▒ ▒ ▒♟▒
-      5 ▒ ▒ ▒♟▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒
-      2 ♙♙♙♙ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
-        abcdefgh
-    TEXT
-
-    move_white
-    move_black
-    # The black rook takes a pawn because it can, but leaves itself open to
-    # retaliation.
-    assert_board <<~TEXT
-      8 ♜♞♝♛♚♝♞▒
-      7 ♟♟♟♟♟ ▒
-      6  ▒ ▒ ▒♟▒
-      5 ▒ ▒ ▒♟▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒♜
+      3 ▒ ▒ ♙ ▒♙
       2 ♙♙♙♙ ♙♙
-      1 ♖♘♗ ♔♗♘♖
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+
+    move_white
+    # Two pawn moves each, then white's light square bishop follows the simple
+    # rule to check when it's possible.
+    assert_board <<~TEXT
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♗▒♟▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖♘♗♕♔ ♘♖
+        abcdefgh
+    TEXT
+
+    move_black
+    # Black chooses randomly among the moves that removes the check. It's not a
+    # good one, sacrificing the queen.
+    assert_board <<~TEXT
+      8 ♜♞♝▒♚♝♞♜
+      7 ♟♟♟♛♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♗▒♟▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖♘♗♕♔ ♘♖
+        abcdefgh
+    TEXT
+
+    move_white
+    move_black
+    # The white bihop takes the queen, not because it's a valuable piece, just
+    # because it's the only piece that can be taken. The black king takes the
+    # bishop.
+    assert_board <<~TEXT
+      8 ♜♞♝▒ ♝♞♜
+      7 ♟♟♟♚♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒ ▒♟▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙
+      1 ♖♘♗♕♔ ♘♖
         abcdefgh
     TEXT
 
     assert_equal <<~TEXT, $stdout.string
       1.e2e3
-      1...f7f5
-      2.d1h5
-      2...g7g6
-      3.h5xg6
-      3...h7xg6
-      4.h2h3
-      4...h8xh3
+      1...h7h6
+      2.h2h3
+      2...d7d5
+      3.f1b5
+      3...d8d7
+      4.b5xd7
+      4...e8xd7
     TEXT
   end
 
@@ -355,14 +354,14 @@ class TestChess < Test::Unit::TestCase
     # black pawn takes two steps forward. In this case white has made another
     # move in-between, so it can't take the black pawn.
     assert_board <<~TEXT
-      8 ♜♞♝♛♚♝ ♜
-      7 ♟♟♟♟♟♟▒♟
-      6  ▒ ▒ ♞ ▒
-      5 ▒ ▒ ▒ ♟♙
-      4  ▒ ▒♙♙ ▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙♙♙ ▒♙▒
-      1 ♖♘♗♕♔♗♘♖
+      8 ♜♞♝♛♚♝♞♜
+      7  ♟♟♟♟♟▒♟
+      6  ▒ ▒ ▒ ▒
+      5 ♟ ▒ ▒ ♟♙
+      4  ▒ ▒♙▒ ▒
+      3 ▒ ♘ ▒ ▒
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖ ♗♕♔♗♘♖
         abcdefgh
     TEXT
   end
@@ -603,8 +602,8 @@ class TestChess < Test::Unit::TestCase
     move_black
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
-      7 ▒♟♟ ♟ ♟♟
-      6 ♟▒ ▒ ▒ ▒
+      7 ♟ ♟ ♟ ♟♟
+      6  ♟ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ♖ ♖ ▒
       3 ▒ ▒ ▒ ▒
@@ -796,9 +795,9 @@ class TestChess < Test::Unit::TestCase
     @chess.get_human_move(2)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7  ♟♟♟♟♟♟♟
-      6  ▒ ▒ ▒ ▒
-      5 ♟ ▒ ▒ ▒
+      7 ♟♟ ♟♟♟♟♟
+      6  ▒♟▒ ▒ ▒
+      5   ▒ ▒ ▒
       4  ▒ ▒♙▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♔♙♙♙
@@ -806,7 +805,7 @@ class TestChess < Test::Unit::TestCase
         abcdefgh
     TEXT
     assert_equal <<~TEXT.chomp, $stdout.string
-      White move: 1.1...a7a5
+      White move: 1.1...c7c6
       White move: 2.Illegal move
       White move: 2.
     TEXT

@@ -95,7 +95,20 @@ class Chess
                    end
                  end
 
-    chosen_move = (best_moves.any? ? best_moves : my_moves).sample
+    chosen_moves = if best_moves.any?
+                     best_moves
+                   else
+                     my_moves
+                   end
+    other_color = (who_to_move == :white) ? :black : :white
+    legal_moves(other_color, @board,
+                :is_top_level_call) do |_, _, _, r, c, take|
+      next if take == :cannot_take
+      dangerous =
+        chosen_moves.select { |m| m.end_with?(position(r, c)) }
+      chosen_moves -= dangerous if dangerous.size < chosen_moves.size
+    end
+    chosen_move = chosen_moves.sample
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     move_piece(chosen_move)
   end

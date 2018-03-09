@@ -159,7 +159,9 @@ class Chess
           end
         when '♞', '♘'
           KNIGHT_DIRECTIONS.each do |r, c|
-            yield board, row, col, row + r, col + c, :can_take
+            unless board.outside_board?(row + r, col + c)
+              yield board, row, col, row + r, col + c, :can_take
+            end
           end
         when '♝', '♗'
           BISHOP_DIRECTIONS.each do |y, x|
@@ -198,8 +200,8 @@ class Chess
         when '♟', '♙'
           direction = (piece == '♟') ? 1 : -1
           yield board, row, col, row + direction, col, :cannot_take
-          yield board, row, col, row + direction, col + 1, :must_take
-          yield board, row, col, row + direction, col - 1, :must_take
+          yield board, row, col, row + direction, col + 1, :must_take if col < 7
+          yield board, row, col, row + direction, col - 1, :must_take if col > 0
           if row == (piece == '♟' ? 1 : 6) &&
              board.empty?(row + direction, col)
             yield board, row, col, row + 2 * direction, col, :cannot_take
@@ -261,7 +263,6 @@ class Chess
   end
 
   def add_move_if_legal(result, board, row, col, new_row, new_col, take)
-    return if board.outside_board?(new_row, new_col)
     taking = board.taking?(row, col, new_row, new_col) ||
              take == :must_take_en_passant
     unless @just_looking

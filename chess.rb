@@ -4,12 +4,10 @@ require 'rainbow'
 require_relative 'board'
 
 # TODO:
-# - Castling
 # - Semi-smart selection of piece at pawn promotion (i.e. knight if that leads
 #   to immediate checkmate)
 # - Smarter selection of moves (scoring engine)
 # - Opening book
-# - Human opponent
 ALL_DIRECTIONS =
   [-1, 0, 1].repeated_permutation(2).reject { |y, x| x == 0 && y == 0 }
 ROOK_DIRECTIONS = [-1, 0, 1].repeated_permutation(2).reject do |x, y|
@@ -176,59 +174,15 @@ class Chess
           end
         when '♚', '♔'
           ALL_DIRECTIONS.each do |y, x|
-            yield board, row, col, row + y, col + x, :can_take
-          end
-          # 1. Kungen får inte stå i schack; man kan alltså inte undkomma en
-          # schack genom att rockera.
-          # 2. TODO: Varken kungen eller det torn som används för rockaden får
-          # ha flyttats tidigare under partiet.
-          # 3. Inget fält mellan kungen och tornet får vara besatt av en annan
-          # pjäs; det får alltså inte stå någon annan pjäs emellan dem, oavsett
-          # färg.
-          # 4. TODO: Inget av de fält som kungen rör sig över, eller hamnar på,
-          # får vara hotat av någon av motståndarens pjäser; man kan alltså
-          # inte flytta in i schack.
-          if is_top_level_call && col == 4
-            royalty_row = (piece == '♔') ? 7 : 0
-            if row == royalty_row
-              rook = (piece == '♔') ? '♖' : '♜'
-              # King-side castle
-              if board.empty?(row, 5) && board.empty?(row, 6) &&
-                 board.get(row, 7) == rook
-                attacked = false
-                legal_moves(other_color, board,
-                            false) do |_, _, _, new_row, new_col, _|
-                  if new_row == royalty_row && (4..6).include?(new_col)
-                    attacked = true
-                    break
-                  end
-                end
-
-                unless attacked ||
-                       board.king_has_moved?(piece_color) ||
-                       board.king_side_rook_has_moved?(piece_color)
-                  yield board, row, col, row, col + 2, :cannot_take
-                end
-              end
-              # Queen-side castle
-              if board.empty?(row, 3) && board.empty?(row, 2) &&
-                 board.empty?(row, 1) && board.get(row, 0) == rook
-                attacked = false
-                legal_moves(other_color, board,
-                            false) do |_, _, _, new_row, new_col, _|
-                  if new_row == royalty_row && (1..4).include?(new_col)
-                    attacked = true
-                    break
-                  end
-                end
-
-                unless attacked ||
-                       board.king_has_moved?(piece_color) ||
-                       board.queen_side_rook_has_moved?(piece_color)
-                  yield board, row, col, row, col - 2, :cannot_take
-                end
-              end
+            unless board.outside_board?(row + y, col + x)
+              yield board, row, col, row + y, col + x, :can_take
             end
+          end
+          if is_top_level_call && col == 4
+            # King-side castle
+            find_castle_move(board, row, col, 5..6, 4..6, 7, &block)
+            # Queen-side castle
+            find_castle_move(board, row, col, 1..3, 1..4, 0, &block)
           end
         when '♛', '♕'
           ALL_DIRECTIONS.each do |y, x|
@@ -255,6 +209,39 @@ class Chess
             add_en_passant_if_legal(board, row, col, -1, &block)
           end
         end
+      end
+    end
+  end
+
+  private def find_castle_move(board, row, col, empty_columns,
+                               unattacked_columns, rook_column, &block)
+    piece_color = board.color_at(row, col)
+    royalty_row = (piece_color == :white) ? 7 : 0
+    return unless row == royalty_row
+
+    rook = (piece_color == :white) ? '♖' : '♜'
+    if empty_columns.all? { |x| board.empty?(row, x) } &&
+       board.get(row, rook_column) == rook
+      attacked = false
+      other_color = (piece_color == :white) ? :black : :white
+      royalty_row = (piece_color == :white) ? 7 : 0
+      legal_moves(other_color, board, false) do |_, _, _, new_row, new_col, _|
+        if new_row == royalty_row &&
+           unattacked_columns.include?(new_col)
+          attacked = true
+          break
+        end
+      end
+
+      rook_has_moved = if rook_column == 0
+                         board.queen_side_rook_has_moved?(piece_color)
+                       else
+                         board.king_side_rook_has_moved?(piece_color)
+                       end
+
+      unless attacked || board.king_has_moved?(piece_color) || rook_has_moved
+        king_destination = (rook_column == 0) ? col - 2 : col + 2
+        yield board, row, col, row, king_destination, :cannot_take
       end
     end
   end

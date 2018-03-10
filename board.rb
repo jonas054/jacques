@@ -21,6 +21,7 @@ class Board
   attr_reader :previous
 
   def initialize(original = nil)
+    @rules = RuleBook.new
     @squares = INITIAL_BOARD.join('-').split(/-/)
     if original
       (0...SIZE).each do |row|
@@ -66,6 +67,54 @@ class Board
       end
     end
     true
+  end
+
+  def is_checked?(color)
+    moves = []
+    other_color = (color == :white) ? :black : :white
+    @rules.legal_moves(other_color, self,
+                       # This is not a condition! How is this a condition?
+                       # rubocop:disable Lint/LiteralAsCondition
+                       !:is_top_level_call) do |b, coord, new_coord, take|
+      # rubocop:enable Lint/LiteralAsCondition
+      b.add_move_if_legal(moves, coord, new_coord, take)
+    end
+    king_is_taken_by?(moves.select { |move| move =~ /x/ })
+  end
+
+  def add_move_if_legal(result, coord, new_coord, take)
+    taking = take == :must_take_en_passant ||
+             taking?(coord.row, coord.col, new_coord.row, new_coord.col)
+    unless $just_looking
+      new_board = Board.new(self)
+      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
+      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
+
+      $just_looking = true
+      is_checked = new_board.is_checked?(color_of_moving_piece)
+      $just_looking = false
+      return if is_checked
+    end
+
+    is_legal = case take
+               when :cannot_take
+                 empty?(new_coord.row, new_coord.col)
+               when :must_take
+                 taking
+               when :can_take
+                 empty?(new_coord.row, new_coord.col) || taking
+               when :must_take_en_passant
+                 true # conditions already checked
+               end
+    if is_legal
+      result << (position(coord.row, coord.col) + (taking ? 'x' : '') +
+                 position(new_coord.row, new_coord.col))
+    end
+  end
+
+  # Converts 1, 2 into "b6".
+  def position(row, col)
+    "#{'abcdefgh'[col]}#{Board::SIZE - row}"
   end
 
   def outside_board?(row, col)

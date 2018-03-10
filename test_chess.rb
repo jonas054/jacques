@@ -34,55 +34,56 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_run_repetition_draw
-    srand 2
+    srand 14
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines 10, <<~TEXT
-      20...a4a5
-      8 ♜♞♝▒ ♝♞♜
-      7 ♟♟▒ ♟♟♟
-      6  ▒ ▒ ▒ ♟
-      5 ♚ ▒♘▒ ▒
-      4  ▒♕▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒♙
-      2 ♙♙♙♙ ♙♙▒
-      1 ♖ ♗ ♔ ♘♖
+      8...h5h4
+      8 ♜♞♝▒♚♝♞♜
+      7 ♟♟♟♟▒♟♟♟
+      6  ▒ ▒♟▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ♙ ♛
+      3 ▒ ▒ ♙ ▒
+      2 ♙♙♙♙ ♔♙♙
+      1 ♖♘♗♕▒♗♘♖
         abcdefgh
     TEXT
   end
 
   def test_run_checkmate
-    srand 7
+    # Fastest possible checkmate win for black.
+    srand 49
     assert_equal 'Checkmate', @chess.run
     assert_output_lines 30, <<~TEXT
-      12...a8xa2
-      8  ♞♝▒ ▒♞▒
-      7 ▒ ♛♟♟♟♚♜
-      6  ▒ ▒ ▒ ♟
-      5 ▒♟♟ ▒ ▒
-      4  ▒ ▒ ▒♙♙
-      3 ▒♙▒ ▒ ▒
-      2 ♜▒♙♙♙♙ ▒
-      1   ▒ ♔♗♘♖
+      1...e7e5
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟▒♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ♟ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒♙▒
+      2 ♙♙♙♙♙▒♙♙
+      1 ♖♘♗♕♔♗♘♖
         abcdefgh
-      13.h4h5
-      8  ♞♝▒ ▒♞▒
-      7 ▒ ♛♟♟♟♚♜
-      6  ▒ ▒ ▒ ♟
-      5 ▒♟♟ ▒ ▒♙
+      2.g2g4
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟▒♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ♟ ▒
       4  ▒ ▒ ▒♙▒
-      3 ▒♙▒ ▒ ▒
-      2 ♜▒♙♙♙♙ ▒
-      1   ▒ ♔♗♘♖
+      3 ▒ ▒ ▒♙▒
+      2 ♙♙♙♙♙▒ ♙
+      1 ♖♘♗♕♔♗♘♖
         abcdefgh
-      13...a2a1
-      8  ♞♝▒ ▒♞▒
-      7 ▒ ♛♟♟♟♚♜
-      6  ▒ ▒ ▒ ♟
-      5 ▒♟♟ ▒ ▒♙
-      4  ▒ ▒ ▒♙▒
-      3 ▒♙▒ ▒ ▒
-      2  ▒♙♙♙♙ ▒
-      1 ♜ ▒ ♔♗♘♖
+      2...d8h4
+      8 ♜♞♝▒♚♝♞♜
+      7 ♟♟♟♟▒♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ♟ ▒
+      4  ▒ ▒ ▒♙♛
+      3 ▒ ▒ ▒♙▒
+      2 ♙♙♙♙♙▒ ♙
+      1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
   end

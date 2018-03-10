@@ -213,6 +213,83 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_a_few_other_moves_detailed
+    srand 3
+    @last_move = nil
+    @turn = 0
+
+    2.times do
+      move_white
+      move_black
+    end
+    # White starts with two pawn moves, black with knights.
+    assert_board <<~TEXT
+      8 ♜▒♝♛♚♝ ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒♞▒ ♞ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♙ ▒ ▒
+      3 ▒ ▒ ▒♙▒
+      2 ♙♙♙▒♙▒♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+
+    move_white
+    # Then a knight from white.
+    assert_board <<~TEXT
+      8 ♜▒♝♛♚♝ ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒♞▒ ♞ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♙ ▒ ▒
+      3 ▒ ▒ ▒♙▒♘
+      2 ♙♙♙▒♙▒♙♙
+      1 ♖♘♗♕♔♗▒♖
+        abcdefgh
+    TEXT
+
+    move_black
+    # And black knight takes a pawn.
+    assert_board <<~TEXT
+      8 ♜▒♝♛♚♝ ♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ♞ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♞ ▒ ▒
+      3 ▒ ▒ ▒♙▒♘
+      2 ♙♙♙▒♙▒♙♙
+      1 ♖♘♗♕♔♗▒♖
+        abcdefgh
+    TEXT
+
+    move_white
+    move_black
+    # White develops its queen too early, and black pushes another pawn.
+    assert_board <<~TEXT
+      8 ♜▒♝♛♚♝ ♜
+      7 ▒♟♟♟♟♟♟♟
+      6  ▒ ▒ ♞ ▒
+      5 ♟ ▒ ▒ ▒
+      4  ▒ ♕ ▒ ▒
+      3 ▒ ▒ ▒♙▒♘
+      2 ♙♙♙▒♙▒♙♙
+      1 ♖♘♗ ♔♗▒♖
+        abcdefgh
+    TEXT
+
+    assert_equal <<~TEXT, $stdout.string
+      1.f2f3
+      1...g8f6
+      2.d2d4
+      2...b8c6
+      3.g1h3
+      3...c6xd4
+      4.d1xd4
+      4...a7a5
+    TEXT
+  end
+
   def test_setup
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜

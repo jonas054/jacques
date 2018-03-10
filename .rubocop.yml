@@ -22,3 +22,7 @@ Style/GuardClause:
 
 Naming/PredicateName:
   Enabled: false
+
+Metrics/ClassLength:
+  Exclude:
+    - test_*.rb

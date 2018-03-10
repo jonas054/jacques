@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require 'rainbow'
@@ -76,10 +77,10 @@ class Board
   end
 
   def taking?(row, col, new_row, new_col)
-    WHITE_PIECES.include?(get(row, col)) &&
-      BLACK_PIECES.include?(get(new_row, new_col)) ||
-      BLACK_PIECES.include?(get(row, col)) &&
-      WHITE_PIECES.include?(get(new_row, new_col))
+    (WHITE_PIECES.include?(get(row, col)) &&
+     BLACK_PIECES.include?(get(new_row, new_col))) ||
+      (BLACK_PIECES.include?(get(row, col)) &&
+       WHITE_PIECES.include?(get(new_row, new_col)))
   end
 
   def king_has_moved?(color)
@@ -134,7 +135,7 @@ class Board
   end
 
   def draw(last_move = [])
-    drawing = ''
+    drawing = +''
     SIZE.times do |row|
       drawing << (SIZE - row).to_s
       SIZE.times do |col|

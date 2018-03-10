@@ -1,3 +1,4 @@
+# coding: utf-8
 
 # frozen_string_literal: true
 
@@ -916,13 +917,13 @@ class TestChess < Test::Unit::TestCase
     convert(@chess.draw(@last_move))
   end
 
-  private def convert(s)
-    s.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?$/,
-           '\1 \2\3\4\5\6\7\8\9')
-     .gsub(/ +$/, '')
+  private def convert(board_output)
+    board_output.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?$/,
+                      '\1 \2\3\4\5\6\7\8\9')
+                .gsub(/ +$/, '')
   end
 
-  private def clean(s)
-    s.tr('▒', ' ').gsub(/ +$/, '')
+  private def clean(board_setup)
+    board_setup.tr('▒', ' ').gsub(/ +$/, '')
   end
 end

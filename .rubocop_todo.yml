@@ -6,31 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented
-Layout/MultilineOperationIndentation:
-  Exclude:
-    - 'board.rb'
-
-# Offense count: 1
-Lint/LiteralAsCondition:
-  Exclude:
-    - 'chess.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'chess.rb'
-
-# Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'chess.rb'
-
 # Offense count: 9
 Metrics/AbcSize:
   Max: 86
@@ -63,38 +38,6 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 30
 
-# Offense count: 3
-# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# NamePrefixBlacklist: is_, has_, have_
-# NameWhitelist: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
-  Exclude:
-    - 'spec/**/*'
-    - 'chess.rb'
-
-# Offense count: 2
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: io, id
-Naming/UncommunicativeMethodParamName:
-  Exclude:
-    - 'test_chess.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RangeInclude:
-  Exclude:
-    - 'chess.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'chess.rb'
-
 # Offense count: 4
 Style/Documentation:
   Exclude:
@@ -104,41 +47,3 @@ Style/Documentation:
     - 'chess.rb'
     - 'test_board.rb'
     - 'test_chess.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'test_board.rb'
-
-# Offense count: 2
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'board.rb'
-    - 'chess.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'board.rb'
-    - 'chess.rb'
-
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowSafeAssignment.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_parentheses_when_complex
-Style/TernaryParentheses:
-  Exclude:
-    - 'board.rb'
-    - 'chess.rb'
-
-# Offense count: 1
-# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Metrics/LineLength:
-  Max: 81

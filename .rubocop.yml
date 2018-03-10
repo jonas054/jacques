@@ -6,3 +6,19 @@ AllCops:
 # Craches in RuboCop 0.53.0
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
+
+# Easier to turn off, until I figure out how to change the behavior of Emacs.
+Style/Encoding:
+  Enabled: false
+
+Style/TernaryParentheses:
+  EnforcedStyle: require_parentheses
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/GuardClause:
+  MinBodyLength: 5
+
+Naming/PredicateName:
+  Enabled: false

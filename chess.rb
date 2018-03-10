@@ -1,9 +1,10 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require 'rainbow'
 require_relative 'board'
 
-# TODO:
+# TODO: These.
 # - Semi-smart selection of piece at pawn promotion (i.e. knight if that leads
 #   to immediate checkmate)
 # - Smarter selection of moves (scoring engine)
@@ -132,7 +133,7 @@ class Chess
 
   def is_castling_move?(move)
     row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
-    new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
+    _, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
     %w[♚ ♔].include?(@board.get(row, col)) && (new_col - col).abs == 2
   end
 
@@ -146,7 +147,8 @@ class Chess
     false
   end
 
-  def legal_moves(who_to_move, board, is_top_level_call, only_from = nil, &block)
+  def legal_moves(who_to_move, board, is_top_level_call, only_from = nil,
+                  &block)
     Board::SIZE.times.each do |row|
       next if only_from && row != only_from[0]
 
@@ -229,7 +231,7 @@ class Chess
   end
 
   private def find_castle_move(board, row, col, empty_columns,
-                               unattacked_columns, rook_column, &block)
+                               unattacked_columns, rook_column)
     piece_color = board.color_at(row, col)
     royalty_row = (piece_color == :white) ? 7 : 0
     return unless row == royalty_row
@@ -265,7 +267,7 @@ class Chess
     piece = board.get(row, col)
     opposite_piece = (piece == '♟') ? '♙' : '♟'
     direction = (piece == '♟') ? 1 : -1
-    return unless (0..7).include?(col + col_delta)
+    return unless (0..7).cover?(col + col_delta)
 
     if board.get(row, col + col_delta) == opposite_piece &&
        board.previous.get(row + 2 * direction, col + col_delta) ==
@@ -314,7 +316,10 @@ class Chess
     moves = []
     other_color = (color == :white) ? :black : :white
     legal_moves(other_color, board,
+                # This is not a condition! How is this a condition?
+                # rubocop:disable Lint/LiteralAsCondition
                 !:is_top_level_call) do |b, row, col, new_row, new_col, take|
+      # rubocop:enable Lint/LiteralAsCondition
       add_move_if_legal(moves, b, row, col, new_row, new_col, take)
     end
     board.king_is_taken_by?(moves.select { |move| move =~ /x/ })

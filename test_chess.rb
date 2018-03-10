@@ -5,6 +5,7 @@
 require 'test/unit'
 require_relative 'chess'
 
+# Tests the methods in the Chess class.
 class TestChess < Test::Unit::TestCase
   def setup
     Rainbow.enabled = false

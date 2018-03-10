@@ -19,6 +19,9 @@ KNIGHT_DIRECTIONS = [1, 2, -1, -2].permutation(2).select do |x, y|
 end
 BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 
+Coord = Struct.new(:row, :col)
+
+# The main driver of the chess engine.
 class Chess
   def initialize(board = nil)
     @board = board || Board.new
@@ -78,8 +81,8 @@ class Chess
   def make_move(turn, who_to_move)
     my_moves = []
     legal_moves(who_to_move, @board,
-                :is_top_level_call) do |board, row, col, new_row, new_col, take|
-      add_move_if_legal(my_moves, board, row, col, new_row, new_col, take)
+                :is_top_level_call) do |board, coord, new_coord, take|
+      add_move_if_legal(my_moves, board, coord, new_coord, take)
     end
 
     return nil if my_moves.empty?
@@ -103,10 +106,11 @@ class Chess
                    end
     other_color = (who_to_move == :white) ? :black : :white
     legal_moves(other_color, @board,
-                :is_top_level_call) do |_, _, _, r, c, take|
+                :is_top_level_call) do |_, _, new_coord, take|
       next if take == :cannot_take
-      dangerous =
-        chosen_moves.select { |m| m.end_with?(position(r, c)) }
+      dangerous = chosen_moves.select do |m|
+        m.end_with?(position(new_coord.row, new_coord.col))
+      end
       chosen_moves -= dangerous if dangerous.size < chosen_moves.size
     end
     chosen_move = chosen_moves.sample
@@ -141,8 +145,8 @@ class Chess
     row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
     new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
     legal_moves(@board.color_at(row, col), @board, true,
-                [row, col]) do |_, _, _, nr, nc, _|
-      return true if nr == new_row && nc == new_col
+                [row, col]) do |_, _, new_coord, _|
+      return true if new_coord.row == new_row && new_coord.col == new_col
     end
     false
   end
@@ -168,14 +172,16 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at(new_row, new_col) == piece_color
-              yield board, row, col, new_row, new_col, :can_take
+              yield board, Coord.new(row, col), Coord.new(new_row, new_col),
+                    :can_take
               break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♞', '♘'
           KNIGHT_DIRECTIONS.each do |r, c|
             unless board.outside_board?(row + r, col + c)
-              yield board, row, col, row + r, col + c, :can_take
+              yield board, Coord.new(row, col), Coord.new(row + r, col + c),
+                    :can_take
             end
           end
         when '♝', '♗'
@@ -185,14 +191,16 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at(new_row, new_col) == piece_color
-              yield board, row, col, new_row, new_col, :can_take
+              yield board, Coord.new(row, col), Coord.new(new_row, new_col),
+                    :can_take
               break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♚', '♔'
           ALL_DIRECTIONS.each do |y, x|
             unless board.outside_board?(row + y, col + x)
-              yield board, row, col, row + y, col + x, :can_take
+              yield board, Coord.new(row, col), Coord.new(row + y, col + x),
+                    :can_take
             end
           end
           if is_top_level_call && col == 4
@@ -208,18 +216,27 @@ class Chess
               new_col = col + x * scale
               break if board.outside_board?(new_row, new_col)
               break if board.color_at(new_row, new_col) == piece_color
-              yield board, row, col, new_row, new_col, :can_take
+              yield board, Coord.new(row, col), Coord.new(new_row, new_col),
+                    :can_take
               break if board.color_at(new_row, new_col) == other_color
             end
           end
         when '♟', '♙'
           direction = (piece == '♟') ? 1 : -1
-          yield board, row, col, row + direction, col, :cannot_take
-          yield board, row, col, row + direction, col + 1, :must_take if col < 7
-          yield board, row, col, row + direction, col - 1, :must_take if col > 0
+          yield board, Coord.new(row, col), Coord.new(row + direction, col),
+                :cannot_take
+          if col < 7
+            yield board, Coord.new(row, col),
+                  Coord.new(row + direction, col + 1), :must_take
+          end
+          if col > 0
+            yield board, Coord.new(row, col),
+                  Coord.new(row + direction, col - 1), :must_take
+          end
           if row == (piece == '♟' ? 1 : 6) &&
              board.empty?(row + direction, col)
-            yield board, row, col, row + 2 * direction, col, :cannot_take
+            yield board, Coord.new(row, col),
+                  Coord.new(row + 2 * direction, col), :cannot_take
           end
           if row == (piece_color == :black ? 4 : 3)
             add_en_passant_if_legal(board, row, col, 1, &block)
@@ -242,9 +259,9 @@ class Chess
       attacked = false
       other_color = (piece_color == :white) ? :black : :white
       royalty_row = (piece_color == :white) ? 7 : 0
-      legal_moves(other_color, board, false) do |_, _, _, new_row, new_col, _|
-        if new_row == royalty_row &&
-           unattacked_columns.include?(new_col)
+      legal_moves(other_color, board, false) do |_, _, new_coord, _|
+        if new_coord.row == royalty_row &&
+           unattacked_columns.include?(new_coord.col)
           attacked = true
           break
         end
@@ -258,7 +275,8 @@ class Chess
 
       unless attacked || board.king_has_moved?(piece_color) || rook_has_moved
         king_destination = (rook_column == 0) ? col - 2 : col + 2
-        yield board, row, col, row, king_destination, :cannot_take
+        yield board, Coord.new(row, col), Coord.new(row, king_destination),
+              :cannot_take
       end
     end
   end
@@ -272,18 +290,18 @@ class Chess
     if board.get(row, col + col_delta) == opposite_piece &&
        board.previous.get(row + 2 * direction, col + col_delta) ==
        opposite_piece
-      yield board, row, col, row + direction, col + col_delta,
-            :must_take_en_passant
+      yield board, Coord.new(row, col),
+            Coord.new(row + direction, col + col_delta), :must_take_en_passant
     end
   end
 
-  def add_move_if_legal(result, board, row, col, new_row, new_col, take)
-    taking = board.taking?(row, col, new_row, new_col) ||
-             take == :must_take_en_passant
+  def add_move_if_legal(result, board, coord, new_coord, take)
+    taking = take == :must_take_en_passant ||
+             board.taking?(coord.row, coord.col, new_coord.row, new_coord.col)
     unless @just_looking
       new_board = Board.new(board)
-      color_of_moving_piece = new_board.color_at(row, col)
-      new_board.move(row, col, new_row, new_col)
+      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
+      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
 
       @just_looking = true
       is_checked = is_checked?(new_board, color_of_moving_piece)
@@ -293,17 +311,17 @@ class Chess
 
     is_legal = case take
                when :cannot_take
-                 board.empty?(new_row, new_col)
+                 board.empty?(new_coord.row, new_coord.col)
                when :must_take
                  taking
                when :can_take
-                 board.empty?(new_row, new_col) || taking
+                 board.empty?(new_coord.row, new_coord.col) || taking
                when :must_take_en_passant
                  true # conditions already checked
                end
     if is_legal
-      result << (position(row, col) + (taking ? 'x' : '') +
-                 position(new_row, new_col))
+      result << (position(coord.row, coord.col) + (taking ? 'x' : '') +
+                 position(new_coord.row, new_coord.col))
     end
   end
 
@@ -318,9 +336,9 @@ class Chess
     legal_moves(other_color, board,
                 # This is not a condition! How is this a condition?
                 # rubocop:disable Lint/LiteralAsCondition
-                !:is_top_level_call) do |b, row, col, new_row, new_col, take|
+                !:is_top_level_call) do |b, coord, new_coord, take|
       # rubocop:enable Lint/LiteralAsCondition
-      add_move_if_legal(moves, b, row, col, new_row, new_col, take)
+      add_move_if_legal(moves, b, coord, new_coord, take)
     end
     board.king_is_taken_by?(moves.select { |move| move =~ /x/ })
   end

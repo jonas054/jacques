@@ -5,6 +5,7 @@
 require 'test/unit'
 require_relative 'board'
 
+# Tests the methods in the Board class.
 class TestBoard < Test::Unit::TestCase
   def setup
     @board = Board.new

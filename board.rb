@@ -3,6 +3,7 @@
 
 require 'rainbow'
 
+# Represents the chess board and has some knowledge about the pieces.
 class Board
   SIZE = 8
   INITIAL_BOARD = ['♜♞♝♛♚♝♞♜',

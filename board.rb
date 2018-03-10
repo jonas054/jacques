@@ -1,4 +1,4 @@
-# coding: utf-8
+# frozen_string_literal: true
 
 require 'rainbow'
 
@@ -12,9 +12,9 @@ class Board
                    '        ',
                    '♙♙♙♙♙♙♙♙',
                    '♖♘♗♕♔♗♘♖'].freeze
-  EMPTY_SQUARE = ' '.freeze
-  WHITE_PIECES = '♔♕♖♗♘♙'.freeze
-  BLACK_PIECES = '♜♞♝♛♚♟'.freeze
+  EMPTY_SQUARE = ' '
+  WHITE_PIECES = '♔♕♖♗♘♙'
+  BLACK_PIECES = '♜♞♝♛♚♟'
 
   attr_reader :previous
 
@@ -34,10 +34,10 @@ class Board
 
   def setup(contents)
     @previous = Board.new(self)
-    lines = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '').
-            gsub('▒', ' ').lines.map(&:chomp)
+    lines = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '')
+                    .tr('▒', ' ').lines.map(&:chomp)
     lines += [''] * (8 - lines.size)
-    @squares = lines.map { |row| row + ' ' * (8- row.length) }
+    @squares = lines.map { |row| row + ' ' * (8 - row.length) }
   end
 
   def notation

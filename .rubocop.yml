@@ -1,0 +1,6 @@
+AllCops:
+  TargetRubyVersion: 2.3
+
+# Craches in RuboCop 0.53.0
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false

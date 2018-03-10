@@ -1,10 +1,12 @@
-# coding: utf-8
+
+# frozen_string_literal: true
+
 require 'test/unit'
 require_relative 'chess'
 
 class TestChess < Test::Unit::TestCase
   def setup
-    Rainbow.enabled = false  
+    Rainbow.enabled = false
     @chess = Chess.new
     $stdout = StringIO.new
     srand 1
@@ -717,7 +719,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ♔ ▒♖
         abcdefgh
     TEXT
-    move_white    
+    move_white
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -747,7 +749,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     board.move(0, 4, 0, 5)
     board.move(0, 5, 0, 4)
-    move_black  
+    move_black
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒♜▒
       7 ♟♟♟♟♟♟♟♟
@@ -791,7 +793,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ♔ ▒♖
         abcdefgh
     TEXT
-    move_white    
+    move_white
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -869,7 +871,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    move_black    
+    move_black
     @chess.get_human_move(2)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
@@ -921,6 +923,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def clean(s)
-    s.gsub('▒', ' ').gsub(/ +$/, '')
+    s.tr('▒', ' ').gsub(/ +$/, '')
   end
 end

@@ -1,4 +1,7 @@
 # coding: utf-8
+
+# frozen_string_literal: true
+
 require 'test/unit'
 require_relative 'board'
 
@@ -224,15 +227,15 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_draw
-    assert_equal(("8 ♜  ♞  ♝  ♛  ♚  ♝  ♞  ♜ \n" +
-                  "7 ♟  ♟  ♟  ♟  ♟  ♟  ♟  ♟ \n" +
-                  "6                        \n" +
-                  "5                        \n" +
-                  "4                        \n" +
-                  "3                        \n" +
-                  "2 ♙  ♙  ♙  ♙  ♙  ♙  ♙  ♙ \n" +
-                  "1 ♖  ♘  ♗  ♕  ♔  ♗  ♘  ♖ \n" +
-                  "  a  b  c  d  e  f  g  h\n"), @board.draw)
+    assert_equal("8 ♜  ♞  ♝  ♛  ♚  ♝  ♞  ♜ \n" \
+                 "7 ♟  ♟  ♟  ♟  ♟  ♟  ♟  ♟ \n" \
+                 "6                        \n" \
+                 "5                        \n" \
+                 "4                        \n" \
+                 "3                        \n" \
+                 "2 ♙  ♙  ♙  ♙  ♙  ♙  ♙  ♙ \n" \
+                 "1 ♖  ♘  ♗  ♕  ♔  ♗  ♘  ♖ \n" \
+                 "  a  b  c  d  e  f  g  h\n", @board.draw)
   end
 
   def test_king_is_taken_by
@@ -381,7 +384,7 @@ class TestBoard < Test::Unit::TestCase
       7 ▒ ▒ ▒ ▒
       6  ▒ ▒♚▒ ▒
       5 ▒ ▒
-      4  ▒ 
+      4  ▒
     TEXT
     assert_equal ['        ',
                   '        ',

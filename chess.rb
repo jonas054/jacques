@@ -1,4 +1,4 @@
-# coding: utf-8
+# frozen_string_literal: true
 
 require 'rainbow'
 require_relative 'board'
@@ -40,10 +40,10 @@ class Chess
       color = i.even? ? :white : :black
       turn = i / 2 + 1
       move = if args.include?('-h') && color == :white
-        get_human_move(turn)
-      else
-        make_move(turn, color)
-      end
+               get_human_move(turn)
+             else
+               make_move(turn, color)
+             end
 
       if move.nil?
         return is_checked?(@board, color) ? 'Checkmate' : 'Stalemate'

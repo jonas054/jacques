@@ -72,6 +72,8 @@ class Chess
   end
 
   def get_human_move(turn)
+    computer_move = @brain.choose_move(turn, :white)
+    return nil if computer_move.nil?
     move = nil
     loop do
       print "White move: #{turn}."
@@ -85,6 +87,7 @@ class Chess
   def make_move(turn, who_to_move)
     chosen_move = @brain.choose_move(turn, who_to_move)
     return nil if chosen_move.nil?
+    puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     move_piece(chosen_move)
   end
 

@@ -43,9 +43,7 @@ class Brain
       end
       chosen_moves -= dangerous if dangerous.size < chosen_moves.size
     end
-    chosen_move = chosen_moves.sample
-    puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
-    chosen_move
+    chosen_moves.sample
   end
 
   private def is_castling_move?(move)

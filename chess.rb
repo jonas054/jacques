@@ -74,6 +74,7 @@ class Chess
   def get_human_move(turn)
     computer_move = @brain.choose_move(turn, :white)
     return nil if computer_move.nil?
+
     move = nil
     loop do
       print "White move: #{turn}."
@@ -81,21 +82,14 @@ class Chess
       break if legal?(move)
       puts 'Illegal move'
     end
-    move_piece(move)
+    @board.move_piece(move)
   end
 
   def make_move(turn, who_to_move)
     chosen_move = @brain.choose_move(turn, who_to_move)
     return nil if chosen_move.nil?
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
-    move_piece(chosen_move)
-  end
-
-  def move_piece(chosen_move)
-    start_row, start_col = @board.get_coordinates(chosen_move[/^[a-h][1-8]/])
-    new_row, new_col = @board.get_coordinates(chosen_move[/[a-h][1-8]$/])
-    @board.move(start_row, start_col, new_row, new_col)
-    [start_row, start_col, new_row, new_col]
+    @board.move_piece(chosen_move)
   end
 
   def legal?(move)

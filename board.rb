@@ -82,6 +82,13 @@ class Board
     king_is_taken_by?(moves.select { |move| move =~ /x/ })
   end
 
+  def move_piece(chosen_move)
+    start_row, start_col = get_coordinates(chosen_move[/^[a-h][1-8]/])
+    new_row, new_col = get_coordinates(chosen_move[/[a-h][1-8]$/])
+    move(start_row, start_col, new_row, new_col)
+    [start_row, start_col, new_row, new_col]
+  end
+
   def add_move_if_legal(result, coord, new_coord, take)
     taking = take == :must_take_en_passant ||
              taking?(coord.row, coord.col, new_coord.row, new_coord.col)

@@ -21,7 +21,6 @@ class Board
   attr_reader :previous
 
   def initialize(original = nil)
-    @rules = RuleBook.new
     @squares = INITIAL_BOARD.join('-').split(/-/)
     if original
       (0...SIZE).each do |row|
@@ -60,24 +59,17 @@ class Board
   end
 
   def only_kings_left?
-    SIZE.times do |row|
-      SIZE.times do |col|
-        next if empty?(row, col)
-        return false unless %w[♔ ♚].include?(get(row, col))
-      end
+    (0...SIZE).to_a.repeated_permutation(2).all? do |row, col|
+      empty?(row, col) || %w[♔ ♚].include?(get(row, col))
     end
-    true
   end
 
   def is_checked?(color)
     moves = []
     other_color = (color == :white) ? :black : :white
-    @rules.legal_moves(other_color, self,
-                       # This is not a condition! How is this a condition?
-                       # rubocop:disable Lint/LiteralAsCondition
-                       !:is_top_level_call) do |b, coord, new_coord, take|
-      # rubocop:enable Lint/LiteralAsCondition
-      b.add_move_if_legal(moves, coord, new_coord, take)
+    RuleBook.legal_moves(other_color, self,
+                         false) do |board, coord, new_coord, take|
+      board.add_move_if_legal(moves, coord, new_coord, take)
     end
     king_is_taken_by?(moves.select { |move| move =~ /x/ })
   end
@@ -125,7 +117,7 @@ class Board
   end
 
   def outside_board?(row, col)
-    row < 0 || row >= SIZE || col < 0 || col >= SIZE
+    !(0...SIZE).cover?(row) || !(0...SIZE).cover?(col)
   end
 
   def color_at(row, col)
@@ -134,10 +126,8 @@ class Board
   end
 
   def taking?(row, col, new_row, new_col)
-    (WHITE_PIECES.include?(get(row, col)) &&
-     BLACK_PIECES.include?(get(new_row, new_col))) ||
-      (BLACK_PIECES.include?(get(row, col)) &&
-       WHITE_PIECES.include?(get(new_row, new_col)))
+    dest_color = color_at(new_row, new_col)
+    dest_color != :none && dest_color != color_at(row, col)
   end
 
   def king_has_moved?(color)

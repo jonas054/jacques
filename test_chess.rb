@@ -9,7 +9,8 @@ require_relative 'chess'
 class TestChess < Test::Unit::TestCase
   def setup
     Rainbow.enabled = false
-    @chess = Chess.new
+    @brain = Brain.new
+    @chess = Chess.new(@brain)
     $stdout = StringIO.new
     srand 1
     @last_move = []
@@ -697,7 +698,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_white_cannot_castle_because_its_king_has_moved
     board = Board.new
-    @chess = Chess.new(board)
+    @chess = Chess.new(@brain, board)
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -737,7 +738,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_black_cannot_castle_because_its_king_has_moved
     board = Board.new
-    @chess = Chess.new(board)
+    @chess = Chess.new(@brain, board)
     setup_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -768,7 +769,7 @@ class TestChess < Test::Unit::TestCase
   def test_white_cannot_castle_because_rooks_have_moved
     srand 2
     board = Board.new
-    @chess = Chess.new(board)
+    @chess = Chess.new(@brain, board)
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -812,7 +813,7 @@ class TestChess < Test::Unit::TestCase
   def test_black_cannot_castle_because_rooks_have_moved
     srand 2
     board = Board.new
-    @chess = Chess.new(board)
+    @chess = Chess.new(@brain, board)
     setup_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -877,9 +878,9 @@ class TestChess < Test::Unit::TestCase
     @chess.get_human_move(2)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟ ♟♟♟♟♟
-      6  ▒♟▒ ▒ ▒
-      5   ▒ ▒ ▒
+      7 ♟♟♟♟♟♟ ♟
+      6  ▒ ▒ ▒♟▒
+      5 ▒ ▒ ▒ ▒
       4  ▒ ▒♙▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♔♙♙♙
@@ -887,7 +888,7 @@ class TestChess < Test::Unit::TestCase
         abcdefgh
     TEXT
     assert_equal <<~TEXT.chomp, $stdout.string
-      White move: 1.1...c7c6
+      White move: 1.1...g7g6
       White move: 2.Illegal move
       White move: 2.
     TEXT

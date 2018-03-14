@@ -25,10 +25,10 @@ Coord = Struct.new(:row, :col)
 
 # The main driver of the chess engine.
 class Chess
-  def initialize(board = nil)
+  def initialize(brain, board = nil)
     @board = board || Board.new
-    @rules = RuleBook.new
-    @brain = Brain.new(@rules, @board)
+    @brain = brain
+    @brain.board = @board
   end
 
   def setup(contents)
@@ -72,7 +72,7 @@ class Chess
   end
 
   def get_human_move(turn)
-    computer_move = @brain.choose_move(turn, :white)
+    computer_move = @brain.choose_move(:white)
     return nil if computer_move.nil?
 
     move = nil
@@ -86,7 +86,7 @@ class Chess
   end
 
   def make_move(turn, who_to_move)
-    chosen_move = @brain.choose_move(turn, who_to_move)
+    chosen_move = @brain.choose_move(who_to_move)
     return nil if chosen_move.nil?
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     @board.move_piece(chosen_move)
@@ -95,12 +95,12 @@ class Chess
   def legal?(move)
     row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
     new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
-    @rules.legal_moves(@board.color_at(row, col), @board, true,
-                       [row, col]) do |_, _, new_coord, _|
+    RuleBook.legal_moves(@board.color_at(row, col), @board, true,
+                         [row, col]) do |_, _, new_coord, _|
       return true if new_coord.row == new_row && new_coord.col == new_col
     end
     false
   end
 end
 
-Chess.new.main(ARGV) if $PROGRAM_NAME == __FILE__
+Chess.new(Brain.new).main(ARGV) if $PROGRAM_NAME == __FILE__

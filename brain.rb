@@ -3,15 +3,11 @@
 
 # The AI part that figures out which moves to make.
 class Brain
-  def initialize(rules, board)
-    @rules = rules
-    @board = board
-  end
+  attr_writer :board
 
-  def choose_move(turn, who_to_move)
+  def choose_move(who_to_move)
     my_moves = []
-    @rules.legal_moves(who_to_move, @board,
-                       :is_top_level_call) do |board, coord, new_coord, take|
+    RuleBook.legal_moves(who_to_move, @board) do |board, coord, new_coord, take|
       board.add_move_if_legal(my_moves, coord, new_coord, take)
     end
 
@@ -29,14 +25,9 @@ class Brain
                    end
                  end
 
-    chosen_moves = if best_moves.any?
-                     best_moves
-                   else
-                     my_moves
-                   end
+    chosen_moves = best_moves.any? ? best_moves : my_moves
     other_color = (who_to_move == :white) ? :black : :white
-    @rules.legal_moves(other_color, @board,
-                       :is_top_level_call) do |_, _, new_coord, take|
+    RuleBook.legal_moves(other_color, @board) do |_, _, new_coord, take|
       next if take == :cannot_take
       dangerous = chosen_moves.select do |m|
         m.end_with?(@board.position(new_coord.row, new_coord.col))

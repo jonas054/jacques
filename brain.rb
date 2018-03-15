@@ -8,6 +8,11 @@ class Brain
   def choose_move(who_to_move)
     my_moves = []
     RuleBook.legal_moves(who_to_move, @board) do |board, coord, new_coord, take|
+      new_board = Board.new(board)
+      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
+      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
+      next if new_board.is_checked?(color_of_moving_piece)
+
       board.add_move_if_legal(my_moves, coord, new_coord, take)
     end
 

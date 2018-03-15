@@ -68,8 +68,8 @@ class Board
     moves = []
     other_color = (color == :white) ? :black : :white
     RuleBook.legal_moves(other_color, self,
-                         false) do |board, coord, new_coord, take|
-      board.add_move_if_legal(moves, coord, new_coord, take)
+                         false) do |_, coord, new_coord, take|
+      add_move_if_legal(moves, coord, new_coord, take)
     end
     king_is_taken_by?(moves.select { |move| move =~ /x/ })
   end
@@ -84,17 +84,6 @@ class Board
   def add_move_if_legal(result, coord, new_coord, take)
     taking = take == :must_take_en_passant ||
              taking?(coord.row, coord.col, new_coord.row, new_coord.col)
-    unless $just_looking
-      new_board = Board.new(self)
-      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
-      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
-
-      $just_looking = true
-      is_checked = new_board.is_checked?(color_of_moving_piece)
-      $just_looking = false
-      return if is_checked
-    end
-
     is_legal = case take
                when :cannot_take
                  empty?(new_coord.row, new_coord.col)
@@ -166,8 +155,7 @@ class Board
     end
     @squares[new_row][new_col] =
       if is_pawn && (new_row == 0 || new_row == SIZE - 1)
-        # Pawn promotion
-        (piece == '♙') ? '♕' : '♛'
+        (piece == '♙') ? '♕' : '♛' # Pawn promotion
       else
         piece
       end

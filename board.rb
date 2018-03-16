@@ -68,7 +68,7 @@ class Board
     moves = []
     other_color = (color == :white) ? :black : :white
     RuleBook.legal_moves(other_color, self,
-                         false) do |_, coord, new_coord, take|
+                         false) do |coord, new_coord, take|
       add_move_if_legal(moves, coord, new_coord, take)
     end
     king_is_taken_by?(moves.select { |move| move =~ /x/ })

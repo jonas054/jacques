@@ -7,13 +7,13 @@ class Brain
 
   def choose_move(who_to_move)
     my_moves = []
-    RuleBook.legal_moves(who_to_move, @board) do |board, coord, new_coord, take|
-      new_board = Board.new(board)
+    RuleBook.legal_moves(who_to_move, @board) do |coord, new_coord, take|
+      new_board = Board.new(@board)
       color_of_moving_piece = new_board.color_at(coord.row, coord.col)
       new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
       next if new_board.is_checked?(color_of_moving_piece)
 
-      board.add_move_if_legal(my_moves, coord, new_coord, take)
+      @board.add_move_if_legal(my_moves, coord, new_coord, take)
     end
 
     return nil if my_moves.empty?
@@ -32,7 +32,7 @@ class Brain
 
     chosen_moves = best_moves.any? ? best_moves : my_moves
     other_color = (who_to_move == :white) ? :black : :white
-    RuleBook.legal_moves(other_color, @board) do |_, _, new_coord, take|
+    RuleBook.legal_moves(other_color, @board) do |_, new_coord, take|
       next if take == :cannot_take
       dangerous = chosen_moves.select do |m|
         m.end_with?(@board.position(new_coord.row, new_coord.col))

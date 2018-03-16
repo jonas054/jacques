@@ -96,7 +96,7 @@ class Chess
     row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
     new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
     RuleBook.legal_moves(@board.color_at(row, col), @board, true,
-                         [row, col]) do |_, _, new_coord, _|
+                         [row, col]) do |_, new_coord, _|
       return true if new_coord.row == new_row && new_coord.col == new_col
     end
     false

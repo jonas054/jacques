@@ -26,17 +26,17 @@ class RuleBook
       case piece
       when '♜', '♖', '♝', '♗', '♛', '♕'
         each_move_length(board, row, col) do |new_row, new_col|
-          yield board, current_coord, Coord.new(new_row, new_col), :can_take
+          yield current_coord, Coord.new(new_row, new_col), :can_take
         end
       when '♞', '♘'
         KNIGHT_DIRECTIONS.each do |r, c|
           next if board.outside_board?(row + r, col + c)
-          yield board, current_coord, Coord.new(row + r, col + c), :can_take
+          yield current_coord, Coord.new(row + r, col + c), :can_take
         end
       when '♚', '♔'
         ALL_DIRECTIONS.each do |y, x|
           next if board.outside_board?(row + y, col + x)
-          yield board, current_coord, Coord.new(row + y, col + x), :can_take
+          yield current_coord, Coord.new(row + y, col + x), :can_take
         end
         if is_top_level_call && col == 4
           # King-side castle
@@ -46,18 +46,15 @@ class RuleBook
         end
       when '♟', '♙'
         direction = (piece == '♟') ? 1 : -1
-        yield board, current_coord, Coord.new(row + direction, col),
-              :cannot_take
+        yield current_coord, Coord.new(row + direction, col), :cannot_take
         if col < 7
-          yield board, current_coord, Coord.new(row + direction, col + 1),
-                :must_take
+          yield current_coord, Coord.new(row + direction, col + 1), :must_take
         end
         if col > 0
-          yield board, current_coord, Coord.new(row + direction, col - 1),
-                :must_take
+          yield current_coord, Coord.new(row + direction, col - 1), :must_take
         end
         if row == (piece == '♟' ? 1 : 6) && board.empty?(row + direction, col)
-          yield board, current_coord, Coord.new(row + 2 * direction, col),
+          yield current_coord, Coord.new(row + 2 * direction, col),
                 :cannot_take
         end
         if row == (piece == '♟' ? 4 : 3)
@@ -99,7 +96,7 @@ class RuleBook
 
       attacked = false
       other_color = (piece_color == :white) ? :black : :white
-      legal_moves(other_color, board, false) do |_, _, new_coord, _|
+      legal_moves(other_color, board, false) do |_, new_coord, _|
         if new_coord.row == row && unattacked_columns.include?(new_coord.col)
           attacked = true
           break
@@ -116,8 +113,7 @@ class RuleBook
       end
 
       king_destination = (rook_column == 0) ? col - 2 : col + 2
-      yield board, Coord.new(row, col), Coord.new(row, king_destination),
-            :cannot_take
+      yield Coord.new(row, col), Coord.new(row, king_destination), :cannot_take
     end
 
     private def add_en_passant_if_legal(board, row, col, col_delta)
@@ -132,7 +128,7 @@ class RuleBook
       return unless board.previous.get(row + 2 * direction, new_col) ==
                     opposite_pawn
 
-      yield board, Coord.new(row, col), Coord.new(row + direction, new_col),
+      yield Coord.new(row, col), Coord.new(row + direction, new_col),
             :must_take_en_passant
     end
   end

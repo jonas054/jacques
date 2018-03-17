@@ -258,7 +258,7 @@ class TestBoard < Test::Unit::TestCase
                   '♖♘♗♕♔♗♘♖'], @board.previous.current
   end
 
-  def test_colors
+  def test_colors # rubocop:disable Metrics/AbcSize
     @board.move(6, 4, 5, 4)
     Rainbow.enabled = true
     assert_equal <<~TEXT, @board.draw([6, 4, 5, 4])

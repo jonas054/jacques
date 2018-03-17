@@ -6,15 +6,7 @@ class Brain
   attr_writer :board
 
   def choose_move(who_to_move)
-    my_moves = []
-    RuleBook.legal_moves(who_to_move, @board) do |coord, new_coord, take|
-      new_board = Board.new(@board)
-      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
-      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
-      next if new_board.is_checked?(color_of_moving_piece)
-
-      @board.add_move_if_legal(my_moves, coord, new_coord, take)
-    end
+    my_moves = all_legal_moves_that_dont_put_me_in_check(who_to_move)
 
     return nil if my_moves.empty?
 
@@ -40,6 +32,19 @@ class Brain
       chosen_moves -= dangerous if dangerous.size < chosen_moves.size
     end
     chosen_moves.sample
+  end
+
+  private def all_legal_moves_that_dont_put_me_in_check(who_to_move)
+    my_moves = []
+    RuleBook.legal_moves(who_to_move, @board) do |coord, new_coord, take|
+      new_board = Board.new(@board)
+      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
+      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
+      next if new_board.is_checked?(color_of_moving_piece)
+
+      @board.add_move_if_legal(my_moves, coord, new_coord, take)
+    end
+    my_moves
   end
 
   private def is_castling_move?(move)

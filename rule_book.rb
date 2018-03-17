@@ -1,8 +1,12 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+require_relative 'coord'
+
 # Knows the rules of chess, for instace which moves are legal.
 class RuleBook
+  A, B, C, D, E, F, G, H = (0..7).to_a
+
   class << self
     def legal_moves(who_to_move, board, is_top_level_call = true,
                     only_from = nil, &block)
@@ -29,38 +33,58 @@ class RuleBook
           yield current_coord, Coord.new(new_row, new_col), :can_take
         end
       when '♞', '♘'
-        KNIGHT_DIRECTIONS.each do |r, c|
-          next if board.outside_board?(row + r, col + c)
-          yield current_coord, Coord.new(row + r, col + c), :can_take
-        end
+        legal_knight_moves(board, current_coord, &block)
       when '♚', '♔'
-        ALL_DIRECTIONS.each do |y, x|
-          next if board.outside_board?(row + y, col + x)
-          yield current_coord, Coord.new(row + y, col + x), :can_take
-        end
-        if is_top_level_call && col == 4
-          # King-side castle
-          find_castle_move(board, row, col, 5..6, 4..6, 7, &block)
-          # Queen-side castle
-          find_castle_move(board, row, col, 1..3, 1..4, 0, &block)
-        end
+        legal_king_moves(board, current_coord, is_top_level_call, &block)
       when '♟', '♙'
-        direction = (piece == '♟') ? 1 : -1
-        yield current_coord, Coord.new(row + direction, col), :cannot_take
-        if col < 7
-          yield current_coord, Coord.new(row + direction, col + 1), :must_take
-        end
-        if col > 0
-          yield current_coord, Coord.new(row + direction, col - 1), :must_take
-        end
-        if row == (piece == '♟' ? 1 : 6) && board.empty?(row + direction, col)
-          yield current_coord, Coord.new(row + 2 * direction, col),
-                :cannot_take
-        end
-        if row == (piece == '♟' ? 4 : 3)
-          add_en_passant_if_legal(board, row, col, 1, &block)
-          add_en_passant_if_legal(board, row, col, -1, &block)
-        end
+        legal_pawn_moves(board, current_coord, piece, &block)
+      end
+    end
+
+    private def legal_knight_moves(board, current_coord)
+      KNIGHT_DIRECTIONS.each do |r, c|
+        next if board.outside_board?(current_coord.row + r,
+                                     current_coord.col + c)
+        yield current_coord, Coord.new(current_coord.row + r,
+                                       current_coord.col + c), :can_take
+      end
+    end
+
+    private def legal_king_moves(board, current_coord, is_top_level_call,
+                                 &block)
+      ALL_DIRECTIONS.each do |y, x|
+        next if board.outside_board?(current_coord.row + y,
+                                     current_coord.col + x)
+        yield current_coord,
+              Coord.new(current_coord.row + y, current_coord.col + x), :can_take
+      end
+      return unless is_top_level_call && current_coord.col == E
+
+      # King-side castle
+      find_castle_move(board, current_coord.row, current_coord.col, F..G,
+                       E..G, 7, &block)
+      # Queen-side castle
+      find_castle_move(board, current_coord.row, current_coord.col, B..D,
+                       B..E, 0, &block)
+    end
+
+    private def legal_pawn_moves(board, current_coord, piece, &block)
+      direction = (piece == '♟') ? 1 : -1
+      forward = Coord.new(current_coord.row + direction, current_coord.col)
+      yield current_coord, forward, :cannot_take
+      yield current_coord, forward.right, :must_take if current_coord.col < H
+      yield current_coord, forward.left, :must_take if current_coord.col > A
+      if current_coord.row == (piece == '♟' ? 1 : 6) &&
+         board.empty?(current_coord.row + direction, current_coord.col)
+        yield current_coord,
+              Coord.new(current_coord.row + 2 * direction, current_coord.col),
+              :cannot_take
+      end
+      if current_coord.row == (piece == '♟' ? 4 : 3)
+        add_en_passant_if_legal(board, current_coord.row, current_coord.col, 1,
+                                &block)
+        add_en_passant_if_legal(board, current_coord.row, current_coord.col, -1,
+                                &block)
       end
     end
 
@@ -118,7 +142,7 @@ class RuleBook
 
     private def add_en_passant_if_legal(board, row, col, col_delta)
       new_col = col + col_delta
-      return unless (0..7).cover?(new_col)
+      return unless (A..H).cover?(new_col)
 
       pawn = board.get(row, col)
       opposite_pawn = (pawn == '♟') ? '♙' : '♟'

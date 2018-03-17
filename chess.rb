@@ -21,8 +21,6 @@ KNIGHT_DIRECTIONS = [1, 2, -1, -2].permutation(2).select do |x, y|
 end
 BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 
-Coord = Struct.new(:row, :col)
-
 # The main driver of the chess engine.
 class Chess
   def initialize(brain, board = nil)

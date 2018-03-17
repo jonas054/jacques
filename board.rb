@@ -160,13 +160,16 @@ class Board
         piece
       end
     @squares[start_row][start_col] = EMPTY_SQUARE
-    # Castling
     if (new_col - start_col).abs == 2 && is_king
-      rook_start_col = new_col > start_col ? 7 : 0
-      rook = @squares[start_row][rook_start_col]
-      @squares[start_row][rook_start_col] = EMPTY_SQUARE
-      @squares[start_row][start_col + (new_col - start_col) / 2] = rook
+      castle(start_row, start_col, new_col)
     end
+  end
+
+  private def castle(start_row, start_col, new_col)
+    rook_start_col = new_col > start_col ? 7 : 0
+    rook = @squares[start_row][rook_start_col]
+    @squares[start_row][rook_start_col] = EMPTY_SQUARE
+    @squares[start_row][start_col + (new_col - start_col) / 2] = rook
   end
 
   def draw(last_move = [])

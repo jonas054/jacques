@@ -2,6 +2,8 @@
 
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
+
 require 'test/unit'
 require_relative 'chess'
 
@@ -929,3 +931,5 @@ class TestChess < Test::Unit::TestCase
     board_setup.tr('▒', ' ').gsub(/ +$/, '')
   end
 end
+
+# rubocop:enable Metrics/MethodLength

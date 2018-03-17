@@ -10,26 +10,30 @@ class Brain
 
     return nil if my_moves.empty?
 
-    checking_moves = my_moves.select { |move| is_checking_move?(move) }
-    best_moves = if checking_moves.any?
-                   checking_moves
-                 else
-                   castling_moves = my_moves.select { |m| is_castling_move?(m) }
-                   if castling_moves.any?
-                     castling_moves
-                   else
-                     my_moves.select { |move| move =~ /x/ }
-                   end
-                 end
+    best_moves = checking_moves(my_moves)
+    best_moves = castling_moves(my_moves) if best_moves.empty?
+    best_moves = taking_moves(my_moves) if best_moves.empty?
+    best_moves = my_moves if best_moves.empty?
 
-    chosen_moves = best_moves.any? ? best_moves : my_moves
     other_color = (who_to_move == :white) ? :black : :white
     RuleBook.legal_moves(other_color, @board) do |_, new_coord, take|
       next if take == :cannot_take
-      dangerous = chosen_moves.select { |m| m.end_with?(new_coord.position) }
-      chosen_moves -= dangerous if dangerous.size < chosen_moves.size
+      dangerous = best_moves.select { |m| m.end_with?(new_coord.position) }
+      best_moves -= dangerous if dangerous.size < best_moves.size
     end
-    chosen_moves.sample
+    best_moves.sample
+  end
+
+  private def checking_moves(my_moves)
+    my_moves.select { |move| is_checking_move?(move) }
+  end
+
+  private def castling_moves(my_moves)
+    my_moves.select { |m| is_castling_move?(m) }
+  end
+
+  private def taking_moves(my_moves)
+    my_moves.select { |move| move =~ /x/ }
   end
 
   private def all_legal_moves_that_dont_put_me_in_check(who_to_move)

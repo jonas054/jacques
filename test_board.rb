@@ -2,6 +2,8 @@
 
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
+
 require 'test/unit'
 require_relative 'board'
 
@@ -405,3 +407,5 @@ class TestBoard < Test::Unit::TestCase
                   '♖♘♗♕♔♗♘♖'], @board.previous.current
   end
 end
+
+# rubocop:enable Metrics/MethodLength

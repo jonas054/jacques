@@ -29,11 +29,13 @@ class Board
       @record[color][:queen_side_rook]
     end
 
-    def check_movement(piece, color, start_col)
+    def check_movement(piece, start_col)
       case piece
       when '♔', '♚'
+        color = piece == '♔' ? :white : :black
         @record[color][:king] = true
       when '♖', '♜'
+        color = piece == '♖' ? :white : :black
         case start_col
         when 0 then @record[color][:queen_side_rook] = true
         when 7 then @record[color][:king_side_rook] = true
@@ -152,29 +154,31 @@ class Board
   def move(start_row, start_col, new_row, new_col)
     @previous = Board.new(self)
     piece = @squares[start_row][start_col]
-    color = color_at(start_row, start_col)
 
     case piece
     when '♙', '♟' then is_pawn = true
     when '♔', '♚' then is_king = true
     end
 
-    @movements.check_movement(piece, color, start_col)
+    @movements.check_movement(piece, start_col)
 
-    if is_pawn && start_col != new_col && empty?(Coord.new(new_row, new_col))
-      # Taking en passant
-      @squares[start_row][new_col] = EMPTY_SQUARE
-    end
-    @squares[new_row][new_col] =
-      if is_pawn && (new_row == 0 || new_row == SIZE - 1)
-        (piece == '♙') ? '♕' : '♛' # Pawn promotion
-      else
-        piece
-      end
+    handle_en_passant(start_row, start_col, new_row, new_col) if is_pawn
+    @squares[new_row][new_col] = piece
+    handle_pawn_promotion(piece, new_row, new_col) if is_pawn
     @squares[start_row][start_col] = EMPTY_SQUARE
-    if (new_col - start_col).abs == 2 && is_king
-      castle(start_row, start_col, new_col)
-    end
+
+    return unless (new_col - start_col).abs == 2 && is_king
+    castle(start_row, start_col, new_col)
+  end
+
+  private def handle_en_passant(start_row, start_col, new_row, new_col)
+    return unless start_col != new_col && empty?(Coord.new(new_row, new_col))
+    @squares[start_row][new_col] = EMPTY_SQUARE
+  end
+
+  private def handle_pawn_promotion(piece, new_row, new_col)
+    return unless new_row == 0 || new_row == SIZE - 1
+    @squares[new_row][new_col] = (piece == '♙') ? '♕' : '♛'
   end
 
   private def castle(start_row, start_col, new_col)

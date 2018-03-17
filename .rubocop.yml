@@ -26,3 +26,6 @@ Naming/PredicateName:
 Metrics/ClassLength:
   Exclude:
     - test_*.rb
+
+Style/MultipleComparison:
+  Enabled: false

@@ -43,26 +43,33 @@ class Chess
     positions = []
     loop do
       i += 1
-      color = i.even? ? :white : :black
-      turn = i / 2 + 1
-      move = if args.include?('-h') && color == :white
-               get_human_move(turn)
-             else
-               make_move(turn, color)
-             end
-
-      if move.nil?
-        return @board.is_checked?(color) ? 'Checkmate' : 'Stalemate'
-      end
-
-      puts draw(move)
-      return 'Draw' if @board.only_kings_left?
-
-      positions << @board.notation
-      if positions.count(@board.notation) > 2
-        return 'Draw due to threefold repetition'
-      end
+      result = run_one_turn(args, i, positions)
+      return result if result
     end
+  end
+
+  private def run_one_turn(args, index, positions)
+    color = index.even? ? :white : :black
+    turn = index / 2 + 1 # /
+    move = if args.include?('-h') && color == :white
+             get_human_move(turn)
+           else
+             make_move(turn, color)
+           end
+
+    if move.nil?
+      return @board.is_checked?(color) ? 'Checkmate' : 'Stalemate'
+    end
+
+    puts draw(move)
+    return 'Draw' if @board.only_kings_left?
+
+    positions << @board.notation
+    if positions.count(@board.notation) > 2
+      return 'Draw due to threefold repetition'
+    end
+
+    nil
   end
 
   def draw(args)

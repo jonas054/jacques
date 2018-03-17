@@ -10,4 +10,13 @@ class Coord < Struct.new(:row, :col) # rubocop:disable Style/StructInheritance
   def left
     Coord.new(row, col - 1)
   end
+
+  def +(other)
+    Coord.new(row + other.first, col + other.last)
+  end
+
+  # Converts 1, 2 into "b6".
+  def position
+    "#{'abcdefgh'[col]}#{Board::SIZE - row}"
+  end
 end

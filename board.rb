@@ -2,9 +2,46 @@
 # frozen_string_literal: true
 
 require 'rainbow'
+require 'forwardable'
 
 # Represents the chess board and has some knowledge about the pieces.
 class Board
+  extend Forwardable
+
+  # Remembers if kings or rooks have moved, which is important for evaluation
+  # of whether it's legal to castle.
+  class MovementRecord
+    def initialize
+      @record = {}
+      @record[:white] = {}
+      @record[:black] = {}
+    end
+
+    def king_has_moved?(color)
+      @record[color][:king]
+    end
+
+    def king_side_rook_has_moved?(color)
+      @record[color][:king_side_rook]
+    end
+
+    def queen_side_rook_has_moved?(color)
+      @record[color][:queen_side_rook]
+    end
+
+    def check_movement(piece, color, start_col)
+      case piece
+      when '♔', '♚'
+        @record[color][:king] = true
+      when '♖', '♜'
+        case start_col
+        when 0 then @record[color][:queen_side_rook] = true
+        when 7 then @record[color][:king_side_rook] = true
+        end
+      end
+    end
+  end
+
   SIZE = 8
   INITIAL_BOARD = ['♜♞♝♛♚♝♞♜',
                    '♟♟♟♟♟♟♟♟',
@@ -20,6 +57,11 @@ class Board
 
   attr_reader :previous
 
+  def_delegators :@movements,
+                 :king_has_moved?,
+                 :queen_side_rook_has_moved?,
+                 :king_side_rook_has_moved?
+
   def initialize(original = nil)
     @squares = INITIAL_BOARD.join('-').split(/-/)
     if original
@@ -29,9 +71,7 @@ class Board
         end
       end
     end
-    @movements = {}
-    @movements[:white] = {}
-    @movements[:black] = {}
+    @movements = MovementRecord.new
   end
 
   def setup(contents)
@@ -54,13 +94,13 @@ class Board
     @squares[row][col]
   end
 
-  def empty?(row, col)
-    get(row, col) == EMPTY_SQUARE
+  def empty?(coord)
+    get(coord.row, coord.col) == EMPTY_SQUARE
   end
 
   def only_kings_left?
     (0...SIZE).to_a.repeated_permutation(2).all? do |row, col|
-      empty?(row, col) || %w[♔ ♚].include?(get(row, col))
+      empty?(Coord.new(row, col)) || %w[♔ ♚].include?(get(row, col))
     end
   end
 
@@ -85,32 +125,22 @@ class Board
     taking = take == :must_take_en_passant ||
              taking?(coord.row, coord.col, new_coord.row, new_coord.col)
     is_legal = case take
-               when :cannot_take
-                 empty?(new_coord.row, new_coord.col)
-               when :must_take
-                 taking
-               when :can_take
-                 empty?(new_coord.row, new_coord.col) || taking
-               when :must_take_en_passant
-                 true # conditions already checked
+               when :cannot_take then empty?(new_coord)
+               when :must_take then taking
+               when :can_take then empty?(new_coord) || taking
+               when :must_take_en_passant then true # conditions already checked
                end
     if is_legal
-      result << (position(coord.row, coord.col) + (taking ? 'x' : '') +
-                 position(new_coord.row, new_coord.col))
+      result << (coord.position + (taking ? 'x' : '') + new_coord.position)
     end
   end
 
-  # Converts 1, 2 into "b6".
-  def position(row, col)
-    "#{'abcdefgh'[col]}#{Board::SIZE - row}"
-  end
-
-  def outside_board?(row, col)
-    !(0...SIZE).cover?(row) || !(0...SIZE).cover?(col)
+  def outside_board?(coord)
+    !(0...SIZE).cover?(coord.row) || !(0...SIZE).cover?(coord.col)
   end
 
   def color_at(row, col)
-    return :none if empty?(row, col)
+    return :none if empty?(Coord.new(row, col))
     WHITE_PIECES.include?(get(row, col)) ? :white : :black
   end
 
@@ -119,37 +149,19 @@ class Board
     dest_color != :none && dest_color != color_at(row, col)
   end
 
-  def king_has_moved?(color)
-    @movements[color][:king]
-  end
-
-  def king_side_rook_has_moved?(color)
-    @movements[color][:king_side_rook]
-  end
-
-  def queen_side_rook_has_moved?(color)
-    @movements[color][:queen_side_rook]
-  end
-
   def move(start_row, start_col, new_row, new_col)
     @previous = Board.new(self)
     piece = @squares[start_row][start_col]
     color = color_at(start_row, start_col)
 
     case piece
-    when '♙', '♟'
-      is_pawn = true
-    when '♔', '♚'
-      is_king = true
-      @movements[color][:king] = true
-    when '♖', '♜'
-      case start_col
-      when 0 then @movements[color][:queen_side_rook] = true
-      when 7 then @movements[color][:king_side_rook] = true
-      end
+    when '♙', '♟' then is_pawn = true
+    when '♔', '♚' then is_king = true
     end
 
-    if is_pawn && start_col != new_col && empty?(new_row, new_col)
+    @movements.check_movement(piece, color, start_col)
+
+    if is_pawn && start_col != new_col && empty?(Coord.new(new_row, new_col))
       # Taking en passant
       @squares[start_row][new_col] = EMPTY_SQUARE
     end

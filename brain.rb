@@ -26,9 +26,7 @@ class Brain
     other_color = (who_to_move == :white) ? :black : :white
     RuleBook.legal_moves(other_color, @board) do |_, new_coord, take|
       next if take == :cannot_take
-      dangerous = chosen_moves.select do |m|
-        m.end_with?(@board.position(new_coord.row, new_coord.col))
-      end
+      dangerous = chosen_moves.select { |m| m.end_with?(new_coord.position) }
       chosen_moves -= dangerous if dangerous.size < chosen_moves.size
     end
     chosen_moves.sample

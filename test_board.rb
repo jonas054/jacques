@@ -205,16 +205,16 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_empty
-    assert_false @board.empty?(0, 0)
-    assert_true @board.empty?(3, 3)
+    assert_false @board.empty?(Coord.new(0, 0))
+    assert_true @board.empty?(Coord.new(3, 3))
   end
 
   def test_outside_board
-    assert_false @board.outside_board?(0, 0)
-    assert_true @board.outside_board?(3, 8)
-    assert_true @board.outside_board?(8, 3)
-    assert_true @board.outside_board?(-1, 3)
-    assert_true @board.outside_board?(0, -1)
+    assert_false @board.outside_board?(Coord.new(0, 0))
+    assert_true @board.outside_board?(Coord.new(3, 8))
+    assert_true @board.outside_board?(Coord.new(8, 3))
+    assert_true @board.outside_board?(Coord.new(-1, 3))
+    assert_true @board.outside_board?(Coord.new(0, -1))
   end
 
   def test_color_at

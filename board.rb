@@ -69,7 +69,7 @@ class Board
     if original
       (0...SIZE).each do |row|
         (0...SIZE).each do |col|
-          @squares[row][col] = original.get(row, col)
+          @squares[row][col] = original.get(Coord.new(row, col))
         end
       end
     end
@@ -92,17 +92,14 @@ class Board
     @squares
   end
 
-  def get(row, col)
-    @squares[row][col]
-  end
-
   def empty?(coord)
-    get(coord.row, coord.col) == EMPTY_SQUARE
+    get(coord) == EMPTY_SQUARE
   end
 
   def only_kings_left?
     (0...SIZE).to_a.repeated_permutation(2).all? do |row, col|
-      empty?(Coord.new(row, col)) || %w[♔ ♚].include?(get(row, col))
+      coord = Coord.new(row, col)
+      empty?(coord) || %w[♔ ♚].include?(get(coord))
     end
   end
 
@@ -117,15 +114,14 @@ class Board
   end
 
   def move_piece(chosen_move)
-    start_row, start_col = get_coordinates(chosen_move[/^[a-h][1-8]/])
-    new_row, new_col = get_coordinates(chosen_move[/[a-h][1-8]$/])
-    move(start_row, start_col, new_row, new_col)
-    [start_row, start_col, new_row, new_col]
+    start_coord = Coord.from_position(chosen_move[/^[a-h][1-8]/])
+    new_coord = Coord.from_position(chosen_move[/[a-h][1-8]$/])
+    move(start_coord, new_coord)
+    [start_coord.row, start_coord.col, new_coord.row, new_coord.col]
   end
 
   def add_move_if_legal(result, coord, new_coord, take)
-    taking = take == :must_take_en_passant ||
-             taking?(coord.row, coord.col, new_coord.row, new_coord.col)
+    taking = take == :must_take_en_passant || taking?(coord, new_coord)
     is_legal = case take
                when :cannot_take then empty?(new_coord)
                when :must_take then taking
@@ -141,51 +137,59 @@ class Board
     !(0...SIZE).cover?(coord.row) || !(0...SIZE).cover?(coord.col)
   end
 
-  def color_at(row, col)
-    return :none if empty?(Coord.new(row, col))
-    WHITE_PIECES.include?(get(row, col)) ? :white : :black
+  def color_at(coord)
+    return :none if empty?(coord)
+    WHITE_PIECES.include?(get(coord)) ? :white : :black
   end
 
-  def taking?(row, col, new_row, new_col)
-    dest_color = color_at(new_row, new_col)
-    dest_color != :none && dest_color != color_at(row, col)
+  def taking?(start_coord, new_coord)
+    dest_color = color_at(new_coord)
+    dest_color != :none && dest_color != color_at(start_coord)
   end
 
-  def move(start_row, start_col, new_row, new_col)
+  def move(start_coord, new_coord)
     @previous = Board.new(self)
-    piece = @squares[start_row][start_col]
+    piece = get(start_coord)
 
     case piece
     when '♙', '♟' then is_pawn = true
     when '♔', '♚' then is_king = true
     end
 
-    @movements.check_movement(piece, start_col)
+    @movements.check_movement(piece, start_coord.col)
 
-    handle_en_passant(start_row, start_col, new_row, new_col) if is_pawn
-    @squares[new_row][new_col] = piece
-    handle_pawn_promotion(piece, new_row, new_col) if is_pawn
-    @squares[start_row][start_col] = EMPTY_SQUARE
+    handle_en_passant(start_coord, new_coord) if is_pawn
+    set(new_coord, piece)
+    handle_pawn_promotion(piece, new_coord) if is_pawn
+    set(start_coord, EMPTY_SQUARE)
 
-    return unless (new_col - start_col).abs == 2 && is_king
-    castle(start_row, start_col, new_col)
+    return unless (new_coord.col - start_coord.col).abs == 2 && is_king
+    castle(start_coord.row, start_coord.col, new_coord.col)
   end
 
-  private def handle_en_passant(start_row, start_col, new_row, new_col)
-    return unless start_col != new_col && empty?(Coord.new(new_row, new_col))
-    @squares[start_row][new_col] = EMPTY_SQUARE
+  private def handle_en_passant(start_coord, new_coord)
+    return unless start_coord.col != new_coord.col && empty?(new_coord)
+    @squares[start_coord.row][new_coord.col] = EMPTY_SQUARE
   end
 
-  private def handle_pawn_promotion(piece, new_row, new_col)
-    return unless new_row == 0 || new_row == SIZE - 1
-    @squares[new_row][new_col] = (piece == '♙') ? '♕' : '♛'
+  private def handle_pawn_promotion(piece, new_coord)
+    return unless new_coord.row == 0 || new_coord.row == SIZE - 1
+    set(new_coord, (piece == '♙') ? '♕' : '♛')
   end
 
   private def castle(start_row, start_col, new_col)
-    rook_start_col = new_col > start_col ? 7 : 0
-    rook = @squares[start_row][rook_start_col]
-    @squares[start_row][rook_start_col] = EMPTY_SQUARE
+    rook_start_coord = Coord.new(start_row, new_col > start_col ? 7 : 0)
+    rook = get(rook_start_coord)
+    set(rook_start_coord, EMPTY_SQUARE)
     @squares[start_row][start_col + (new_col - start_col) / 2] = rook
+  end
+
+  private def set(coord, piece)
+    @squares[coord.row][coord.col] = piece
+  end
+
+  def get(coord)
+    @squares[coord.row][coord.col]
   end
 
   def draw(last_move = [])
@@ -208,12 +212,7 @@ class Board
 
   def king_is_taken_by?(taking_moves)
     taking_moves.any? do |move|
-      row, col = get_coordinates(move[-2..-1])
-      %w[♚ ♔].include?(get(row, col))
+      %w[♚ ♔].include?(get(Coord.from_position(move[-2..-1])))
     end
-  end
-
-  def get_coordinates(pos)
-    [SIZE - pos[1].to_i, pos[0].ord - 'a'.ord]
   end
 end

@@ -26,7 +26,7 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_cloning
-    @board.move(6, 4, 5, 4)
+    @board.move(Coord.new(6, 4), Coord.new(5, 4))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -36,7 +36,7 @@ class TestBoard < Test::Unit::TestCase
                   '♙♙♙♙ ♙♙♙',
                   '♖♘♗♕♔♗♘♖'], @board.current
     new_board = Board.new(@board)
-    new_board.move(5, 4, 4, 4)
+    new_board.move(Coord.new(5, 4), Coord.new(4, 4))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -46,12 +46,12 @@ class TestBoard < Test::Unit::TestCase
                   '♙♙♙♙ ♙♙♙',
                   '♖♘♗♕♔♗♘♖'], new_board.current
     assert_not_equal @board.current, new_board.current
-    @board.move(5, 4, 4, 4)
+    @board.move(Coord.new(5, 4), Coord.new(4, 4))
     assert_equal @board.current, new_board.current
   end
 
   def test_en_passant
-    @board.move(6, 5, 3, 5)
+    @board.move(Coord.new(6, 5), Coord.new(3, 5))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -60,7 +60,7 @@ class TestBoard < Test::Unit::TestCase
                   '        ',
                   '♙♙♙♙♙ ♙♙',
                   '♖♘♗♕♔♗♘♖'], @board.current
-    @board.move(1, 6, 3, 6)
+    @board.move(Coord.new(1, 6), Coord.new(3, 6))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟ ♟',
                   '        ',
@@ -69,7 +69,7 @@ class TestBoard < Test::Unit::TestCase
                   '        ',
                   '♙♙♙♙♙ ♙♙',
                   '♖♘♗♕♔♗♘♖'], @board.current
-    @board.move(3, 5, 2, 6)
+    @board.move(Coord.new(3, 5), Coord.new(2, 6))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟ ♟',
                   '      ♙ ',
@@ -81,7 +81,7 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_wrong_piece_for_en_passant
-    @board.move(7, 3, 3, 5)
+    @board.move(Coord.new(7, 3), Coord.new(3, 5))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -90,7 +90,7 @@ class TestBoard < Test::Unit::TestCase
                   '        ',
                   '♙♙♙♙♙♙♙♙',
                   '♖♘♗ ♔♗♘♖'], @board.current
-    @board.move(1, 6, 3, 6)
+    @board.move(Coord.new(1, 6), Coord.new(3, 6))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟ ♟',
                   '        ',
@@ -99,7 +99,7 @@ class TestBoard < Test::Unit::TestCase
                   '        ',
                   '♙♙♙♙♙♙♙♙',
                   '♖♘♗ ♔♗♘♖'], @board.current
-    @board.move(3, 5, 2, 6)
+    @board.move(Coord.new(3, 5), Coord.new(2, 6))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟ ♟',
                   '      ♕ ',
@@ -122,7 +122,7 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ♔ ▒♖
         abcdefgh
     TEXT
-    @board.move(7, 4, 7, 6)
+    @board.move(Coord.new(7, 4), Coord.new(7, 6))
     assert_equal ['        ',
                   '        ',
                   '        ',
@@ -145,7 +145,7 @@ class TestBoard < Test::Unit::TestCase
       1 ♖ ▒ ♔ ▒
         abcdefgh
     TEXT
-    @board.move(7, 4, 7, 2)
+    @board.move(Coord.new(7, 4), Coord.new(7, 2))
     assert_equal ['        ',
                   '        ',
                   '        ',
@@ -168,7 +168,7 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(0, 4, 0, 6)
+    @board.move(Coord.new(0, 4), Coord.new(0, 6))
     assert_equal ['     ♜♚ ',
                   '        ',
                   '        ',
@@ -191,7 +191,7 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(0, 4, 0, 2)
+    @board.move(Coord.new(0, 4), Coord.new(0, 2))
     assert_equal ['  ♚♜    ',
                   '        ',
                   '        ',
@@ -203,7 +203,7 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_get
-    assert_equal '♜', @board.get(0, 0)
+    assert_equal '♜', @board.get(Coord.new(0, 0))
   end
 
   def test_empty
@@ -220,13 +220,14 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_color_at
-    assert_equal :black, @board.color_at(0, 0)
-    assert_equal :white, @board.color_at(7, 0)
+    assert_equal :black, @board.color_at(Coord.new(0, 0))
+    assert_equal :white, @board.color_at(Coord.new(7, 0))
   end
 
   def test_taking
-    @board.move(6, 0, 2, 0) # Illegal move, but there's no checking.
-    assert_true @board.taking?(2, 0, 1, 1)
+    # Illegal move, but there's no checking.
+    @board.move(Coord.new(6, 0), Coord.new(2, 0))
+    assert_true @board.taking?(Coord.new(2, 0), Coord.new(1, 1))
   end
 
   def test_draw
@@ -242,14 +243,14 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_king_is_taken_by
-    @board.move(7, 4, 2, 4)
+    @board.move(Coord.new(7, 4), Coord.new(2, 4))
     assert_true @board.king_is_taken_by?(['d7xe6'])
     assert_true @board.king_is_taken_by?(['f7xe6'])
     assert_false @board.king_is_taken_by?(['f7xh6'])
   end
 
   def test_move_and_previous
-    @board.move(6, 4, 5, 4)
+    @board.move(Coord.new(6, 4), Coord.new(5, 4))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -261,7 +262,7 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_colors # rubocop:disable Metrics/AbcSize
-    @board.move(6, 4, 5, 4)
+    @board.move(Coord.new(6, 4), Coord.new(5, 4))
     Rainbow.enabled = true
     assert_equal <<~TEXT, @board.draw([6, 4, 5, 4])
       8#{wh'♜'}#{bk'♞'}#{wh'♝'}#{bk'♛'}#{wh'♚'}#{bk'♝'}#{wh'♞'}#{bk'♜'}
@@ -331,7 +332,7 @@ class TestBoard < Test::Unit::TestCase
         abcdefgh
     TEXT
     assert_false @board.only_kings_left?
-    @board.move(2, 4, 3, 4)
+    @board.move(Coord.new(2, 4), Coord.new(3, 4))
     assert_true @board.only_kings_left?
   end
 
@@ -347,7 +348,7 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(1, 5, 0, 5)
+    @board.move(Coord.new(1, 5), Coord.new(0, 5))
     assert_equal ['     ♕  ',
                   '        ',
                   '        ',
@@ -370,7 +371,7 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(6, 5, 7, 5)
+    @board.move(Coord.new(6, 5), Coord.new(7, 5))
     assert_equal ['        ',
                   '        ',
                   '        ',

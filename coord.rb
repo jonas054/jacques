@@ -19,4 +19,8 @@ class Coord < Struct.new(:row, :col) # rubocop:disable Style/StructInheritance
   def position
     "#{'abcdefgh'[col]}#{Board::SIZE - row}"
   end
+
+  def self.from_position(pos)
+    Coord.new(Board::SIZE - pos[1].to_i, pos[0].ord - 'a'.ord)
+  end
 end

@@ -16,21 +16,22 @@ class RuleBook
         Board::SIZE.times.each do |col|
           next if only_from && col != only_from[1]
 
-          piece_color = board.color_at(row, col)
+          current_coord = Coord.new(row, col)
+          piece_color = board.color_at(current_coord)
           next unless piece_color == who_to_move
 
-          legal_moves_from(board, row, col, is_top_level_call, &block)
+          legal_moves_from(board, current_coord, is_top_level_call, &block)
         end
       end
     end
 
-    private def legal_moves_from(board, row, col, is_top_level_call, &block)
-      piece = board.get(row, col)
-      current_coord = Coord.new(row, col)
+    private def legal_moves_from(board, current_coord, is_top_level_call,
+                                 &block)
+      piece = board.get(current_coord)
       case piece
       when '♜', '♖', '♝', '♗', '♛', '♕'
-        each_move_length(board, row, col) do |new_row, new_col|
-          yield current_coord, Coord.new(new_row, new_col), :can_take
+        each_move_length(board, current_coord) do |new_coord|
+          yield current_coord, new_coord, :can_take
         end
       when '♞', '♘'
         legal_knight_moves(board, current_coord, &block)
@@ -74,36 +75,33 @@ class RuleBook
         yield current_coord, current_coord + [2 * direction, 0], :cannot_take
       end
       if current_coord.row == (piece == '♟' ? 4 : 3)
-        add_en_passant_if_legal(board, current_coord.row, current_coord.col, 1,
-                                &block)
-        add_en_passant_if_legal(board, current_coord.row, current_coord.col, -1,
-                                &block)
+        add_en_passant_if_legal(board, current_coord, 1, &block)
+        add_en_passant_if_legal(board, current_coord, -1, &block)
       end
     end
 
-    private def each_move_length(board, row, col)
-      directions = case board.get(row, col)
+    private def each_move_length(board, start_coord)
+      directions = case board.get(start_coord)
                    when '♜', '♖' then ROOK_DIRECTIONS
                    when '♝', '♗' then BISHOP_DIRECTIONS
                    when '♛', '♕' then ALL_DIRECTIONS
                    end
-      piece_color = board.color_at(row, col)
+      piece_color = board.color_at(start_coord)
       other_color = (piece_color == :white) ? :black : :white
       directions.each do |y, x|
         (1...Board::SIZE).each do |scale|
-          new_row = row + y * scale
-          new_col = col + x * scale
-          break if board.outside_board?(Coord.new(new_row, new_col))
-          break if board.color_at(new_row, new_col) == piece_color
-          yield new_row, new_col
-          break if board.color_at(new_row, new_col) == other_color
+          new_coord = start_coord + [y * scale, x * scale]
+          break if board.outside_board?(new_coord)
+          break if board.color_at(new_coord) == piece_color
+          yield new_coord
+          break if board.color_at(new_coord) == other_color
         end
       end
     end
 
     private def find_castle_move(board, current_coord, empty_columns,
                                  unattacked_columns, rook_column)
-      piece_color = board.color_at(current_coord.row, current_coord.col)
+      piece_color = board.color_at(current_coord)
       royalty_row = (piece_color == :white) ? 7 : 0
       return unless current_coord.row == royalty_row
 
@@ -111,7 +109,7 @@ class RuleBook
       free_way =
         empty_columns.all? { |x| board.empty?(Coord.new(current_coord.row, x)) }
       return unless free_way &&
-                    board.get(current_coord.row, rook_column) == rook
+                    board.get(Coord.new(current_coord.row, rook_column)) == rook
 
       return if attacked?(board, current_coord, piece_color, unattacked_columns)
       return if board.king_has_moved?(piece_color)
@@ -138,19 +136,18 @@ class RuleBook
       false
     end
 
-    private def add_en_passant_if_legal(board, row, col, col_delta)
-      new_col = col + col_delta
-      return unless (A..H).cover?(new_col)
+    private def add_en_passant_if_legal(board, start_coord, col_delta)
+      return unless (A..H).cover?(start_coord.col + col_delta)
 
-      pawn = board.get(row, col)
+      pawn = board.get(start_coord)
       opposite_pawn = (pawn == '♟') ? '♙' : '♟'
-      return unless board.get(row, new_col) == opposite_pawn
+      return if board.get(start_coord + [0, col_delta]) != opposite_pawn
 
       direction = (pawn == '♟') ? 1 : -1
-      return unless board.previous.get(row + 2 * direction, new_col) ==
-                    opposite_pawn
+      return if board.previous.get(start_coord + [2 * direction, col_delta]) !=
+                opposite_pawn
 
-      yield Coord.new(row, col), Coord.new(row + direction, new_col),
+      yield start_coord, start_coord + [direction, col_delta],
             :must_take_en_passant
     end
   end

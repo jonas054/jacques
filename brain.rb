@@ -40,8 +40,8 @@ class Brain
     my_moves = []
     RuleBook.legal_moves(who_to_move, @board) do |coord, new_coord, take|
       new_board = Board.new(@board)
-      color_of_moving_piece = new_board.color_at(coord.row, coord.col)
-      new_board.move(coord.row, coord.col, new_coord.row, new_coord.col)
+      color_of_moving_piece = new_board.color_at(coord)
+      new_board.move(coord, new_coord)
       next if new_board.is_checked?(color_of_moving_piece)
 
       @board.add_move_if_legal(my_moves, coord, new_coord, take)
@@ -50,18 +50,21 @@ class Brain
   end
 
   private def is_castling_move?(move)
-    row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
-    _, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
-    %w[♚ ♔].include?(@board.get(row, col)) && (new_col - col).abs == 2
+    start_coord = Coord.from_position(move[/^[a-h][1-8]/])
+    new_coord = Coord.from_position(move[/[a-h][1-8]$/])
+    %w[♚ ♔].include?(@board.get(start_coord)) &&
+      # rubocop:disable Layout/MultilineOperationIndentation
+      (new_coord.col - start_coord.col).abs == 2
+    # rubocop:enable Layout/MultilineOperationIndentation
   end
 
   private def is_checking_move?(move)
-    row, col = @board.get_coordinates(move[/^[a-h][1-8]/])
-    new_row, new_col = @board.get_coordinates(move[/[a-h][1-8]$/])
+    start_coord = Coord.from_position(move[/^[a-h][1-8]/])
+    new_coord = Coord.from_position(move[/[a-h][1-8]$/])
     new_board = Board.new(@board)
-    color_of_moving_piece = new_board.color_at(row, col)
+    color_of_moving_piece = new_board.color_at(start_coord)
     other_color = (color_of_moving_piece == :white) ? :black : :white
-    new_board.move(row, col, new_row, new_col)
+    new_board.move(start_coord, new_coord)
     new_board.is_checked?(other_color)
   end
 end

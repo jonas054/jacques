@@ -23,8 +23,10 @@ class TestChess < Test::Unit::TestCase
     $stdout = STDOUT
   end
 
-  def test_run_draw
-    srand 4
+  # After updating the brain algorithm to avoid moving to attacked squares, a
+  # queen plus two kings never result in a draw, and it's possible that we
+  # don't get the "only two kings left" kind of draws anymore.
+  def disabled_test_run_draw
     assert_equal 'Draw', @chess.run
     assert_output_lines 10, <<~TEXT
       69.g2xg3
@@ -121,21 +123,21 @@ class TestChess < Test::Unit::TestCase
       1...e7e5
       2.d1a4
       2...g8e7
-      3.a4xd7
-      3...e8xd7
-      4.g2g3
-      4...d7d6
-      5.c4c5
-      5...d6xc5
+      3.a4c2
+      3...f7f6
+      4.c2b3
+      4...h7h6
+      5.b3xb7
+      5...c8xb7
     TEXT
     assert_board <<~TEXT
-      8 ♜♞♝♛ ♝ ♜
-      7 ♟♟♟ ♞♟♟♟
-      6  ▒ ▒ ▒ ▒
-      5 ▒ ♚ ♟ ▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ♙
-      2 ♙♙ ♙♙♙ ♙
+      8 ♜♞ ♛♚♝ ♜
+      7 ♟♝♟♟♞ ♟
+      6      ♟ ♟
+      5     ♟
+      4   ♙
+      3
+      2 ♙♙ ♙♙♙♙♙
       1 ♖♘♗ ♔♗♘♖
         abcdefgh
     TEXT
@@ -194,17 +196,14 @@ class TestChess < Test::Unit::TestCase
 
     move_white
     move_black
-    # The white bihop takes the queen, not because it's a valuable piece, just
-    # because it's the only piece that can be taken. The black king takes the
-    # bishop.
     assert_board <<~TEXT
-      8 ♜♞♝▒ ♝♞♜
-      7 ♟♟♟♚♟♟♟
+      8 ♜♞♝▒♚♝♞♜
+      7 ♟♟♟ ♟♟♟
       6  ▒ ▒ ▒ ♟
-      5 ▒ ▒♟▒ ▒
+      5 ▒♛▒♟▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒♙
-      2 ♙♙♙♙ ♙♙
+      3 ▒ ▒ ♙♙▒♙
+      2 ♙♙♙♙  ♙
       1 ♖♘♗♕♔ ♘♖
         abcdefgh
     TEXT
@@ -216,8 +215,8 @@ class TestChess < Test::Unit::TestCase
       2...d7d5
       3.f1b5
       3...d8d7
-      4.b5xd7
-      4...e8xd7
+      4.f2f3
+      4...d7xb5
     TEXT
   end
 
@@ -328,8 +327,8 @@ class TestChess < Test::Unit::TestCase
   def test_white_takes_en_passant
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟♟♟♟
-      6  ▒ ▒ ▒ ▒
+      7 ♟♟♟♟♟ ♟
+      6  ▒ ▒ ♟ ♟
       5 ▒ ▒ ▒ ▒♙
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
@@ -339,8 +338,8 @@ class TestChess < Test::Unit::TestCase
     TEXT
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟♟▒♟
-      6  ▒ ▒ ▒ ▒
+      7 ♟♟♟♟♟ ▒
+      6  ▒ ▒ ♟ ♟
       5 ▒ ▒ ▒ ♟♙
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
@@ -351,8 +350,8 @@ class TestChess < Test::Unit::TestCase
     move_white
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟♟▒♟
-      6  ▒ ▒ ▒♙▒
+      7 ♟♟♟♟♟ ▒
+      6  ▒ ▒ ♟♙♟
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
@@ -369,8 +368,8 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ♟ ▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙♙♙♙♙♙♙
+      3 ▒ ▒ ▒♙▒♙
+      2 ♙♙♙♙♙▒♙▒
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
@@ -380,8 +379,8 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ♟♙▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙♙♙♙♙ ♙
+      3 ▒ ▒ ▒♙▒♙
+      2 ♙♙♙♙♙▒ ▒
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
@@ -392,8 +391,8 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ♟
-      2 ♙♙♙♙♙♙ ♙
+      3 ▒ ▒ ▒♙♟♙
+      2 ♙♙♙♙♙▒ ▒
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
@@ -896,6 +895,34 @@ class TestChess < Test::Unit::TestCase
       White move: 2.Illegal move
       White move: 2.Illegal move
       White move: 2.
+    TEXT
+  end
+
+  def test_avoid_dangerous_move
+    board = Board.new
+    @chess = Chess.new(@brain, board)
+    setup_board <<~TEXT
+      8 ♜♞♝ ♚♝♞♜
+      7 ♟♟ ♟♟♟♟♟
+      6  ▒♟▒ ▒ ▒
+      5 ♛ ▒ ▒ ▒
+      4  ▒ ♙♙▒ ▒
+      3 ▒ ♙ ▒ ▒
+      2 ♙♙ ▒ ♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+    move_black
+    assert_board <<~TEXT
+      8 ♜♞♝ ♚♝♞♜
+      7 ♟♟ ♟♟ ♟♟
+      6  ▒♟▒ ▒ ▒
+      5 ♛ ▒ ▒♟▒
+      4  ▒ ♙♙▒ ▒
+      3 ▒ ♙ ▒ ▒
+      2 ♙♙ ▒ ♙♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
     TEXT
   end
 

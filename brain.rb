@@ -15,6 +15,7 @@ class Brain
     best_moves = taking_moves(legal_moves) if best_moves.empty?
     best_moves = legal_moves if best_moves.empty?
     best_moves = remove_dangerous_moves(best_moves, who_to_move)
+    best_moves = legal_moves if best_moves.empty?
     best_moves.sample
   end
 
@@ -44,14 +45,13 @@ class Brain
   end
 
   # Return the given best moves except the ones that move to a square attacked
-  # by the other player. The algorithm guarantees that not all moves will be
-  # removed.
+  # by the other player.
   private def remove_dangerous_moves(best_moves, who_to_move)
     other_color = (who_to_move == :white) ? :black : :white
     RuleBook.legal_moves(other_color, @board) do |_, dest, take|
       next if take == :cannot_take
       dangerous = best_moves.select { |m| m.end_with?(dest.position) }
-      best_moves -= dangerous if dangerous.size < best_moves.size
+      best_moves -= dangerous
     end
     best_moves
   end

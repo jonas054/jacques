@@ -29,3 +29,6 @@ Metrics/ClassLength:
 
 Style/MultipleComparison:
   Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false

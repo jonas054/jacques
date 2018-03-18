@@ -857,10 +857,12 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_human_interaction
-    # The first move is legal, the second one is not. The user will be prompted
+    # The first move is legal, the second one is wrong format, the third is
+    # correct format but not a legal move. The user will be prompted
     # for a correct move, which the last one is.
     $stdin = StringIO.new(<<~TEXT)
       e2e4
+      ee3
       e1e3
       e1e2
     TEXT
@@ -891,6 +893,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     assert_equal <<~TEXT.chomp, $stdout.string
       White move: 1.1...g7g6
+      White move: 2.Illegal move
       White move: 2.Illegal move
       White move: 2.
     TEXT

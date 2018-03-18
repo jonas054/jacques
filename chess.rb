@@ -98,11 +98,11 @@ class Chess
   end
 
   def legal?(move)
-    start_coord = Coord.from_position(move[/^[a-h][1-8]/])
-    new_coord = Coord.from_position(move[/[a-h][1-8]$/])
-    RuleBook.legal_moves(@board.color_at(start_coord), @board, true,
-                         [start_coord.row, start_coord.col]) do |_, coord, _|
-      return true if coord == new_coord
+    return false if move !~ /^([a-h][1-8]){2}$/
+    start, dest = Coord.from_move(move)
+    RuleBook.legal_moves(@board.color_at(start), @board, true,
+                         [start.row, start.col]) do |_, coord, _|
+      return true if coord == dest
     end
     false
   end

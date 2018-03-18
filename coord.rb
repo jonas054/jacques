@@ -15,9 +15,19 @@ class Coord < Struct.new(:row, :col) # rubocop:disable Style/StructInheritance
     Coord.new(row + other.first, col + other.last)
   end
 
-  # Converts 1, 2 into "b6".
+  def outside_board?
+    !(0...Board::SIZE).cover?(row) || !(0...Board::SIZE).cover?(col)
+  end
+
+  # Converts Coord(1, 2) into "b6".
   def position
     "#{'abcdefgh'[col]}#{Board::SIZE - row}"
+  end
+
+  # Converts "e2e4" into [Coord(7, 4), Coord(5, 4)].
+  def self.from_move(move)
+    pos = '[a-h][1-8]'
+    [/^#{pos}/, /#{pos}$/].map { |regex| from_position(move[regex]) }
   end
 
   def self.from_position(pos)

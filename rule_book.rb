@@ -30,11 +30,11 @@ class RuleBook
       piece = board.get(current_coord)
       case piece
       when '♜', '♖', '♝', '♗', '♛', '♕'
-        each_move_length(board, current_coord) do |new_coord|
-          yield current_coord, new_coord, :can_take
+        each_move_length(board, current_coord) do |dest|
+          yield current_coord, dest, :can_take
         end
       when '♞', '♘'
-        legal_knight_moves(board, current_coord, &block)
+        legal_knight_moves(current_coord, &block)
       when '♚', '♔'
         legal_king_moves(board, current_coord, is_top_level_call, &block)
       when '♟', '♙'
@@ -42,18 +42,17 @@ class RuleBook
       end
     end
 
-    private def legal_knight_moves(board, current_coord)
+    private def legal_knight_moves(current_coord)
       KNIGHT_DIRECTIONS.each do |r, c|
-        new_coord = current_coord + [r, c]
-        next if board.outside_board?(new_coord)
-        yield current_coord, new_coord, :can_take
+        dest = current_coord + [r, c]
+        yield current_coord, dest, :can_take unless dest.outside_board?
       end
     end
 
     private def legal_king_moves(board, current_coord, is_top_level_call,
                                  &block)
       ALL_DIRECTIONS.each do |y, x|
-        next if board.outside_board?(current_coord + [y, x])
+        next if (current_coord + [y, x]).outside_board?
         yield current_coord, current_coord + [y, x], :can_take
       end
       return unless is_top_level_call && current_coord.col == E
@@ -80,21 +79,21 @@ class RuleBook
       end
     end
 
-    private def each_move_length(board, start_coord)
-      directions = case board.get(start_coord)
+    private def each_move_length(board, start)
+      directions = case board.get(start)
                    when '♜', '♖' then ROOK_DIRECTIONS
                    when '♝', '♗' then BISHOP_DIRECTIONS
                    when '♛', '♕' then ALL_DIRECTIONS
                    end
-      piece_color = board.color_at(start_coord)
+      piece_color = board.color_at(start)
       other_color = (piece_color == :white) ? :black : :white
       directions.each do |y, x|
         (1...Board::SIZE).each do |scale|
-          new_coord = start_coord + [y * scale, x * scale]
-          break if board.outside_board?(new_coord)
-          break if board.color_at(new_coord) == piece_color
-          yield new_coord
-          break if board.color_at(new_coord) == other_color
+          dest = start + [y * scale, x * scale]
+          break if dest.outside_board?
+          break if board.color_at(dest) == piece_color
+          yield dest
+          break if board.color_at(dest) == other_color
         end
       end
     end
@@ -127,27 +126,27 @@ class RuleBook
 
     private def attacked?(board, current_coord, piece_color, unattacked_columns)
       other_color = (piece_color == :white) ? :black : :white
-      legal_moves(other_color, board, false) do |_, new_coord, _|
-        if new_coord.row == current_coord.row &&
-           unattacked_columns.include?(new_coord.col)
+      legal_moves(other_color, board, false) do |_, dest, _|
+        if dest.row == current_coord.row &&
+           unattacked_columns.include?(dest.col)
           return true
         end
       end
       false
     end
 
-    private def add_en_passant_if_legal(board, start_coord, col_delta)
-      return unless (A..H).cover?(start_coord.col + col_delta)
+    private def add_en_passant_if_legal(board, start, col_delta)
+      return unless (A..H).cover?(start.col + col_delta)
 
-      pawn = board.get(start_coord)
+      pawn = board.get(start)
       opposite_pawn = (pawn == '♟') ? '♙' : '♟'
-      return if board.get(start_coord + [0, col_delta]) != opposite_pawn
+      return if board.get(start + [0, col_delta]) != opposite_pawn
 
       direction = (pawn == '♟') ? 1 : -1
-      return if board.previous.get(start_coord + [2 * direction, col_delta]) !=
+      return if board.previous.get(start + [2 * direction, col_delta]) !=
                 opposite_pawn
 
-      yield start_coord, start_coord + [direction, col_delta],
+      yield start, start + [direction, col_delta],
             :must_take_en_passant
     end
   end

@@ -133,10 +133,10 @@ class TestChess < Test::Unit::TestCase
     assert_board <<~TEXT
       8 ♜♞ ♛♚♝ ♜
       7 ♟♝♟♟♞ ♟
-      6      ♟ ♟
-      5     ♟
-      4   ♙
-      3
+      6  ▒ ▒ ♟ ♟
+      5 ▒ ▒ ♟ ▒
+      4  ▒♙▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
       2 ♙♙ ♙♙♙♙♙
       1 ♖♘♗ ♔♗♘♖
         abcdefgh
@@ -922,6 +922,36 @@ class TestChess < Test::Unit::TestCase
       3 ▒ ♙ ▒ ▒
       2 ♙♙ ▒ ♙♙♙
       1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+  end
+
+  def test_choose_a_good_move
+    board = Board.new
+    @chess = Chess.new(@brain, board)
+    setup_board <<~TEXT
+      8  ▒ ♖ ▒ ▒
+      7 ▒ ♟ ▒♚▒
+      6  ♟♞♟♖♟♟♞
+      5 ▒ ▒ ▒ ▒♟
+      4  ♙ ♙ ▒ ▒
+      3 ▒ ▒ ▒♘♗
+      2  ▒ ▒ ♙♙♙
+      1 ▒ ▒ ♕ ♔
+        abcdefgh
+    TEXT
+    move_black
+    # The black knight at c6 kan take one of two pawns or a rook. It should
+    # choose the rook.
+    assert_board <<~TEXT
+      8  ▒ ♞ ▒ ▒
+      7 ▒ ♟ ▒♚▒
+      6  ♟ ♟♖♟♟♞
+      5 ▒ ▒ ▒ ▒♟
+      4  ♙ ♙ ▒ ▒
+      3 ▒ ▒ ▒♘♗
+      2  ▒ ▒ ♙♙♙
+      1 ▒ ▒ ♕ ♔
         abcdefgh
     TEXT
   end

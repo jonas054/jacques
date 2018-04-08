@@ -5,6 +5,8 @@
 class Brain
   attr_writer :board
 
+  SCORE = { '♛' => 9, '♜' => 5, '♞' => 3, '♝' => 3, '♟' => 1,
+            '♕' => 9, '♖' => 5, '♘' => 3, '♗' => 3, '♙' => 1 }.freeze
   def choose_move(who_to_move)
     legal_moves = all_legal_moves_that_dont_put_me_in_check(who_to_move)
 
@@ -28,7 +30,15 @@ class Brain
   end
 
   private def taking_moves(moves)
-    moves.select { |move| move =~ /x/ }
+    taking = moves.select { |move| move =~ /x/ }
+    sorted = taking.sort_by { |move| SCORE[taken_piece(move)] }
+    return [] if sorted.empty?
+    most_valuable_piece = taken_piece(sorted.last)
+    sorted.select { |move| taken_piece(move) == most_valuable_piece }
+  end
+
+  private def taken_piece(move)
+    @board.get(Coord.from_move(move).last)
   end
 
   private def all_legal_moves_that_dont_put_me_in_check(who_to_move)

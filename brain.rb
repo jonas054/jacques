@@ -38,7 +38,11 @@ class Brain
   end
 
   private def taken_piece(move)
-    @board.get(Coord.from_move(move).last)
+    coord = Coord.from_move(move)
+    piece = @board.get(coord.last)
+    return piece if piece != Board::EMPTY_SQUARE
+    # En passant
+    (@board.color_at(coord.first) == :white) ? '♟' : '♙'
   end
 
   private def all_legal_moves_that_dont_put_me_in_check(who_to_move)

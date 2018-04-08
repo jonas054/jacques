@@ -23,19 +23,17 @@ class TestChess < Test::Unit::TestCase
     $stdout = STDOUT
   end
 
-  # After updating the brain algorithm to avoid moving to attacked squares, a
-  # queen plus two kings never result in a draw, and it's possible that we
-  # don't get the "only two kings left" kind of draws anymore.
-  def disabled_test_run_draw
-    assert_equal 'Draw', @chess.run
+  def test_run_draw
+    srand 22
+    assert_equal 'Draw due to insufficient material', @chess.run
     assert_output_lines 10, <<~TEXT
-      69.g2xg3
+      103.e4xd4
       8  ▒ ▒ ▒ ▒
-      7 ▒ ▒ ▒ ▒
-      6  ▒ ▒ ▒♚▒
+      7 ▒ ▒♚▒ ▒
+      6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ♔
+      4  ▒ ♔ ▒
+      3 ▒ ▒ ▒ ▒
       2  ▒ ▒ ▒ ▒
       1 ▒ ▒ ▒ ▒
         abcdefgh

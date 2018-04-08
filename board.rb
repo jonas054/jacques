@@ -3,6 +3,7 @@
 
 require 'rainbow'
 require 'forwardable'
+require_relative 'coord'
 
 # Represents the chess board and has some knowledge about the pieces.
 class Board
@@ -96,10 +97,17 @@ class Board
     get(coord) == EMPTY_SQUARE
   end
 
-  def only_kings_left?
-    (0...SIZE).to_a.repeated_permutation(2).all? do |row, col|
-      [EMPTY_SQUARE, '♔', '♚'].include?(get(Coord.new(row, col)))
+  def insufficient_material?
+    bishops_and_knights = 0
+    (0...SIZE).to_a.repeated_permutation(2).each do |row, col|
+      piece = get(Coord.new(row, col))
+      case piece
+      when '♗', '♘', '♝', '♞' then bishops_and_knights += 1
+      when '♔', '♚', EMPTY_SQUARE then nil
+      else return false # queen, rook, or pawn means sufficient to checkmate
+      end
     end
+    bishops_and_knights < 2
   end
 
   def is_checked?(color)

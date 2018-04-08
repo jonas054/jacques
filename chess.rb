@@ -62,7 +62,7 @@ class Chess
     end
 
     puts draw(move)
-    return 'Draw' if @board.only_kings_left?
+    return 'Draw due to insufficient material' if @board.insufficient_material?
 
     positions << @board.notation
     if positions.count(@board.notation) > 2

@@ -319,7 +319,7 @@ class TestBoard < Test::Unit::TestCase
                   '♖♘♗♕♔♗♘♖'], @board.previous.current
   end
 
-  def test_only_kings_left
+  def test_insufficient_material_only_kings
     @board.setup(<<~TEXT)
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
@@ -331,9 +331,144 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒♔▒ ▒
         abcdefgh
     TEXT
-    assert_false @board.only_kings_left?
+    assert_false @board.insufficient_material?
     @board.move(Coord.new(2, 4), Coord.new(3, 4))
-    assert_true @board.only_kings_left?
+    assert_true @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_a_white_bishop
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♗ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_true @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_two_white_bishops
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♗♗▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_false @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_a_black_bishop
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♝ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_true @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_two_black_bishops
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♝♝▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_false @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_a_white_knight
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♘ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_true @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_two_white_knights
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♘♘▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_false @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_a_black_knight
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♞ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_true @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_a_black_knight_and_bishop
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♞♝▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_false @board.insufficient_material?
+  end
+
+  def test_insufficient_material_kings_and_one_bishop_each
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒♚▒ ▒
+      5 ▒ ▒ ♗♝▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒♔▒ ▒
+        abcdefgh
+    TEXT
+    assert_false @board.insufficient_material?
   end
 
   def test_white_pawn_promotion

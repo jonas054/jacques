@@ -75,6 +75,7 @@ class Board
       end
     end
     @movements = MovementRecord.new
+    @moves_without_take = 0
   end
 
   def setup(contents)
@@ -110,6 +111,10 @@ class Board
     bishops_and_knights < 2
   end
 
+  def fifty_moves?
+    @moves_without_take >= 100
+  end
+
   def is_checked?(color)
     other_color = (color == :white) ? :black : :white
     RuleBook.legal_moves(other_color, self, false) do |start, dest, take|
@@ -120,7 +125,17 @@ class Board
 
   def move_piece(chosen_move)
     start, dest = Coord.from_move(chosen_move)
+    moving_piece = get(start)
+    case moving_piece
+    when '♙', '♟' then is_pawn = true
+    end
+    taken_piece = get(dest)
     move(start, dest)
+    @moves_without_take = if taken_piece == EMPTY_SQUARE && !is_pawn
+                            @moves_without_take + 1
+                          else
+                            0
+                          end
     [start.row, start.col, dest.row, dest.col]
   end
 

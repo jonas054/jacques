@@ -63,6 +63,7 @@ class Chess
 
     puts draw(move)
     return 'Draw due to insufficient material' if @board.insufficient_material?
+    return 'Draw due to 50 moves rule' if @board.fifty_moves?
 
     positions << @board.notation
     if positions.count(@board.notation) > 2

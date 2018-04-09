@@ -1,6 +1,9 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+require_relative 'board'
+require_relative 'rule_book'
+
 # The part that figures out which moves to make.
 class Brain
   attr_writer :board
@@ -12,6 +15,9 @@ class Brain
 
     return nil if legal_moves.empty?
 
+    mating_move = checkmating_move(legal_moves)
+    return mating_move if mating_move
+
     best_moves = checking_moves(legal_moves)
     best_moves = castling_moves(legal_moves) if best_moves.empty?
     best_moves = taking_moves(legal_moves) if best_moves.empty?
@@ -19,6 +25,10 @@ class Brain
     best_moves = remove_dangerous_moves(best_moves, who_to_move)
     best_moves = legal_moves if best_moves.empty?
     best_moves.sample
+  end
+
+  private def checkmating_move(moves)
+    moves.find { |move| is_mating_move?(move) }
   end
 
   private def checking_moves(moves)
@@ -76,6 +86,19 @@ class Brain
       # rubocop:disable Layout/MultilineOperationIndentation
       (dest.col - start.col).abs == 2
     # rubocop:enable Layout/MultilineOperationIndentation
+  end
+
+  private def is_mating_move?(move)
+    start, dest = Coord.from_move(move)
+    new_board = Board.new(@board)
+    color_of_moving_piece = new_board.color_at(start)
+    other_color = (color_of_moving_piece == :white) ? :black : :white
+    new_board.move(start, dest)
+    return false unless new_board.is_checked?(other_color)
+
+    second_brain = Brain.new
+    second_brain.board = new_board
+    second_brain.choose_move(other_color).nil?
   end
 
   private def is_checking_move?(move)

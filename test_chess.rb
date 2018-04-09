@@ -24,35 +24,35 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_run_draw
-    srand 22
+    srand 7
     assert_equal 'Draw due to insufficient material', @chess.run
     assert_output_lines 10, <<~TEXT
-      103.e4xd4
+      93.e3xf3
       8  ▒ ▒ ▒ ▒
-      7 ▒ ▒♚▒ ▒
+      7 ▒ ▒ ▒ ▒
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
-      4  ▒ ♔ ▒
-      3 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒♔▒
       2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ♚
         abcdefgh
     TEXT
   end
 
   def test_run_repetition_draw
-    srand 14
+    srand 15
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines 10, <<~TEXT
-      8...h5h4
-      8 ♜♞♝▒♚♝♞♜
-      7 ♟♟♟♟▒♟♟♟
-      6  ▒ ▒♟▒ ▒
-      5 ▒ ▒ ▒ ▒
-      4  ▒ ▒ ♙ ♛
-      3 ▒ ▒ ♙ ▒
-      2 ♙♙♙♙ ♔♙♙
-      1 ♖♘♗♕▒♗♘♖
+      68...a8b8
+      8  ♚ ▒ ▒ ▒
+      7 ▒ ▒♝▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ♕ ▒♙♙ ▒
+      4  ▒♙▒ ▒ ▒
+      3 ♔♟▒ ▒♜♟
+      2 ♙▒ ▒ ▒ ▒
+      1 ▒ ♖ ▒ ▒
         abcdefgh
     TEXT
   end
@@ -123,19 +123,19 @@ class TestChess < Test::Unit::TestCase
       2...g8e7
       3.a4c2
       3...f7f6
-      4.c2b3
-      4...h7h6
-      5.b3xb7
-      5...c8xb7
+      4.d2d4
+      4...e5xd4
+      5.e2e4
+      5...b8a6
     TEXT
     assert_board <<~TEXT
-      8 ♜♞ ♛♚♝ ♜
-      7 ♟♝♟♟♞ ♟
-      6  ▒ ▒ ♟ ♟
-      5 ▒ ▒ ♟ ▒
-      4  ▒♙▒ ▒ ▒
+      8 ♜▒♝♛♚♝ ♜
+      7 ♟♟♟♟♞ ♟♟
+      6 ♞▒ ▒ ♟ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒♙♟♙▒ ▒
       3 ▒ ▒ ▒ ▒
-      2 ♙♙ ♙♙♙♙♙
+      2 ♙♙♕▒ ♙♙♙
       1 ♖♘♗ ♔♗♘♖
         abcdefgh
     TEXT
@@ -178,11 +178,10 @@ class TestChess < Test::Unit::TestCase
     TEXT
 
     move_black
-    # Black chooses randomly among the moves that removes the check. It's not a
-    # good one, sacrificing the queen.
+    # Black blocks the check with a bishop.
     assert_board <<~TEXT
-      8 ♜♞♝▒♚♝♞♜
-      7 ♟♟♟♛♟♟♟
+      8 ♜♞ ♛♚♝♞♜
+      7 ♟♟♟♝♟♟♟
       6  ▒ ▒ ▒ ♟
       5 ▒♗▒♟▒ ▒
       4  ▒ ▒ ▒ ▒
@@ -193,16 +192,30 @@ class TestChess < Test::Unit::TestCase
     TEXT
 
     move_white
-    move_black
+    # White moves its light square bishop back to its starting position.
     assert_board <<~TEXT
-      8 ♜♞♝▒♚♝♞♜
-      7 ♟♟♟ ♟♟♟
+      8 ♜♞ ♛♚♝♞♜
+      7 ♟♟♟♝♟♟♟
       6  ▒ ▒ ▒ ♟
-      5 ▒♛▒♟▒ ▒
+      5 ▒ ▒♟▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙♙▒♙
-      2 ♙♙♙♙  ♙
-      1 ♖♘♗♕♔ ♘♖
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
+    TEXT
+
+    move_black
+    # A pretty useless move for the black queen.
+    assert_board <<~TEXT
+      8 ♜♞♛ ♚♝♞♜
+      7 ♟♟♟♝♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒ ▒♟▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ♙ ▒♙
+      2 ♙♙♙♙ ♙♙▒
+      1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
 
@@ -212,9 +225,9 @@ class TestChess < Test::Unit::TestCase
       2.h2h3
       2...d7d5
       3.f1b5
-      3...d8d7
-      4.f2f3
-      4...d7xb5
+      3...c8d7
+      4.b5f1
+      4...d8c8
     TEXT
   end
 

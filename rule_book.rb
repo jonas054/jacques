@@ -7,6 +7,16 @@ require_relative 'coord'
 class RuleBook
   A, B, C, D, E, F, G, H = (0..7).to_a
 
+  ALL_DIRECTIONS =
+    [-1, 0, 1].repeated_permutation(2).reject { |y, x| x == 0 && y == 0 }
+  KNIGHT_DIRECTIONS = [1, 2, -1, -2].permutation(2).select do |x, y|
+    x.abs + y.abs == 3
+  end
+  BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
+  ROOK_DIRECTIONS = [-1, 0, 1].repeated_permutation(2).reject do |x, y|
+    x.abs == y.abs
+  end
+
   class << self
     def legal_moves(who_to_move, board, is_top_level_call = true,
                     only_from = nil, &block)

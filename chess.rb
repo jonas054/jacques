@@ -11,15 +11,6 @@ require_relative 'brain'
 #   to immediate checkmate)
 # - Smarter selection of moves (scoring engine)
 # - Opening book
-ALL_DIRECTIONS =
-  [-1, 0, 1].repeated_permutation(2).reject { |y, x| x == 0 && y == 0 }
-ROOK_DIRECTIONS = [-1, 0, 1].repeated_permutation(2).reject do |x, y|
-  x.abs == y.abs
-end
-KNIGHT_DIRECTIONS = [1, 2, -1, -2].permutation(2).select do |x, y|
-  x.abs + y.abs == 3
-end
-BISHOP_DIRECTIONS = [-1, 1].repeated_permutation(2)
 
 # The main driver of the chess engine.
 class Chess

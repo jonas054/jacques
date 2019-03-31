@@ -148,11 +148,13 @@ class Board
                when :must_take_en_passant then true # conditions already checked
                end
     return [] unless is_legal
+
     [start.position + (taking ? 'x' : '') + dest.position]
   end
 
   def color_at(coord)
     return :none if empty?(coord)
+
     WHITE_PIECES.include?(get(coord)) ? :white : :black
   end
 
@@ -177,11 +179,13 @@ class Board
     set(start, EMPTY_SQUARE)
 
     return unless (dest.col - start.col).abs == 2 && is_king
+
     castle(start.row, start.col, dest.col)
   end
 
   private def handle_en_passant(start, dest)
     return unless start.col != dest.col && empty?(dest)
+
     @squares[start.row][dest.col] = EMPTY_SQUARE
   end
 

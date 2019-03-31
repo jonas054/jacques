@@ -43,6 +43,7 @@ class Brain
     taking = moves.select { |move| move =~ /x/ }
     sorted = taking.sort_by { |move| SCORE[taken_piece(move)] }
     return [] if sorted.empty?
+
     most_valuable_piece = taken_piece(sorted.last)
     sorted.select { |move| taken_piece(move) == most_valuable_piece }
   end
@@ -51,6 +52,7 @@ class Brain
     coord = Coord.from_move(move)
     piece = @board.get(coord.last)
     return piece if piece != Board::EMPTY_SQUARE
+
     # En passant
     (@board.color_at(coord.first) == :white) ? '♟' : '♙'
   end
@@ -74,6 +76,7 @@ class Brain
     other_color = (who_to_move == :white) ? :black : :white
     RuleBook.legal_moves(other_color, @board) do |_, dest, take|
       next if take == :cannot_take
+
       dangerous = best_moves.select { |m| m.end_with?(dest.position) }
       best_moves -= dangerous
     end

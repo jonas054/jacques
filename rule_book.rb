@@ -63,6 +63,7 @@ class RuleBook
                                  &block)
       ALL_DIRECTIONS.each do |y, x|
         next if (current_coord + [y, x]).outside_board?
+
         yield current_coord, current_coord + [y, x], :can_take
       end
       return unless is_top_level_call && current_coord.col == E
@@ -102,6 +103,7 @@ class RuleBook
           dest = start + [y * scale, x * scale]
           break if dest.outside_board?
           break if board.color_at(dest) == piece_color
+
           yield dest
           break if board.color_at(dest) == other_color
         end

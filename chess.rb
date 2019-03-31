@@ -77,6 +77,7 @@ class Chess
       print "White move: #{turn}."
       move = $stdin.gets.chomp
       break if legal?(move)
+
       puts 'Illegal move'
     end
     @board.move_piece(move)
@@ -85,12 +86,14 @@ class Chess
   def make_move(turn, who_to_move)
     chosen_move = @brain.choose_move(who_to_move)
     return nil if chosen_move.nil?
+
     puts "#{turn}.#{'..' if who_to_move == :black}#{chosen_move}"
     @board.move_piece(chosen_move)
   end
 
   def legal?(move)
     return false if move !~ /^([a-h][1-8]){2}$/
+
     start, dest = Coord.from_move(move)
     RuleBook.legal_moves(@board.color_at(start), @board, true,
                          [start.row, start.col]) do |_, coord, _|

@@ -471,7 +471,7 @@ class TestBoard < Test::Unit::TestCase
     assert_false @board.insufficient_material?
   end
 
-  def test_white_pawn_promotion
+  def test_white_pawn_promotion_to_queen
     @board.setup(<<~TEXT)
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒♙▒
@@ -494,7 +494,7 @@ class TestBoard < Test::Unit::TestCase
                   '        '], @board.current
   end
 
-  def test_black_pawn_promotion
+  def test_black_pawn_promotion_to_queen
     @board.setup(<<~TEXT)
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
@@ -515,6 +515,52 @@ class TestBoard < Test::Unit::TestCase
                   '        ',
                   '        ',
                   '     ♛  '], @board.current
+  end
+
+  def test_white_pawn_promotion_to_knight
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒♙▒
+      6  ▒ ▒ ▒♚▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    @board.move(Coord.new(1, 5), Coord.new(0, 5))
+    assert_equal ['     ♘  ',
+                  '        ',
+                  '      ♚ ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        '], @board.current
+  end
+
+  def test_black_pawn_promotion_to_knight
+    @board.setup(<<~TEXT)
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ♔ ♟
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+    TEXT
+    @board.move(Coord.new(6, 7), Coord.new(7, 7))
+    assert_equal ['        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '        ',
+                  '     ♔  ',
+                  '       ♞'], @board.current
   end
 
   def test_incomplete_board_setup

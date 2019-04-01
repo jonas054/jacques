@@ -7,8 +7,6 @@ require_relative 'rule_book'
 require_relative 'brain'
 
 # TODO: These.
-# - Semi-smart selection of piece at pawn promotion (i.e. knight if that leads
-#   to immediate checkmate)
 # - Smarter selection of moves (scoring engine)
 # - Opening book
 

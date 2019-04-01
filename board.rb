@@ -190,7 +190,18 @@ class Board
   end
 
   private def handle_pawn_promotion(piece, dest)
-    set(dest, (piece == '♙') ? '♕' : '♛') if [0, SIZE - 1].include?(dest.row)
+    other_king = (piece == '♙') ? '♚' : '♔'
+    one_row_away = (dest.row == 0) ? 1 : 6
+    two_rows_away = (dest.row == 0) ? 2 : 5
+    new_piece = if @squares[two_rows_away][dest.col + 1] == other_king ||
+                   @squares[two_rows_away][dest.col - 1] == other_king ||
+                   @squares[one_row_away][dest.col + 2] == other_king ||
+                   @squares[one_row_away][dest.col - 2] == other_king
+                  (piece == '♙') ? '♘' : '♞'
+                else
+                  (piece == '♙') ? '♕' : '♛'
+                end
+    set(dest, new_piece) if [0, SIZE - 1].include?(dest.row)
   end
 
   private def castle(start_row, start_col, new_col)

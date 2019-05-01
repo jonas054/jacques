@@ -12,7 +12,7 @@ class TestChess < Test::Unit::TestCase
   def setup
     Rainbow.enabled = false
     @brain = Brain.new
-    @chess = Chess.new(@brain)
+    @chess = Chess.new(@brain, show_taken_pieces: true)
     $stdout = StringIO.new
     srand 1
     @last_move = []
@@ -26,16 +26,16 @@ class TestChess < Test::Unit::TestCase
   def test_run_draw
     srand 7
     assert_equal 'Draw due to insufficient material', @chess.run
-    assert_output_lines 10, <<~TEXT
+    assert_output_lines <<~TEXT
       93.e3xf3
-      8  ▒ ▒ ▒ ▒
+      8  ▒ ▒ ▒ ▒ | ♟♝♛♟♜♜♝♟♟♞♞♟♟♟♟
       7 ▒ ▒ ▒ ▒
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒♔▒
       2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ▒ ♚
+      1 ▒ ▒ ▒ ♚  | ♗♖♕♙♘♗♘♖♙♙♙♙♕♙♙
         abcdefgh
     TEXT
   end
@@ -43,16 +43,16 @@ class TestChess < Test::Unit::TestCase
   def test_run_repetition_draw
     srand 15
     assert_equal 'Draw due to threefold repetition', @chess.run
-    assert_output_lines 10, <<~TEXT
+    assert_output_lines <<~TEXT
       68...a8b8
-      8  ♚ ▒ ▒ ▒
+      8  ♚ ▒ ▒ ▒ | ♝♞♛♟♞♟♟♟♟♜♟
       7 ▒ ▒♝▒ ▒
       6  ▒ ▒ ▒ ▒
       5 ♕ ▒♙♙ ▒
       4  ▒♙▒ ▒ ▒
       3 ♔♟▒ ▒♜♟
       2 ♙▒ ▒ ▒ ▒
-      1 ▒ ♖ ▒ ▒
+      1 ▒ ♖ ▒ ▒  | ♙♘♖♙♘♕♗♗♙
         abcdefgh
     TEXT
   end
@@ -61,7 +61,7 @@ class TestChess < Test::Unit::TestCase
     # Fastest possible checkmate win for black.
     srand 49
     assert_equal 'Checkmate', @chess.run
-    assert_output_lines 30, <<~TEXT
+    assert_output_lines <<~TEXT
       1...e7e5
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟▒♟♟♟
@@ -136,7 +136,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒♙♟♙▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♕▒ ♙♙♙
-      1 ♖♘♗ ♔♗♘♖
+      1 ♖♘♗ ♔♗♘♖ | ♙
         abcdefgh
     TEXT
   end
@@ -277,7 +277,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ♞ ▒ ▒
       3 ▒ ▒ ▒♙▒♘
       2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗♕♔♗▒♖
+      1 ♖♘♗♕♔♗▒♖ | ♙
         abcdefgh
     TEXT
 
@@ -285,14 +285,14 @@ class TestChess < Test::Unit::TestCase
     move_black
     # White develops its queen too early, and black pushes another pawn.
     assert_board <<~TEXT
-      8 ♜▒♝♛♚♝ ♜
+      8 ♜▒♝♛♚♝ ♜ | ♞
       7 ▒♟♟♟♟♟♟♟
       6  ▒ ▒ ♞ ▒
       5 ♟ ▒ ▒ ▒
       4  ▒ ♕ ▒ ▒
       3 ▒ ▒ ▒♙▒♘
       2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗ ♔♗▒♖
+      1 ♖♘♗ ♔♗▒♖ | ♙
         abcdefgh
     TEXT
 
@@ -360,7 +360,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_white
     assert_board <<~TEXT
-      8 ♜♞♝♛♚♝♞♜
+      8 ♜♞♝♛♚♝♞♜ | ♟
       7 ♟♟♟♟♟ ▒
       6  ▒ ▒ ♟♙♟
       5 ▒ ▒ ▒ ▒
@@ -404,7 +404,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒♙♟♙
       2 ♙♙♙♙♙▒ ▒
-      1 ♖♘♗♕♔♗♘♖
+      1 ♖♘♗♕♔♗♘♖ | ♙
         abcdefgh
     TEXT
   end
@@ -710,7 +710,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_white_cannot_castle_because_its_king_has_moved
     board = Board.new
-    @chess = Chess.new(@brain, board)
+    @chess = Chess.new(@brain, board: board)
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -750,7 +750,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_black_cannot_castle_because_its_king_has_moved
     board = Board.new
-    @chess = Chess.new(@brain, board)
+    @chess = Chess.new(@brain, board: board)
     setup_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -781,7 +781,7 @@ class TestChess < Test::Unit::TestCase
   def test_white_cannot_castle_because_rooks_have_moved
     srand 2
     board = Board.new
-    @chess = Chess.new(@brain, board)
+    @chess = Chess.new(@brain, board: board)
     setup_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -825,7 +825,7 @@ class TestChess < Test::Unit::TestCase
   def test_black_cannot_castle_because_rooks_have_moved
     srand 2
     board = Board.new
-    @chess = Chess.new(@brain, board)
+    @chess = Chess.new(@brain, board: board)
     setup_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -913,8 +913,7 @@ class TestChess < Test::Unit::TestCase
   # doesn't, but here the black queen could be taken in the next move if it
   # takes the pawn at a2, so another move is chosen by black.
   def test_avoid_dangerous_move
-    board = Board.new
-    @chess = Chess.new(@brain, board)
+    @chess = Chess.new(@brain, board: Board.new)
     setup_board <<~TEXT
       8 ♜♞♝ ♚♝♞♜
       7 ♟♟ ♟♟♟♟♟
@@ -942,8 +941,6 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_choose_a_good_move
-    board = Board.new
-    @chess = Chess.new(@brain, board)
     setup_board <<~TEXT
       8  ▒ ♖ ▒ ▒
       7 ▒ ♟ ▒♚▒
@@ -966,7 +963,7 @@ class TestChess < Test::Unit::TestCase
       4  ♙ ♙ ▒ ▒
       3 ▒ ▒ ▒♘♗
       2  ▒ ▒ ♙♙♙
-      1 ▒ ▒ ♕ ♔
+      1 ▒ ▒ ♕ ♔  | ♖
         abcdefgh
     TEXT
   end
@@ -985,7 +982,7 @@ class TestChess < Test::Unit::TestCase
     TEXT
     move_white
     assert_board <<~TEXT
-      8 ♜▒ ▒♚▒♞♜
+      8 ♜▒ ▒♚▒♞♜ | ♟
       7 ▒ ▒ ▒ ♟
       6 ♟♕ ♟ ▒ ▒
       5 ▒ ▒ ♙♟ ♟
@@ -1013,9 +1010,9 @@ class TestChess < Test::Unit::TestCase
     assert_equal clean(text), draw
   end
 
-  private def assert_output_lines(nr_of_lines, text)
+  private def assert_output_lines(text)
     assert_equal clean(text),
-                 convert($stdout.string.lines.last(nr_of_lines).join)
+                 convert($stdout.string.lines.last(text.lines.length).join)
   end
 
   private def draw
@@ -1023,13 +1020,13 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def convert(board_output)
-    board_output.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?$/,
+    board_output.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?/,
                       '\1 \2\3\4\5\6\7\8\9')
                 .gsub(/ +$/, '')
   end
 
   private def clean(board_setup)
-    board_setup.tr('▒', ' ').gsub(/ +$/, '')
+    board_setup.tr('▒', ' ').gsub(/ +$/, '').gsub('| ', '')
   end
 end
 

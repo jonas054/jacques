@@ -65,7 +65,9 @@ class Board
                  :queen_side_rook_has_moved?,
                  :king_side_rook_has_moved?
 
-  def initialize(original = nil)
+  def initialize(original: nil, show_taken_pieces: true)
+    @show_taken_pieces = show_taken_pieces
+    @taken = { white: [], black: [] }
     @squares = INITIAL_BOARD.join('-').split(/-/)
     if original
       (0...SIZE).each do |row|
@@ -79,7 +81,7 @@ class Board
   end
 
   def setup(contents)
-    @previous = Board.new(self)
+    @previous = Board.new(original: self, show_taken_pieces: @show_taken_pieces)
     lines = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '')
                     .tr('▒', ' ').lines.map(&:chomp)
     lines += [''] * (8 - lines.size)
@@ -130,6 +132,8 @@ class Board
     when '♙', '♟' then is_pawn = true
     end
     taken_piece = get(dest)
+    taken_color = color_at(dest)
+    @taken[taken_color] << taken_piece if taken_piece != EMPTY_SQUARE
     move(start, dest)
     @moves_without_take = if taken_piece == EMPTY_SQUARE && !is_pawn
                             @moves_without_take + 1
@@ -163,7 +167,7 @@ class Board
   end
 
   def move(start, dest)
-    @previous = Board.new(self)
+    @previous = Board.new(original: self, show_taken_pieces: @show_taken_pieces)
     piece = get(start)
 
     case piece
@@ -185,6 +189,10 @@ class Board
 
   private def handle_en_passant(start, dest)
     return unless start.col != dest.col && empty?(dest)
+
+    taken_piece = @squares[start.row][dest.col]
+    taken_color = WHITE_PIECES.include?(taken_piece) ? :white : :black
+    @taken[taken_color] << taken_piece
 
     @squares[start.row][dest.col] = EMPTY_SQUARE
   end
@@ -232,9 +240,19 @@ class Board
         drawing <<
           Rainbow(" #{@squares[row][col]} ").bg(square_color).fg(:black)
       end
+      drawing << draw_taken_pieces(:black) if row == 0
+      drawing << draw_taken_pieces(:white) if row == 7
       drawing << "\n"
     end
     drawing << "  a  b  c  d  e  f  g  h\n"
+  end
+
+  def draw_taken_pieces(color)
+    if @show_taken_pieces && @taken[color].any?
+      ' ' + Rainbow(@taken[color].join('') + ' ').bg(:blue).fg(:black)
+    else
+      ''
+    end
   end
 
   def king_is_taken_by?(moves)

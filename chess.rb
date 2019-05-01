@@ -12,8 +12,8 @@ require_relative 'brain'
 
 # The main driver of the chess engine.
 class Chess
-  def initialize(brain, board = nil)
-    @board = board || Board.new
+  def initialize(brain, board: nil, show_taken_pieces: true)
+    @board = board || Board.new(show_taken_pieces: show_taken_pieces)
     @brain = brain
     @brain.board = @board
   end
@@ -23,6 +23,7 @@ class Chess
   end
 
   def main(args)
+    @frozen_board = args.include?('-r')
     puts run(args)
   end
 

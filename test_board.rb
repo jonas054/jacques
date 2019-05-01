@@ -35,7 +35,7 @@ class TestBoard < Test::Unit::TestCase
                   '    ♙   ',
                   '♙♙♙♙ ♙♙♙',
                   '♖♘♗♕♔♗♘♖'], @board.current
-    new_board = Board.new(@board)
+    new_board = Board.new(original: @board)
     new_board.move(Coord.new(5, 4), Coord.new(4, 4))
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',

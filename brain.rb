@@ -60,7 +60,7 @@ class Brain
   private def all_legal_moves_that_dont_put_me_in_check(who_to_move)
     moves = []
     RuleBook.legal_moves(who_to_move, @board) do |coord, dest, take|
-      new_board = Board.new(@board)
+      new_board = Board.new(original: @board)
       color_of_moving_piece = new_board.color_at(coord)
       new_board.move(coord, dest)
       next if new_board.is_checked?(color_of_moving_piece)
@@ -93,7 +93,7 @@ class Brain
 
   private def is_mating_move?(move)
     start, dest = Coord.from_move(move)
-    new_board = Board.new(@board)
+    new_board = Board.new(original: @board)
     color_of_moving_piece = new_board.color_at(start)
     other_color = (color_of_moving_piece == :white) ? :black : :white
     new_board.move(start, dest)
@@ -106,7 +106,7 @@ class Brain
 
   private def is_checking_move?(move)
     start, dest = Coord.from_move(move)
-    new_board = Board.new(@board)
+    new_board = Board.new(original: @board)
     color_of_moving_piece = new_board.color_at(start)
     other_color = (color_of_moving_piece == :white) ? :black : :white
     new_board.move(start, dest)

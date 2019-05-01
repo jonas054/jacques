@@ -179,7 +179,7 @@ class Board
 
     handle_en_passant(start, dest) if is_pawn
     set(dest, piece)
-    handle_pawn_promotion(piece, dest) if is_pawn
+    handle_pawn_promotion(piece == '♙', dest) if is_pawn
     set(start, EMPTY_SQUARE)
 
     return unless (dest.col - start.col).abs == 2 && is_king
@@ -197,17 +197,18 @@ class Board
     @squares[start.row][dest.col] = EMPTY_SQUARE
   end
 
-  private def handle_pawn_promotion(piece, dest)
-    other_king = (piece == '♙') ? '♚' : '♔'
-    one_row_away = (dest.row == 0) ? 1 : 6
-    two_rows_away = (dest.row == 0) ? 2 : 5
-    new_piece = if @squares[two_rows_away][dest.col + 1] == other_king ||
-                   @squares[two_rows_away][dest.col - 1] == other_king ||
-                   @squares[one_row_away][dest.col + 2] == other_king ||
-                   @squares[one_row_away][dest.col - 2] == other_king
-                  (piece == '♙') ? '♘' : '♞'
+  private def handle_pawn_promotion(pawn_is_white, dest)
+    dest_col = dest.col
+    other_king = pawn_is_white ? '♚' : '♔'
+    one_row_away = pawn_is_white ? 1 : 6
+    two_rows_away = pawn_is_white ? 2 : 5
+    new_piece = if @squares[two_rows_away][dest_col + 1] == other_king ||
+                   @squares[two_rows_away][dest_col - 1] == other_king ||
+                   @squares[one_row_away][dest_col + 2] == other_king ||
+                   @squares[one_row_away][dest_col - 2] == other_king
+                  pawn_is_white ? '♘' : '♞'
                 else
-                  (piece == '♙') ? '♕' : '♛'
+                  pawn_is_white ? '♕' : '♛'
                 end
     set(dest, new_piece) if [0, SIZE - 1].include?(dest.row)
   end
@@ -232,17 +233,23 @@ class Board
     SIZE.times do |row|
       drawing << (SIZE - row).to_s
       SIZE.times do |col|
-        square_color = col % 2 == row % 2 ? :ghostwhite : :gray
-        if row == last_move[0] && col == last_move[1] ||
-           row == last_move[2] && col == last_move[3]
-          square_color = :yellow
-        end
+        square_color = if [row, col] == [last_move[0], last_move[1]] ||
+                          [row, col] == [last_move[2], last_move[3]]
+                         :yellow
+                       elsif col % 2 == row % 2
+                         :ghostwhite
+                       else
+                         :gray
+                       end
         drawing <<
           Rainbow(" #{@squares[row][col]} ").bg(square_color).fg(:black)
       end
-      drawing << draw_taken_pieces(:black) if row == 0
-      drawing << draw_taken_pieces(:white) if row == 7
-      drawing << "\n"
+      drawing << case row
+                 when 0, 7
+                   draw_taken_pieces(row == 0 ? :black : :white) + "\n"
+                 else
+                   "\n"
+                 end
     end
     drawing << "  a  b  c  d  e  f  g  h\n"
   end

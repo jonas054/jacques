@@ -909,6 +909,9 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  # A move that takes another piece is generally preferred over one that
+  # doesn't, but here the black queen could be taken in the next move if it
+  # takes the pawn at a2, so another move is chosen by black.
   def test_avoid_dangerous_move
     board = Board.new
     @chess = Chess.new(@brain, board)
@@ -924,6 +927,7 @@ class TestChess < Test::Unit::TestCase
         abcdefgh
     TEXT
     move_black
+    # Choose ...f5 instead of ...Qxa2.
     assert_board <<~TEXT
       8 ♜♞♝ ♚♝♞♜
       7 ♟♟ ♟♟ ♟♟

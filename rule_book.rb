@@ -18,6 +18,25 @@ class RuleBook
   end
 
   class << self
+    def king_is_taken_by?(board, moves)
+      moves.any? do |move|
+        %w[♚ ♔].include?(board.get(Coord.from_move(move).last))
+      end
+    end
+
+    def insufficient_material?(board)
+      bishops_and_knights = 0
+      (0...Board::SIZE).to_a.repeated_permutation(2).each do |row, col|
+        piece = board.get(Coord.new(row, col))
+        case piece
+        when '♗', '♘', '♝', '♞' then bishops_and_knights += 1
+        when '♔', '♚', Board::EMPTY_SQUARE then nil
+        else return false # queen, rook, or pawn means sufficient to checkmate
+        end
+      end
+      bishops_and_knights < 2
+    end
+
     def legal_moves(who_to_move, board, is_top_level_call = true,
                     only_from = nil, &block)
       Board::SIZE.times.each do |row|

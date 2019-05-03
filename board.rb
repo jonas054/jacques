@@ -4,6 +4,7 @@
 require 'rainbow'
 require 'forwardable'
 require_relative 'coord'
+require_relative 'rule_book'
 
 # Represents the chess board and has some knowledge about the pieces.
 class Board
@@ -101,16 +102,7 @@ class Board
   end
 
   def insufficient_material?
-    bishops_and_knights = 0
-    (0...SIZE).to_a.repeated_permutation(2).each do |row, col|
-      piece = get(Coord.new(row, col))
-      case piece
-      when '♗', '♘', '♝', '♞' then bishops_and_knights += 1
-      when '♔', '♚', EMPTY_SQUARE then nil
-      else return false # queen, rook, or pawn means sufficient to checkmate
-      end
-    end
-    bishops_and_knights < 2
+    RuleBook.insufficient_material?(self)
   end
 
   def fifty_moves?
@@ -120,7 +112,9 @@ class Board
   def is_checked?(color)
     other_color = (color == :white) ? :black : :white
     RuleBook.legal_moves(other_color, self, false) do |start, dest, take|
-      return true if king_is_taken_by?(add_move_if_legal(start, dest, take))
+      return true if RuleBook.king_is_taken_by?(self,
+                                                add_move_if_legal(start, dest,
+                                                                  take))
     end
     false
   end
@@ -259,13 +253,6 @@ class Board
       ' ' + Rainbow(@taken[color].join('') + ' ').bg(:blue).fg(:black)
     else
       ''
-    end
-  end
-
-  def king_is_taken_by?(moves)
-    taking_moves = moves.select { |m| m.include?('x') }
-    taking_moves.any? do |move|
-      %w[♚ ♔].include?(get(Coord.from_move(move).last))
     end
   end
 end

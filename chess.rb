@@ -16,6 +16,7 @@ class Chess
     @board = board || Board.new(show_taken_pieces: show_taken_pieces)
     @brain = brain
     @brain.board = @board
+    @rule_book = RuleBook.new(@board)
   end
 
   def setup(contents)
@@ -94,8 +95,8 @@ class Chess
     return false if move !~ /^([a-h][1-8]){2}$/
 
     start, dest = Coord.from_move(move)
-    RuleBook.legal_moves(@board.color_at(start), @board, true,
-                         [start.row, start.col]) do |_, coord, _|
+    @rule_book.legal_moves(@board.color_at(start), true,
+                           [start.row, start.col]) do |_, coord, _|
       return true if coord == dest
     end
     false

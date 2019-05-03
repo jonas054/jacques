@@ -243,10 +243,11 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_king_is_taken_by
+    @rule_book = RuleBook.new(@board)
     @board.move(Coord.new(7, 4), Coord.new(2, 4))
-    assert_true RuleBook.king_is_taken_by?(@board, ['d7xe6'])
-    assert_true RuleBook.king_is_taken_by?(@board, ['f7xe6'])
-    assert_false RuleBook.king_is_taken_by?(@board, ['f7xh6'])
+    assert_true @rule_book.king_is_taken_by?(['d7xe6'])
+    assert_true @rule_book.king_is_taken_by?(['f7xe6'])
+    assert_false @rule_book.king_is_taken_by?(['f7xh6'])
   end
 
   def test_move_and_previous

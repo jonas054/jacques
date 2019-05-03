@@ -79,6 +79,7 @@ class Board
     end
     @movements = MovementRecord.new
     @moves_without_take = 0
+    @rule_book = RuleBook.new(self)
   end
 
   def setup(contents)
@@ -102,7 +103,7 @@ class Board
   end
 
   def insufficient_material?
-    RuleBook.insufficient_material?(self)
+    @rule_book.insufficient_material?
   end
 
   def fifty_moves?
@@ -111,10 +112,9 @@ class Board
 
   def is_checked?(color)
     other_color = (color == :white) ? :black : :white
-    RuleBook.legal_moves(other_color, self, false) do |start, dest, take|
-      return true if RuleBook.king_is_taken_by?(self,
-                                                add_move_if_legal(start, dest,
-                                                                  take))
+    @rule_book.legal_moves(other_color, false) do |start, dest, take|
+      return true if @rule_book.king_is_taken_by?(add_move_if_legal(start, dest,
+                                                                    take))
     end
     false
   end

@@ -65,7 +65,7 @@ class Brain
       new_board.move(coord, dest)
       next if new_board.is_checked?(color_of_moving_piece)
 
-      moves += @board.add_move_if_legal(coord, dest, take)
+      moves += rule_book.add_move_if_legal(coord, dest, take)
     end
     moves
   end

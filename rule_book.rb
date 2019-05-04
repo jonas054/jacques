@@ -21,10 +21,29 @@ class RuleBook
     @board = board
   end
 
-  def king_is_taken_by?(moves)
-    moves.any? do |move|
-      %w[♚ ♔].include?(@board.get(Coord.from_move(move).last))
+  def is_checked?(color)
+    other_color = (color == :white) ? :black : :white
+    legal_moves(other_color, false) do |start, dest, take|
+      return true if king_is_taken_by?(add_move_if_legal(start, dest, take))
     end
+    false
+  end
+
+  def add_move_if_legal(start, dest, take)
+    taking = take == :must_take_en_passant || @board.taking?(start, dest)
+    is_legal = case take
+               when :cannot_take then @board.empty?(dest)
+               when :must_take then taking
+               when :can_take then @board.empty?(dest) || taking
+               when :must_take_en_passant then true # conditions already checked
+               end
+    return [] unless is_legal
+
+    [start.position + (taking ? 'x' : '') + dest.position]
+  end
+
+  def king_is_taken_by?(moves)
+    moves.any? { |m| %w[♚ ♔].include?(@board.get(Coord.from_move(m).last)) }
   end
 
   def insufficient_material?

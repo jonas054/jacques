@@ -49,7 +49,7 @@ class Chess
            end
 
     if move.nil?
-      return @board.is_checked?(color) ? 'Checkmate' : 'Stalemate'
+      return @rule_book.is_checked?(color) ? 'Checkmate' : 'Stalemate'
     end
 
     puts draw(move)

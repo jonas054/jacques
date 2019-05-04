@@ -1026,7 +1026,7 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def clean(board_setup)
-    board_setup.tr('▒', ' ').gsub(/ +$/, '').gsub('| ', '')
+    board_setup.tr('▒⋮⋯⋰⋱', '     ').gsub(/ +$/, '').gsub('| ', '')
   end
 end
 

@@ -33,7 +33,7 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒♔▒
+      3 ▒ ▒ ─♔▒
       2  ▒ ▒ ▒ ▒
       1 ▒ ▒ ▒ ♚  | ♗♖♕♙♘♗♘♖♙♙♙♙♕♙♙
         abcdefgh
@@ -45,7 +45,7 @@ class TestChess < Test::Unit::TestCase
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines <<~TEXT
       68...a8b8
-      8  ♚ ▒ ▒ ▒ | ♝♞♛♟♞♟♟♟♟♜♟
+      8 ─♚ ▒ ▒ ▒ | ♝♞♛♟♞♟♟♟♟♜♟
       7 ▒ ▒♝▒ ▒
       6  ▒ ▒ ▒ ▒
       5 ♕ ▒♙♙ ▒
@@ -64,8 +64,8 @@ class TestChess < Test::Unit::TestCase
     assert_output_lines <<~TEXT
       1...e7e5
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟▒♟♟♟
-      6  ▒ ▒ ▒ ▒
+      7 ♟♟♟♟│♟♟♟
+      6  ▒ ▒│▒ ▒
       5 ▒ ▒ ♟ ▒
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒♙▒
@@ -78,15 +78,15 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ♟ ▒
       4  ▒ ▒ ▒♙▒
-      3 ▒ ▒ ▒♙▒
-      2 ♙♙♙♙♙▒ ♙
+      3 ▒ ▒ ▒♙│
+      2 ♙♙♙♙♙▒│♙
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
       2...d8h4
-      8 ♜♞♝▒♚♝♞♜
-      7 ♟♟♟♟▒♟♟♟
-      6  ▒ ▒ ▒ ▒
-      5 ▒ ▒ ♟ ▒
+      8 ♜♞♝╲♚♝♞♜
+      7 ♟♟♟♟╲♟♟♟
+      6  ▒ ▒ ╲▒
+      5 ▒ ▒ ♟ ╲
       4  ▒ ▒ ▒♙♛
       3 ▒ ▒ ▒♙▒
       2 ♙♙♙♙♙▒ ♙
@@ -129,9 +129,9 @@ class TestChess < Test::Unit::TestCase
       5...b8a6
     TEXT
     assert_board <<~TEXT
-      8 ♜▒♝♛♚♝ ♜
+      8 ♜│♝♛♚♝ ♜
       7 ♟♟♟♟♞ ♟♟
-      6 ♞▒ ▒ ♟ ▒
+      6 ♞┘ ▒ ♟ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒♙♟♙▒ ▒
       3 ▒ ▒ ▒ ▒
@@ -926,11 +926,11 @@ class TestChess < Test::Unit::TestCase
         abcdefgh
     TEXT
     move_black
-    # Choose ...f5 instead of ...Qxa2.
+    # Choose ...f5 instead of ...Qxa2 or ...Qxc3.
     assert_board <<~TEXT
       8 ♜♞♝ ♚♝♞♜
-      7 ♟♟ ♟♟ ♟♟
-      6  ▒♟▒ ▒ ▒
+      7 ♟♟ ♟♟│♟♟
+      6  ▒♟▒ │ ▒
       5 ♛ ▒ ▒♟▒
       4  ▒ ♙♙▒ ▒
       3 ▒ ♙ ▒ ▒
@@ -956,9 +956,9 @@ class TestChess < Test::Unit::TestCase
     # The black knight at c6 kan take one of two pawns or a rook. It should
     # choose the rook.
     assert_board <<~TEXT
-      8  ▒ ♞ ▒ ▒
+      8  ▒┌♞ ▒ ▒
       7 ▒ ♟ ▒♚▒
-      6  ♟ ♟♖♟♟♞
+      6  ♟│♟♖♟♟♞
       5 ▒ ▒ ▒ ▒♟
       4  ♙ ♙ ▒ ▒
       3 ▒ ▒ ▒♘♗
@@ -985,10 +985,10 @@ class TestChess < Test::Unit::TestCase
       8 ♜▒ ▒♚▒♞♜ | ♟
       7 ▒ ▒ ▒ ♟
       6 ♟♕ ♟ ▒ ▒
-      5 ▒ ▒ ♙♟ ♟
-      4 ♙♙ ▒ ▒♝♙
-      3 ♞ ♙ ▒ ▒
-      2  ▒♖♙ ▒ ▒
+      5 ▒ ╲ ♙♟ ♟
+      4 ♙♙ ╲ ▒♝♙
+      3 ♞ ♙ ╲ ▒
+      2  ▒♖♙ ╲ ▒
       1 ▒ ♔ ▒ ▒
         abcdefgh
     TEXT
@@ -1026,7 +1026,7 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def clean(board_setup)
-    board_setup.tr('▒⋮⋯⋰⋱', '     ').gsub(/ +$/, '').gsub('| ', '')
+    board_setup.tr('▒│─╱╲┌┐└┘', '         ').gsub(/ +$/, '').gsub('| ', '')
   end
 end
 

@@ -24,35 +24,45 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_run_draw
-    srand 7
+    srand 8481
     assert_equal 'Draw due to insufficient material', @chess.run
     assert_output_lines <<~TEXT
-      93.e3xf3
-      8  ▒ ▒ ▒ ▒ | ♟♝♛♟♜♜♝♟♟♞♞♟♟♟♟
+      57.g3g2
+      8  ▒ ▒ ▒ ▒ | ♛♝♟♝♜♟♟♞♞♟♜♟♟♟♟
       7 ▒ ▒ ▒ ▒
-      6  ▒ ▒ ▒ ▒
-      5 ▒ ▒ ▒ ▒
+      6  ♚ ▒ ▒ ▒
+      5 ▒♙▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ─♔▒
-      2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ▒ ♚  | ♗♖♕♙♘♗♘♖♙♙♙♙♕♙♙
+      3 ▒ ▒ ▒ │
+      2  ▒ ▒ ▒♔▒
+      1 ▒ ▒ ▒ ▒  | ♙♙♖♙♖♗♗♕♘♘♙♙♙♙
+        abcdefgh
+      57...b6xb5
+      8  ▒ ▒ ▒ ▒ | ♛♝♟♝♜♟♟♞♞♟♜♟♟♟♟
+      7 ▒ ▒ ▒ ▒
+      6  │ ▒ ▒ ▒
+      5 ▒♚▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒♔▒
+      1 ▒ ▒ ▒ ▒  | ♙♙♖♙♖♗♗♕♘♘♙♙♙♙♙
         abcdefgh
     TEXT
   end
 
   def test_run_repetition_draw
-    srand 15
+    srand 41
     assert_equal 'Draw due to threefold repetition', @chess.run
     assert_output_lines <<~TEXT
-      68...a8b8
-      8 ─♚ ▒ ▒ ▒ | ♝♞♛♟♞♟♟♟♟♜♟
-      7 ▒ ▒♝▒ ▒
-      6  ▒ ▒ ▒ ▒
-      5 ♕ ▒♙♙ ▒
-      4  ▒♙▒ ▒ ▒
-      3 ♔♟▒ ▒♜♟
-      2 ♙▒ ▒ ▒ ▒
-      1 ▒ ♖ ▒ ▒  | ♙♘♖♙♘♕♗♗♙
+      19.b5d5
+      8  ▒♝♚ ♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒──♕▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
         abcdefgh
     TEXT
   end

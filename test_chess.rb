@@ -53,12 +53,124 @@ class TestChess < Test::Unit::TestCase
   def test_run_repetition_draw
     srand 41
     assert_equal 'Draw due to threefold repetition', @chess.run
+    # Notice that only the white queen and the black king move in this
+    # sequence leading up to the threefold repetition draw.
     assert_output_lines <<~TEXT
+      13...a8xa7
+      8 │▒♝▒♚♝ ♜ | ♞♞♟♛
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♟▒♟▒ ▒
+      4  ♕ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      14.b4xb5
+      8  ▒♝▒♚♝ ♜ | ♞♞♟♛♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♕▒♟▒ ▒ # Check.
+      4  │ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      14...e8d8
+      8  ▒♝♚─♝ ♜ | ♞♞♟♛♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♕▒♟▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      15.b5xd5
+      8  ▒♝♚ ♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒──♕▒ ▒  # Check. 1st time black king and white queen on the d file.
+      4  ▒ ♙ ♙ ♙ # This is the last time any piece is taken in the game.
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      15...d8e8
+      8   ♝─♚♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒ ▒♕▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      16.d5c6
+      8  ▒♝▒♚♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒♕▒ ▒ ♟ # Check.
+      5 ▒ ▒╲▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      16...e8d8
+      8  ▒♝♚─♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒♕▒ ▒ ♟
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      17.c6d5
+      8  ▒♝♚ ♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒╲▒ ▒ ♟
+      5 ▒ ▒♕▒ ▒ # Check. 2nd time black king and white queen on the d file.
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      17...d8e8
+      8  ▒♝─♚♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒ ▒♕▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      18.d5b5
+      8  ▒♝▒♚♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♕──▒ ▒ # Check.
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
+      18...e8d8
+      8  ▒♝♚─♝ ♜ | ♞♞♟♛♟♟
+      7 ♜ ♟ ♟♟♟
+      6  ▒ ▒ ▒ ♟
+      5 ▒♕▒ ▒ ▒
+      4  ▒ ♙ ♙ ♙
+      3 ▒ ▒ ♗ ▒♖
+      2  ♙♙▒♙♙ ▒
+      1 ▒♘▒ ♔♗♘  | ♙♖
+        abcdefgh
       19.b5d5
       8  ▒♝♚ ♝ ♜ | ♞♞♟♛♟♟
       7 ♜ ♟ ♟♟♟
       6  ▒ ▒ ▒ ♟
-      5 ▒──♕▒ ▒
+      5 ▒──♕▒ ▒ # Check. 3rd time black king and white queen on the d file.
       4  ▒ ♙ ♙ ♙
       3 ▒ ▒ ♗ ▒♖
       2  ♙♙▒♙♙ ▒
@@ -72,6 +184,16 @@ class TestChess < Test::Unit::TestCase
     srand 49
     assert_equal 'Checkmate', @chess.run
     assert_output_lines <<~TEXT
+      1.f2f3
+      8 ♜♞♝♛♚♝♞♜
+      7 ♟♟♟♟♟♟♟♟
+      6  ▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ▒ ▒♙▒
+      2 ♙♙♙♙♙│♙♙
+      1 ♖♘♗♕♔♗♘♖
+        abcdefgh
       1...e7e5
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟│♟♟♟
@@ -1036,7 +1158,8 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def clean(board_setup)
-    board_setup.tr('▒│─╱╲┌┐└┘', '         ').gsub(/ +$/, '').gsub('| ', '')
+    board_setup.tr('▒│─╱╲┌┐└┘', '         ').gsub(/ +$/, '').gsub('| ', '').
+      gsub(/ *#.*/, '')
   end
 end
 

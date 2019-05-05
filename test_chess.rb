@@ -816,7 +816,7 @@ class TestChess < Test::Unit::TestCase
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ♙ ▒
-      2 ♙♙♙♙ ♙♙♙
+      2 ♙♙♙♙│♙♙♙
       1 ♖ ▒ ♔ ▒♖
         abcdefgh
     TEXT
@@ -855,8 +855,8 @@ class TestChess < Test::Unit::TestCase
     move_black
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
-      7 ▒♟♟♟♟♟♟♟
-      6  ▒ ▒ ▒ ▒
+      7 │♟♟♟♟♟♟♟
+      6 │▒ ▒ ▒ ▒
       5 ♟ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
@@ -883,8 +883,8 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒♙▒ ▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙♙♙ ♙♙♙
+      3 ▒ ▒ │ ▒
+      2 ♙♙♙♙│♙♙♙
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
@@ -892,13 +892,13 @@ class TestChess < Test::Unit::TestCase
     @chess.get_human_move(2)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
-      7 ♟♟♟♟♟♟ ♟
+      7 ♟♟♟♟♟♟│♟
       6  ▒ ▒ ▒♟▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒♙▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♔♙♙♙
-      1 ♖♘♗♕▒♗♘♖
+      1 ♖♘♗♕│♗♘♖
         abcdefgh
     TEXT
     assert_equal <<~TEXT.chomp, $stdout.string

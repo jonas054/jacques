@@ -854,7 +854,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ▒♔▒♖
         abcdefgh
     TEXT
-    board.move(Coord.new(7, 5), Coord.new(7, 4))
+    board.move(Coord.new(board, 7, 5), Coord.new(board, 7, 4))
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -894,8 +894,8 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    board.move(Coord.new(0, 4), Coord.new(0, 5))
-    board.move(Coord.new(0, 5), Coord.new(0, 4))
+    board.move(Coord.new(board, 0, 4), Coord.new(board, 0, 5))
+    board.move(Coord.new(board, 0, 5), Coord.new(board, 0, 4))
     move_black
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒♜▒
@@ -925,10 +925,10 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ♔  ♖
         abcdefgh
     TEXT
-    board.move(Coord.new(7, 7), Coord.new(7, 6))
-    board.move(Coord.new(7, 6), Coord.new(7, 7))
-    board.move(Coord.new(7, 0), Coord.new(7, 1))
-    board.move(Coord.new(7, 1), Coord.new(7, 0))
+    board.move(Coord.new(board, 7, 7), Coord.new(board, 7, 6))
+    board.move(Coord.new(board, 7, 6), Coord.new(board, 7, 7))
+    board.move(Coord.new(board, 7, 0), Coord.new(board, 7, 1))
+    board.move(Coord.new(board, 7, 1), Coord.new(board, 7, 0))
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -969,10 +969,10 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    board.move(Coord.new(0, 0), Coord.new(0, 1))
-    board.move(Coord.new(0, 1), Coord.new(0, 0))
-    board.move(Coord.new(0, 7), Coord.new(0, 6))
-    board.move(Coord.new(0, 6), Coord.new(0, 7))
+    board.move(Coord.new(board, 0, 0), Coord.new(board, 0, 1))
+    board.move(Coord.new(board, 0, 1), Coord.new(board, 0, 0))
+    board.move(Coord.new(board, 0, 7), Coord.new(board, 0, 6))
+    board.move(Coord.new(board, 0, 6), Coord.new(board, 0, 7))
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟

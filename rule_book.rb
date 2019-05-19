@@ -30,6 +30,7 @@ class RuleBook
   end
 
   def add_move_if_legal(start, dest, take)
+    raise if dest.col >= @board.size
     taking = take == :must_take_en_passant || @board.taking?(start, dest)
     is_legal = case take
                when :cannot_take then @board.empty?(dest)
@@ -43,13 +44,13 @@ class RuleBook
   end
 
   def king_is_taken_by?(moves)
-    moves.any? { |m| %w[♚ ♔].include?(@board.get(Coord.from_move(m).last)) }
+    moves.any? { |m| %w[♚ ♔].include?(@board.get(Coord.from_move(@board, m).last)) }
   end
 
   def insufficient_material?
     bishops_and_knights = 0
-    (0...Board::SIZE).to_a.repeated_permutation(2).each do |row, col|
-      piece = @board.get(Coord.new(row, col))
+    (0...@board.size).to_a.repeated_permutation(2).each do |row, col|
+      piece = @board.get(Coord.new(@board, row, col))
       case piece
       when '♗', '♘', '♝', '♞' then bishops_and_knights += 1
       when '♔', '♚', Board::EMPTY_SQUARE then nil
@@ -61,13 +62,13 @@ class RuleBook
 
   def legal_moves(who_to_move, is_top_level_call = true, only_from = nil,
                   &block)
-    Board::SIZE.times.each do |row|
+    @board.size.times.each do |row|
       next if only_from && row != only_from[0]
 
-      Board::SIZE.times.each do |col|
+      @board.size.times.each do |col|
         next if only_from && col != only_from[1]
 
-        current_coord = Coord.new(row, col)
+        current_coord = Coord.new(@board, row, col)
         piece_color = @board.color_at(current_coord)
         next unless piece_color == who_to_move
 
@@ -107,19 +108,22 @@ class RuleBook
     end
     return unless is_top_level_call && current_coord.col == E
 
-    # King-side castle
-    find_castle_move(current_coord, F..G, E..G, 7, &block)
-    # Queen-side castle
-    find_castle_move(current_coord, B..D, B..E, 0, &block)
+    # TODO: Support catling for smaller boards
+    if @board.size == 8
+      # King-side castle
+      find_castle_move(current_coord, F..G, E..G, 7, &block)
+      # Queen-side castle
+      find_castle_move(current_coord, B..D, B..E, 0, &block)
+    end
   end
 
   private def legal_pawn_moves(current_coord, piece, &block)
     direction = (piece == '♟') ? 1 : -1
     forward = current_coord + [direction, 0]
     yield current_coord, forward, :cannot_take
-    yield current_coord, forward.right, :must_take if current_coord.col < H
+    yield current_coord, forward.right, :must_take if current_coord.col < @board.size - 1
     yield current_coord, forward.left, :must_take if current_coord.col > A
-    if current_coord.row == (piece == '♟' ? 1 : 6) &&
+    if current_coord.row == (piece == '♟' ? 1 : @board.size - 2) &&
        @board.empty?(current_coord + [direction, 0])
       yield current_coord, current_coord + [2 * direction, 0], :cannot_take
     end
@@ -138,7 +142,7 @@ class RuleBook
     piece_color = @board.color_at(start)
     other_color = (piece_color == :white) ? :black : :white
     directions.each do |y, x|
-      (1...Board::SIZE).each do |scale|
+      (1...@board.size).each do |scale|
         dest = start + [y * scale, x * scale]
         break if dest.outside_board?
         break if @board.color_at(dest) == piece_color
@@ -157,9 +161,9 @@ class RuleBook
 
     rook = (piece_color == :white) ? '♖' : '♜'
     free_way =
-      empty_columns.all? { |x| @board.empty?(Coord.new(current_coord.row, x)) }
+      empty_columns.all? { |x| @board.empty?(Coord.new(@board, current_coord.row, x)) }
     return unless free_way &&
-                  @board.get(Coord.new(current_coord.row, rook_column)) == rook
+                  @board.get(Coord.new(@board, current_coord.row, rook_column)) == rook
 
     return if attacked?(current_coord, piece_color, unattacked_columns)
     return if @board.king_has_moved?(piece_color)
@@ -171,7 +175,7 @@ class RuleBook
     end
 
     king_destination = current_coord.col + ((rook_column == 0) ? -2 : 2)
-    yield current_coord, Coord.new(current_coord.row, king_destination),
+    yield current_coord, Coord.new(@board, current_coord.row, king_destination),
           :cannot_take
   end
 

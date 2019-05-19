@@ -49,7 +49,7 @@ class Brain
   end
 
   private def taken_piece(move)
-    coord = Coord.from_move(move)
+    coord = Coord.from_move(@board, move)
     piece = @board.get(coord.last)
     return piece if piece != Board::EMPTY_SQUARE
 
@@ -88,7 +88,7 @@ class Brain
   end
 
   private def is_castling_move?(move)
-    start, dest = Coord.from_move(move)
+    start, dest = Coord.from_move(@board, move)
     %w[♚ ♔].include?(@board.get(start)) &&
       # rubocop:disable Layout/MultilineOperationIndentation
       (dest.col - start.col).abs == 2
@@ -96,7 +96,7 @@ class Brain
   end
 
   private def is_mating_move?(move)
-    start, dest = Coord.from_move(move)
+    start, dest = Coord.from_move(@board, move)
     new_board = Board.new(original: @board)
     color_of_moving_piece = new_board.color_at(start)
     other_color = (color_of_moving_piece == :white) ? :black : :white
@@ -109,7 +109,7 @@ class Brain
   end
 
   private def is_checking_move?(move)
-    start, dest = Coord.from_move(move)
+    start, dest = Coord.from_move(@board, move)
     new_board = Board.new(original: @board)
     color_of_moving_piece = new_board.color_at(start)
     other_color = (color_of_moving_piece == :white) ? :black : :white

@@ -12,8 +12,8 @@ require_relative 'brain'
 
 # The main driver of the chess engine.
 class Chess
-  def initialize(brain, board: nil, show_taken_pieces: true)
-    @board = board || Board.new(show_taken_pieces: show_taken_pieces)
+  def initialize(brain, board: nil, show_taken_pieces: true, size: 8)
+    @board = board || Board.new(show_taken_pieces: show_taken_pieces, size: size.to_i)
     @brain = brain
     @brain.board = @board
     @rule_book = RuleBook.new(@board)
@@ -75,7 +75,9 @@ class Chess
     move = nil
     loop do
       print "White move: #{turn}."
-      move = $stdin.gets.chomp
+      response = $stdin.gets
+      break unless response
+      move = response.chomp
       break if legal?(move)
 
       puts 'Illegal move'
@@ -94,13 +96,13 @@ class Chess
   def legal?(move)
     return false if move !~ /^([a-h][1-8]){2}$/
 
-    start, dest = Coord.from_move(move)
+    start, dest = Coord.from_move(@board, move)
     @rule_book.legal_moves(@board.color_at(start), true,
                            [start.row, start.col]) do |_, coord, _|
-      return true if coord == dest
+      return true if coord.to_s == dest.to_s
     end
     false
   end
 end
 
-Chess.new(Brain.new).main(ARGV) if $PROGRAM_NAME == __FILE__
+Chess.new(Brain.new, size: ENV['CHESS_SIZE'] || 8).main(ARGV) if $PROGRAM_NAME == __FILE__

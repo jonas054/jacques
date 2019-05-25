@@ -32,12 +32,8 @@ class Brain
   end
 
   private def is_mating_move?(move)
-    start, dest = Coord.from_move(@board, move)
-    new_board = Board.new(original: @board)
-    color_of_moving_piece = new_board.color_at(start)
-    other_color = (color_of_moving_piece == :white) ? :black : :white
-    new_board.move(start, dest)
-    return false unless new_board.is_checked?(other_color)
+    new_board, other_color = is_checking_move?(move)
+    return false unless new_board
 
     second_brain = Brain.new
     second_brain.board = new_board
@@ -54,7 +50,7 @@ class Brain
     color_of_moving_piece = new_board.color_at(start)
     other_color = (color_of_moving_piece == :white) ? :black : :white
     new_board.move(start, dest)
-    new_board.is_checked?(other_color)
+    new_board.is_checked?(other_color) ? [new_board, other_color] : false
   end
 
   private def castling_moves(moves)
@@ -107,8 +103,7 @@ class Brain
     rule_book.legal_moves(other_color, @board) do |_, dest, take|
       next if take == :cannot_take
 
-      dangerous = best_moves.select { |m| m.end_with?(dest.position) }
-      best_moves -= dangerous
+      best_moves = best_moves.reject { |m| m.end_with?(dest.position) }
     end
     best_moves
   end

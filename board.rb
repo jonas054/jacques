@@ -77,6 +77,8 @@ class Board
                  :king_has_moved?,
                  :queen_side_rook_has_moved?,
                  :king_side_rook_has_moved?
+  def_delegators :@rule_book, :insufficient_material?, :is_checked?
+
 
   def initialize(original: nil, show_taken_pieces: true, size: nil)
     @size = size.nil? ? (original ? original.size : 8) : size
@@ -115,16 +117,8 @@ class Board
     get(coord) == EMPTY_SQUARE
   end
 
-  def insufficient_material?
-    @rule_book.insufficient_material?
-  end
-
   def fifty_moves?
     @moves_without_take >= 100
-  end
-
-  def is_checked?(color)
-    @rule_book.is_checked?(color)
   end
 
   def move_piece(chosen_move)

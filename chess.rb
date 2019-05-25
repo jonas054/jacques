@@ -12,6 +12,8 @@ require_relative 'brain'
 
 # The main driver of the chess engine.
 class Chess
+  extend Forwardable
+
   def initialize(brain, board: nil, show_taken_pieces: true, size: 8)
     @board = board || Board.new(show_taken_pieces: show_taken_pieces, size: size.to_i)
     @brain = brain
@@ -19,9 +21,7 @@ class Chess
     @rule_book = RuleBook.new(@board)
   end
 
-  def setup(contents)
-    @board.setup(contents)
-  end
+  def_delegators :@board, :setup, :draw
 
   def main(args)
     @frozen_board = args.include?('-r')
@@ -62,10 +62,6 @@ class Chess
     end
 
     nil
-  end
-
-  def draw(args)
-    @board.draw(args)
   end
 
   def get_human_move(turn)

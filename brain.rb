@@ -31,12 +31,42 @@ class Brain
     moves.find { |move| is_mating_move?(move) }
   end
 
+  private def is_mating_move?(move)
+    start, dest = Coord.from_move(@board, move)
+    new_board = Board.new(original: @board)
+    color_of_moving_piece = new_board.color_at(start)
+    other_color = (color_of_moving_piece == :white) ? :black : :white
+    new_board.move(start, dest)
+    return false unless new_board.is_checked?(other_color)
+
+    second_brain = Brain.new
+    second_brain.board = new_board
+    second_brain.choose_move(other_color).nil?
+  end
+
   private def checking_moves(moves)
     moves.select { |move| is_checking_move?(move) }
   end
 
+  private def is_checking_move?(move)
+    start, dest = Coord.from_move(@board, move)
+    new_board = Board.new(original: @board)
+    color_of_moving_piece = new_board.color_at(start)
+    other_color = (color_of_moving_piece == :white) ? :black : :white
+    new_board.move(start, dest)
+    new_board.is_checked?(other_color)
+  end
+
   private def castling_moves(moves)
     moves.select { |m| is_castling_move?(m) }
+  end
+
+  private def is_castling_move?(move)
+    start, dest = Coord.from_move(@board, move)
+    %w[♚ ♔].include?(@board.get(start)) &&
+      # rubocop:disable Layout/MultilineOperationIndentation
+      (dest.col - start.col).abs == 2
+    # rubocop:enable Layout/MultilineOperationIndentation
   end
 
   private def taking_moves(moves)
@@ -85,35 +115,5 @@ class Brain
 
   private def rule_book
     @rule_book ||= RuleBook.new(@board)
-  end
-
-  private def is_castling_move?(move)
-    start, dest = Coord.from_move(@board, move)
-    %w[♚ ♔].include?(@board.get(start)) &&
-      # rubocop:disable Layout/MultilineOperationIndentation
-      (dest.col - start.col).abs == 2
-    # rubocop:enable Layout/MultilineOperationIndentation
-  end
-
-  private def is_mating_move?(move)
-    start, dest = Coord.from_move(@board, move)
-    new_board = Board.new(original: @board)
-    color_of_moving_piece = new_board.color_at(start)
-    other_color = (color_of_moving_piece == :white) ? :black : :white
-    new_board.move(start, dest)
-    return false unless new_board.is_checked?(other_color)
-
-    second_brain = Brain.new
-    second_brain.board = new_board
-    second_brain.choose_move(other_color).nil?
-  end
-
-  private def is_checking_move?(move)
-    start, dest = Coord.from_move(@board, move)
-    new_board = Board.new(original: @board)
-    color_of_moving_piece = new_board.color_at(start)
-    other_color = (color_of_moving_piece == :white) ? :black : :white
-    new_board.move(start, dest)
-    new_board.is_checked?(other_color)
   end
 end

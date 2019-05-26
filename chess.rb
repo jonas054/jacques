@@ -73,6 +73,7 @@ class Chess
       print "White move: #{turn}."
       response = $stdin.gets
       break unless response
+
       move = response.chomp
       break if legal?(move)
 

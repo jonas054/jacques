@@ -31,6 +31,7 @@ class RuleBook
 
   def add_move_if_legal(start, dest, take)
     raise if dest.col >= @board.size
+
     taking = take == :must_take_en_passant || @board.taking?(start, dest)
     is_legal = case take
                when :cannot_take then @board.empty?(dest)

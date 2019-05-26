@@ -66,7 +66,7 @@ class Board
           '        ',
           '♙♙♙♙♙♙♙♙',
           '♖♘♗♕♔♗♘♖']
-  }
+  }.freeze
   EMPTY_SQUARE = ' '
   WHITE_PIECES = '♔♕♖♗♘♙'
   BLACK_PIECES = '♜♞♝♛♚♟'
@@ -78,7 +78,6 @@ class Board
                  :queen_side_rook_has_moved?,
                  :king_side_rook_has_moved?
   def_delegators :@rule_book, :insufficient_material?, :is_checked?
-
 
   def initialize(original: nil, show_taken_pieces: true, size: nil)
     @size = size.nil? ? (original ? original.size : 8) : size

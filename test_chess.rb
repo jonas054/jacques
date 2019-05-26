@@ -364,6 +364,7 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_a_few_other_moves_detailed
+    @chess = Chess.new(@brain, show_taken_pieces: false)
     srand 3
     @last_move = nil
     @turn = 0
@@ -409,7 +410,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ♞ ▒ ▒
       3 ▒ ▒ ▒♙▒♘
       2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗♕♔♗▒♖ | ♙
+      1 ♖♘♗♕♔♗▒♖
         abcdefgh
     TEXT
 
@@ -417,14 +418,14 @@ class TestChess < Test::Unit::TestCase
     move_black
     # White develops its queen too early, and black pushes another pawn.
     assert_board <<~TEXT
-      8 ♜▒♝♛♚♝ ♜ | ♞
+      8 ♜▒♝♛♚♝ ♜
       7 ▒♟♟♟♟♟♟♟
       6  ▒ ▒ ♞ ▒
       5 ♟ ▒ ▒ ▒
       4  ▒ ♕ ▒ ▒
       3 ▒ ▒ ▒♙▒♘
       2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗ ♔♗▒♖ | ♙
+      1 ♖♘♗ ♔♗▒♖
         abcdefgh
     TEXT
 

@@ -69,7 +69,6 @@ class Board
   }.freeze
   EMPTY_SQUARE = ' '
   WHITE_PIECES = '♔♕♖♗♘♙'
-  BLACK_PIECES = '♜♞♝♛♚♟'
 
   attr_reader :previous, :size
 

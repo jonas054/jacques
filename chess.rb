@@ -15,7 +15,8 @@ class Chess
   extend Forwardable
 
   def initialize(brain, board: nil, show_taken_pieces: true, size: 8)
-    @board = board || Board.new(show_taken_pieces: show_taken_pieces, size: size.to_i)
+    @board = board || Board.new(show_taken_pieces: show_taken_pieces,
+                                size: size.to_i)
     @brain = brain
     @brain.board = @board
     @rule_book = RuleBook.new(@board)
@@ -102,4 +103,6 @@ class Chess
   end
 end
 
-Chess.new(Brain.new, size: ENV['CHESS_SIZE'] || 8).main(ARGV) if $PROGRAM_NAME == __FILE__
+if $PROGRAM_NAME == __FILE__
+  Chess.new(Brain.new, size: ENV['CHESS_SIZE'] || 8).main(ARGV)
+end

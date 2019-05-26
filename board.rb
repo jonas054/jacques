@@ -80,7 +80,11 @@ class Board
   def_delegators :@rule_book, :insufficient_material?, :is_checked?
 
   def initialize(original: nil, show_taken_pieces: true, size: nil)
-    @size = size.nil? ? (original ? original.size : 8) : size
+    @size = if size.nil?
+              original ? original.size : 8
+            else
+              size
+            end
     @show_taken_pieces = show_taken_pieces
     @taken = { white: [], black: [] }
     @squares = INITIAL_BOARD[@size].join('-').split(/-/)

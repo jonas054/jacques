@@ -45,7 +45,9 @@ class RuleBook
   end
 
   def king_is_taken_by?(moves)
-    moves.any? { |m| %w[♚ ♔].include?(@board.get(Coord.from_move(@board, m).last)) }
+    moves.any? do |m|
+      %w[♚ ♔].include?(@board.get(Coord.from_move(@board, m).last))
+    end
   end
 
   def insufficient_material?
@@ -122,7 +124,9 @@ class RuleBook
     direction = (piece == '♟') ? 1 : -1
     forward = current_coord + [direction, 0]
     yield current_coord, forward, :cannot_take
-    yield current_coord, forward.right, :must_take if current_coord.col < @board.size - 1
+    if current_coord.col < @board.size - 1
+      yield current_coord, forward.right, :must_take
+    end
     yield current_coord, forward.left, :must_take if current_coord.col > A
     if current_coord.row == (piece == '♟' ? 1 : @board.size - 2) &&
        @board.empty?(current_coord + [direction, 0])
@@ -161,10 +165,12 @@ class RuleBook
     return unless current_coord.row == royalty_row
 
     rook = (piece_color == :white) ? '♖' : '♜'
-    free_way =
-      empty_columns.all? { |x| @board.empty?(Coord.new(@board, current_coord.row, x)) }
-    return unless free_way &&
-                  @board.get(Coord.new(@board, current_coord.row, rook_column)) == rook
+    free_way = empty_columns.all? do |x|
+      @board.empty?(Coord.new(@board, current_coord.row, x))
+    end
+    rook_in_its_original_position =
+      @board.get(Coord.new(@board, current_coord.row, rook_column)) == rook
+    return unless free_way && rook_in_its_original_position
 
     return if attacked?(current_coord, piece_color, unattacked_columns)
     return if @board.king_has_moved?(piece_color)

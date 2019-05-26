@@ -98,6 +98,7 @@ class Board
     @movements = MovementRecord.new(@size)
     @moves_without_take = 0
     @rule_book = RuleBook.new(self)
+    @drawing = Drawing.new(@size, @taken, @show_taken_pieces)
   end
 
   def setup(contents)
@@ -215,36 +216,53 @@ class Board
   end
 
   def draw(last_move = [])
-    drawing = +''
-    @size.times do |row|
-      drawing << (@size - row).to_s
-      @size.times do |col|
-        square_color = if [row, col] == [last_move[0], last_move[1]] ||
-                          [row, col] == [last_move[2], last_move[3]]
-                         :yellow
-                       elsif col % 2 == row % 2
-                         :ghostwhite
-                       else
-                         :gray
-                       end
-        drawing <<
-          Rainbow(" #{@squares[row][col]} ").bg(square_color).fg(:black)
-      end
-      drawing << case row
-                 when 0, @size - 1
-                   draw_taken_pieces(row == 0 ? :black : :white) + "\n"
-                 else
-                   "\n"
-                 end
-    end
-    drawing << '  ' << %w[a b c d e f g h][0, @size].join('  ') << "\n"
+    @drawing.draw(@squares, last_move)
   end
 
-  def draw_taken_pieces(color)
-    if @show_taken_pieces && @taken[color].any?
-      ' ' + Rainbow(@taken[color].join('') + ' ').bg(:blue).fg(:black)
-    else
-      ''
+  # Handles drawing of the board on the screen.
+  class Drawing
+    def initialize(size, taken, show_taken_pieces)
+      @size = size
+      @taken = taken
+      @show_taken_pieces = show_taken_pieces
+    end
+
+    def draw(squares, last_move)
+      drawing = +''
+      @size.times do |row|
+        drawing << (@size - row).to_s
+        @size.times do |col|
+          square_color = square_color(row, col, last_move)
+          drawing <<
+            Rainbow(" #{squares[row][col]} ").bg(square_color).fg(:black)
+        end
+        drawing << case row
+                   when 0, @size - 1
+                     draw_taken_pieces(row == 0 ? :black : :white) + "\n"
+                   else
+                     "\n"
+                   end
+      end
+      drawing << '  ' << %w[a b c d e f g h][0, @size].join('  ') << "\n"
+    end
+
+    def square_color(row, col, last_move)
+      if [row, col] == [last_move[0], last_move[1]] ||
+         [row, col] == [last_move[2], last_move[3]]
+        :yellow
+      elsif col % 2 == row % 2
+        :ghostwhite
+      else
+        :gray
+      end
+    end
+
+    def draw_taken_pieces(color)
+      if @show_taken_pieces && @taken[color].any?
+        ' ' + Rainbow(@taken[color].join('') + ' ').bg(:blue).fg(:black)
+      else
+        ''
+      end
     end
   end
 end

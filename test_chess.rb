@@ -50,6 +50,103 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_run_checkmate_size_4
+    @chess = Chess.new(@brain, size: 4)
+    assert_equal 'Checkmate', @chess.run
+    assert_output_lines <<~TEXT
+      4 ♜♛♚♜
+      3 ♟♟♟♟
+      2 ♙♙♙♙
+      1 ♖♕♔♖
+        abcd
+      1.d2xc3
+      4 ♜♛♚♜ | ♟
+      3 ♟♟♙♟
+      2 ♙♙♙╲
+      1 ♖♕♔♖
+        abcd
+      1...d3d2
+      4 ♜♛♚♜ | ♟
+      3 ♟♟♙│
+      2 ♙♙♙♟
+      1 ♖♕♔♖
+        abcd
+      2.d1xd2
+      4 ♜♛♚♜ | ♟♟
+      3 ♟♟♙
+      2 ♙♙♙♖
+      1 ♖♕♔│
+        abcd
+      2...d4d3
+      4 ♜♛♚│ | ♟♟
+      3 ♟♟♙♜
+      2 ♙♙♙♖
+      1 ♖♕♔
+        abcd
+      3.c2xd3
+      4 ♜♛♚▒ | ♟♟♜
+      3 ♟♟♙♙
+      2 ♙♙╱♖
+      1 ♖♕♔
+        abcd
+    TEXT
+  end
+
+  def test_run_checkmate_size_6
+    @chess = Chess.new(@brain, size: 6)
+    assert_equal 'Checkmate', @chess.run
+    assert_output_lines <<~TEXT
+      10...c6d6
+      6  ♜─♛♚♜ | ♞♟♟ # This move restricts the black king down the line.
+      5 ♟♘♟♟▒
+      4 ♙  ♞ ♟
+      3 ▒ ▒ ♙♙
+      2  ♕♙▒ ▒
+      1 ♖♔▒ ♘♖ | ♙♙
+        abcdef
+      11.b2b4
+      6  ♜ ♛♚♜ | ♞♟♟
+      5 ♟♘♟♟▒
+      4 ♙♕ ♞ ♟ # Wow! A queen sacrifice. This looks advanced, but in fact the
+      3 ▒│▒ ♙♙ # reason for the knight not taking the queen is that it's
+      2  │♙▒ ▒ # protected by the rook and king.
+      1 ♖♔▒ ♘♖ | ♙♙
+        abcdef
+      11...c5xb4
+      6  ♜ ♛♚♜ | ♞♟♟
+      5 ♟♘╱♟▒
+      4 ♙♟ ♞ ♟ # Taking the queen.
+      3 ▒ ▒ ♙♙
+      2  ▒♙▒ ▒
+      1 ♖♔▒ ♘♖ | ♙♙♕
+        abcdef
+      12.b5xd4
+      6  ♜ ♛♚♜ | ♞♟♟♞
+      5 ♟│▒♟▒
+      4 ♙♟─♘ ♟ # Check.
+      3 ▒ ▒ ♙♙
+      2  ▒♙▒ ▒
+      1 ♖♔▒ ♘♖ | ♙♙♕
+        abcdef
+      12...e6e5
+      6  ♜ ♛│♜ | ♞♟♟♞
+      5 ♟ ▒♟♚  # The only legal move.
+      4 ♙♟ ♘ ♟
+      3 ▒ ▒ ♙♙
+      2  ▒♙▒ ▒
+      1 ♖♔▒ ♘♖ | ♙♙♕
+        abcdef
+      13.e1d3
+      6  ♜ ♛ ♜ | ♞♟♟♞
+      5 ♟ ▒♟♚ ▒
+      4 ♙♟ ♘ ♟
+      3 ▒ ▒♘♙♙ # Checkmate!
+      2  ▒♙│ ▒
+      1 ♖♔▒└─♖ | ♙♙♕
+        abcdef
+    TEXT
+  end
+
   def test_run_repetition_draw
     srand 41
     assert_equal 'Draw due to threefold repetition', @chess.run
@@ -1153,9 +1250,10 @@ class TestChess < Test::Unit::TestCase
   end
 
   private def convert(board_output)
-    board_output.gsub(/^(\d| ) (.)  (.)  (.)  (.)  (.)  (.)  (.)  (.) ?/,
-                      '\1 \2\3\4\5\6\7\8\9')
-                .gsub(/ +$/, '')
+    board_output
+      .gsub(/^(\d| ) (.)  (.)  (.)  (.)(?:  (.)  (.))?(?:  (.)  (.))? ?/,
+            '\1 \2\3\4\5\6\7\8\9')
+      .gsub(/ +$/, '')
   end
 
   private def clean(board_setup)

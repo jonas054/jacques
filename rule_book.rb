@@ -198,6 +198,8 @@ class RuleBook
   end
 
   private def add_en_passant_if_legal(start, col_delta)
+    return if @board.size < 8 # En passant not possible on smaller boards.
+
     return unless (A..H).cover?(start.col + col_delta)
 
     pawn = @board.get(start)

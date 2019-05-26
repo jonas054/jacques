@@ -185,19 +185,22 @@ class Board
   end
 
   private def handle_pawn_promotion(pawn_is_white, dest)
-    dest_col = dest.col
+    new_piece = new_piece_after_promotion(pawn_is_white, dest.col)
+    set(dest, new_piece) if [0, @size - 1].include?(dest.row)
+  end
+
+  private def new_piece_after_promotion(pawn_is_white, dest_col)
     other_king = pawn_is_white ? '♚' : '♔'
     one_row_away = pawn_is_white ? 1 : @size - 2
     two_rows_away = pawn_is_white ? 2 : @size - 3
-    new_piece = if @squares[two_rows_away][dest_col + 1] == other_king ||
-                   @squares[two_rows_away][dest_col - 1] == other_king ||
-                   @squares[one_row_away][dest_col + 2] == other_king ||
-                   @squares[one_row_away][dest_col - 2] == other_king
-                  pawn_is_white ? '♘' : '♞'
-                else
-                  pawn_is_white ? '♕' : '♛'
-                end
-    set(dest, new_piece) if [0, @size - 1].include?(dest.row)
+    if [@squares[two_rows_away][dest_col + 1],
+        @squares[two_rows_away][dest_col - 1],
+        @squares[one_row_away][dest_col + 2],
+        @squares[one_row_away][dest_col - 2]].include?(other_king)
+      pawn_is_white ? '♘' : '♞'
+    else
+      pawn_is_white ? '♕' : '♛'
+    end
   end
 
   private def castle(start_row, start_col, new_col)

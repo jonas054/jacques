@@ -92,6 +92,122 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_run_draw_size_4
+    srand 7
+    @chess = Chess.new(@brain, size: 4)
+    assert_equal 'Draw due to insufficient material', @chess.run
+    assert_output_lines <<~TEXT
+      5.d1c2
+      4 ♜▒♚▒ | ♟♟♛♟
+      3 ▒ ♙♜
+      2 ♙♟♔▒
+      1 ♖ ▒╲ | ♙♖♙♕
+        abcd
+      5...b2xa1
+      4 ♜▒♚▒ | ♟♟♛♟
+      3 ▒ ♙♜
+      2 ♙╱♔▒
+      1 ♞ ▒  | ♙♖♙♕♖ # TODO: Should promote to queen, not knight.
+        abcd
+      6.c2b2
+      4 ♜▒♚▒ | ♟♟♛♟
+      3 ▒ ♙♜
+      2 ♙♔─▒
+      1 ♞ ▒  | ♙♖♙♕♖
+        abcd
+      6...d3d2
+      4 ♜▒♚▒ | ♟♟♛♟
+      3 ▒ ♙│
+      2 ♙♔ ♜
+      1 ♞ ▒  | ♙♖♙♕♖
+        abcd
+      7.b2xa1
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙╱ ♜
+      1 ♔ ▒  | ♙♖♙♕♖
+        abcd
+      7...d2d1
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙▒ │
+      1 ♔ ▒♜ | ♙♖♙♕♖
+        abcd
+      8.a1b2
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙♔ ▒
+      1 ╱ ▒♜ | ♙♖♙♕♖
+        abcd
+      8...d1d2
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙♔ ♜
+      1 ▒ ▒│ | ♙♖♙♕♖
+        abcd
+      9.b2c1
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙╲ ♜
+      1 ▒ ♔  | ♙♖♙♕♖
+        abcd
+      9...d2b2
+      4 ♜▒♚▒ | ♟♟♛♟♞
+      3 ▒ ♙
+      2 ♙♜──
+      1 ▒ ♔  | ♙♖♙♕♖
+        abcd
+      10.c1xb2
+      4 ♜▒♚▒ | ♟♟♛♟♞♜
+      3 ▒ ♙
+      2 ♙♔ ▒
+      1 ▒ ╲  | ♙♖♙♕♖
+        abcd
+      10...a4b4
+      4 ─♜♚▒ | ♟♟♛♟♞♜
+      3 ▒ ♙
+      2 ♙♔ ▒
+      1 ▒ ▒  | ♙♖♙♕♖
+        abcd
+      11.b2c1
+      4  ♜♚▒ | ♟♟♛♟♞♜
+      3 ▒ ♙
+      2 ♙╲ ▒
+      1 ▒ ♔  | ♙♖♙♕♖
+        abcd
+      11...b4a4
+      4 ♜─♚▒ | ♟♟♛♟♞♜
+      3 ▒ ♙
+      2 ♙▒ ▒
+      1 ▒ ♔  | ♙♖♙♕♖
+        abcd
+      12.c1b1
+      4 ♜▒♚▒ | ♟♟♛♟♞♜
+      3 ▒ ♙
+      2 ♙▒ ▒
+      1 ▒♔─  | ♙♖♙♕♖
+        abcd
+      12...a4xa2
+      4 │▒♚▒ | ♟♟♛♟♞♜
+      3 │ ♙
+      2 ♜▒ ▒
+      1 ▒♔▒  | ♙♖♙♕♖♙
+        abcd
+      13.b1xa2
+      4  ▒♚▒ | ♟♟♛♟♞♜♜
+      3 ▒ ♙
+      2 ♔▒ ▒
+      1 ▒╲▒  | ♙♖♙♕♖♙
+        abcd
+      13...c4xc3
+      4  ▒│▒ | ♟♟♛♟♞♜♜
+      3 ▒ ♚
+      2 ♔▒ ▒
+      1 ▒ ▒  | ♙♖♙♕♖♙♙
+        abcd
+    TEXT
+  end
+
   def test_run_checkmate_size_6
     @chess = Chess.new(@brain, size: 6)
     assert_equal 'Checkmate', @chess.run

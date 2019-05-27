@@ -48,7 +48,7 @@ class Brain
     start, dest = Coord.from_move(@board, move)
     new_board = Board.new(original: @board)
     color_of_moving_piece = new_board.color_at(start)
-    other_color = (color_of_moving_piece == :white) ? :black : :white
+    other_color = opposite_color(color_of_moving_piece)
     new_board.move(start, dest)
     new_board.is_checked?(other_color) ? [new_board, other_color] : false
   end
@@ -99,7 +99,7 @@ class Brain
   # Return the given best moves except the ones that move to a square attacked
   # by the other player.
   private def remove_dangerous_moves(best_moves, who_to_move)
-    other_color = (who_to_move == :white) ? :black : :white
+    other_color = opposite_color(who_to_move)
     rule_book.legal_moves(other_color, @board) do |_, dest, take|
       next if take == :cannot_take
 
@@ -110,5 +110,9 @@ class Brain
 
   private def rule_book
     @rule_book ||= RuleBook.new(@board)
+  end
+
+  private def opposite_color(color)
+    (color == :white) ? :black : :white
   end
 end

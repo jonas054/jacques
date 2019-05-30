@@ -518,52 +518,6 @@ class TestBoard < Test::Unit::TestCase
                   '     ♛  '], @board.current
   end
 
-  def test_white_pawn_promotion_to_knight
-    @board.setup(<<~TEXT)
-      8  ▒ ▒ ▒ ▒
-      7 ▒ ▒ ▒♙▒
-      6  ▒ ▒ ▒♚▒
-      5 ▒ ▒ ▒ ▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ▒
-      2  ▒ ▒ ▒ ▒
-      1 ▒ ▒ ▒ ▒
-        abcdefgh
-    TEXT
-    @board.move(Coord.new(@board, 1, 5), Coord.new(@board, 0, 5))
-    assert_equal ['     ♘  ',
-                  '        ',
-                  '      ♚ ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        '], @board.current
-  end
-
-  def test_black_pawn_promotion_to_knight
-    @board.setup(<<~TEXT)
-      8  ▒ ▒ ▒ ▒
-      7 ▒ ▒ ▒ ▒
-      6  ▒ ▒ ▒ ▒
-      5 ▒ ▒ ▒ ▒
-      4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ▒ ▒
-      2  ▒ ▒ ♔ ♟
-      1 ▒ ▒ ▒ ▒
-        abcdefgh
-    TEXT
-    @board.move(Coord.new(@board, 6, 7), Coord.new(@board, 7, 7))
-    assert_equal ['        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '     ♔  ',
-                  '       ♞'], @board.current
-  end
-
   def test_incomplete_board_setup
     @board.setup(<<~TEXT)
       8  ▒ ▒ ▒ ▒

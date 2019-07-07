@@ -2,8 +2,6 @@
 
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'test/unit'
 require_relative 'board'
 
@@ -15,28 +13,32 @@ class TestBoard < Test::Unit::TestCase
   end
 
   def test_initialization
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.current
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
   end
 
   def test_cloning
-    @board.move(Coord.new(@board, 6, 4), Coord.new(@board, 5, 4))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '    ♙   ',
-                  '♙♙♙♙ ♙♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.current
+    move('e2e3')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ♙ ▒
+      ♙♙♙♙ ♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
     new_board = Board.new(original: @board)
-    new_board.move(Coord.new(@board, 5, 4), Coord.new(@board, 4, 4))
+    move('e3e4', new_board)
     assert_equal ['♜♞♝♛♚♝♞♜',
                   '♟♟♟♟♟♟♟♟',
                   '        ',
@@ -46,68 +48,80 @@ class TestBoard < Test::Unit::TestCase
                   '♙♙♙♙ ♙♙♙',
                   '♖♘♗♕♔♗♘♖'], new_board.current
     assert_not_equal @board.current, new_board.current
-    @board.move(Coord.new(@board, 5, 4), Coord.new(@board, 4, 4))
+    move('e3e4')
     assert_equal @board.current, new_board.current
   end
 
   def test_en_passant
-    @board.move(Coord.new(@board, 6, 5), Coord.new(@board, 3, 5))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '     ♙  ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙ ♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.current
-    @board.move(Coord.new(@board, 1, 6), Coord.new(@board, 3, 6))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟ ♟',
-                  '        ',
-                  '     ♙♟ ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙ ♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.current
-    @board.move(Coord.new(@board, 3, 5), Coord.new(@board, 2, 6))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟ ♟',
-                  '      ♙ ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙ ♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.current
+    move('f2f5')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♙▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙ ♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
+    move('g7g5')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟ ♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♙♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙ ♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
+    move('f5g6')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟ ♟
+       ▒ ▒ ▒♙▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙ ♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
   end
 
   def test_wrong_piece_for_en_passant
-    @board.move(Coord.new(@board, 7, 3), Coord.new(@board, 3, 5))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '     ♕  ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗ ♔♗♘♖'], @board.current
-    @board.move(Coord.new(@board, 1, 6), Coord.new(@board, 3, 6))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟ ♟',
-                  '        ',
-                  '     ♕♟ ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗ ♔♗♘♖'], @board.current
-    @board.move(Coord.new(@board, 3, 5), Coord.new(@board, 2, 6))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟ ♟',
-                  '      ♕ ',
-                  '      ♟ ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗ ♔♗♘♖'], @board.current
+    move('d1f5')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♕▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗ ♔♗♘♖
+    TEXT
+    move('g7g5')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟ ♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♕♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗ ♔♗♘♖
+    TEXT
+    move('f5g6')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟ ♟
+       ▒ ▒ ▒♕▒
+      ▒ ▒ ▒ ♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗ ♔♗♘♖
+    TEXT
   end
 
   def test_white_castles_on_king_side
@@ -122,15 +136,17 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ♔ ▒♖
         abcdefgh
     TEXT
-    @board.move(Coord.new(@board, 7, 4), Coord.new(@board, 7, 6))
-    assert_equal ['        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '     ♖♔ '], @board.current
+    move('e1g1')
+    assert_current <<~TEXT
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♖♔
+    TEXT
   end
 
   def test_white_castles_on_queen_side
@@ -145,15 +161,17 @@ class TestBoard < Test::Unit::TestCase
       1 ♖ ▒ ♔ ▒
         abcdefgh
     TEXT
-    @board.move(Coord.new(@board, 7, 4), Coord.new(@board, 7, 2))
-    assert_equal ['        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '  ♔♖    '], @board.current
+    move('e1c1')
+    assert_current <<~TEXT
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ♔♖▒ ▒
+    TEXT
   end
 
   def test_black_castles_on_king_side
@@ -168,15 +186,17 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(Coord.new(@board, 0, 4), Coord.new(@board, 0, 6))
-    assert_equal ['     ♜♚ ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        '], @board.current
+    move('e8g8')
+    assert_current <<~TEXT
+       ▒ ▒ ♜♚▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+    TEXT
   end
 
   def test_black_castles_on_queen_side
@@ -191,15 +211,17 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒ ▒ ▒
         abcdefgh
     TEXT
-    @board.move(Coord.new(@board, 0, 4), Coord.new(@board, 0, 2))
-    assert_equal ['  ♚♜    ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        '], @board.current
+    move('e8c8')
+    assert_current <<~TEXT
+       ▒♚♜ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+    TEXT
   end
 
   def test_get
@@ -226,8 +248,18 @@ class TestBoard < Test::Unit::TestCase
 
   def test_taking
     # Illegal move, but there's no checking.
-    @board.move(Coord.new(@board, 6, 0), Coord.new(@board, 2, 0))
-    assert_true @board.taking?(Coord.new(@board, 2, 0), Coord.new(@board, 1, 1))
+    move('a2a6')
+    assert_current <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+      ♙▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ♙♙♙♙♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
+    assert_true @board.taking?(*Coord.from_move(@board, 'a6b7'))
   end
 
   def test_draw
@@ -252,14 +284,16 @@ class TestBoard < Test::Unit::TestCase
 
   def test_move_and_previous
     @board.move(Coord.new(@board, 6, 4), Coord.new(@board, 5, 4))
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.previous.current
+    assert_previous <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
   end
 
   def test_colors # rubocop:disable Metrics/AbcSize
@@ -302,22 +336,26 @@ class TestBoard < Test::Unit::TestCase
       1 ▒ ▒♔▒ ▒
         abcdefgh
     TEXT
-    assert_equal ['        ',
-                  '        ',
-                  '    ♚   ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '   ♔    '], @board.current
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.previous.current
+    assert_current <<~TEXT
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒♚▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒♔▒ ▒
+    TEXT
+    assert_previous <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
   end
 
   def test_insufficient_material_only_kings
@@ -485,14 +523,16 @@ class TestBoard < Test::Unit::TestCase
         abcdefgh
     TEXT
     @board.move(Coord.new(@board, 1, 5), Coord.new(@board, 0, 5))
-    assert_equal ['     ♕  ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        '], @board.current
+    assert_current <<~TEXT
+       ▒ ▒ ♕ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+    TEXT
   end
 
   def test_black_pawn_promotion_to_queen
@@ -508,14 +548,16 @@ class TestBoard < Test::Unit::TestCase
         abcdefgh
     TEXT
     @board.move(Coord.new(@board, 6, 5), Coord.new(@board, 7, 5))
-    assert_equal ['        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '     ♛  '], @board.current
+    assert_current <<~TEXT
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♛▒
+    TEXT
   end
 
   def test_incomplete_board_setup
@@ -526,23 +568,43 @@ class TestBoard < Test::Unit::TestCase
       5 ▒ ▒
       4  ▒
     TEXT
-    assert_equal ['        ',
-                  '        ',
-                  '    ♚   ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        '], @board.current
-    assert_equal ['♜♞♝♛♚♝♞♜',
-                  '♟♟♟♟♟♟♟♟',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '        ',
-                  '♙♙♙♙♙♙♙♙',
-                  '♖♘♗♕♔♗♘♖'], @board.previous.current
+    assert_current <<~TEXT
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒♚▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+    TEXT
+    assert_previous <<~TEXT
+      ♜♞♝♛♚♝♞♜
+      ♟♟♟♟♟♟♟♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒ ▒
+      ♙♙♙♙♙♙♙♙
+      ♖♘♗♕♔♗♘♖
+    TEXT
+  end
+
+  private def assert_current(text)
+    assert_board text, @board
+  end
+
+  private def assert_previous(text)
+    assert_board text, @board.previous
+  end
+
+  private def assert_board(text, board)
+    assert_equal text.tr('▒', ' ').gsub(/ +$/, '').chomp,
+                 board.current.join("\n").gsub(/ +$/, '')
+  end
+
+  private def move(notation, board = nil)
+    board ||= @board
+    board.move(*Coord.from_move(board, notation))
   end
 end
-
-# rubocop:enable Metrics/MethodLength

@@ -97,6 +97,36 @@ class TestChess < Test::Unit::TestCase
     @chess = Chess.new(@brain, size: 4)
     assert_equal 'Draw due to insufficient material', @chess.run
     assert_output_lines <<~TEXT
+      11.c3c4
+      4  ▒♕▒ | ♟♟♟♛♟♜♜ # Bad move!
+      3 ▒♚│
+      2 ♖▒ ♔
+      1 ▒ ▒  | ♙♕♖♙♙
+        abcd
+      11...b3xc4
+      4  ▒♚▒ | ♟♟♟♛♟♜♜
+      3 ▒╱▒
+      2 ♖▒ ♔
+      1 ▒ ▒  | ♙♕♖♙♙♕
+        abcd
+      12.a2a4
+      4 ♖▒♚▒ | ♟♟♟♛♟♜♜
+      3 │ ▒
+      2 │▒ ♔
+      1 ▒ ▒  | ♙♕♖♙♙♕
+        abcd
+      12...c4b3
+      4 ♖▒╱▒ | ♟♟♟♛♟♜♜
+      3 ▒♚▒
+      2  ▒ ♔
+      1 ▒ ▒  | ♙♕♖♙♙♕
+        abcd
+      13.d2d1
+      4 ♖▒ ▒ | ♟♟♟♛♟♜♜
+      3 ▒♚▒
+      2  ▒ │
+      1 ▒ ▒♔ | ♙♕♖♙♙♕ # Bad move!
+        abcd
       13...b3xa4
       4 ♚▒ ▒ | ♟♟♟♛♟♜♜
       3 ▒╲▒
@@ -966,7 +996,7 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ▒♔▒♖
         abcdefgh
     TEXT
-    board.move(Coord.new(board, 7, 5), Coord.new(board, 7, 4))
+    move('f1e1', board)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -975,7 +1005,7 @@ class TestChess < Test::Unit::TestCase
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
-      1 ♖ ▒ ♔ ▒♖
+      1 ♖ ▒ ♔─▒♖
         abcdefgh
     TEXT
     move_white
@@ -985,8 +1015,8 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒♙▒ ▒ ▒
-      3 ▒ ▒ ▒ ▒
-      2 ♙♙ ♙♙♙♙♙
+      3 ▒ │ ▒ ▒
+      2 ♙♙│♙♙♙♙♙
       1 ♖ ▒ ♔ ▒♖
         abcdefgh
     TEXT
@@ -1006,11 +1036,11 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    board.move(Coord.new(board, 0, 4), Coord.new(board, 0, 5))
-    board.move(Coord.new(board, 0, 5), Coord.new(board, 0, 4))
+    move('e8f8', board)
+    move('f8e8', board) # King has now moved to f8 and back.
     move_black
     assert_board <<~TEXT
-      8 ♜▒ ▒♚▒♜▒
+      8 ♜▒ ▒♚▒♜─ # Moves rook. Does not castle.
       7 ♟♟♟♟♟♟♟♟
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
@@ -1037,10 +1067,10 @@ class TestChess < Test::Unit::TestCase
       1 ♖ ▒ ♔  ♖
         abcdefgh
     TEXT
-    board.move(Coord.new(board, 7, 7), Coord.new(board, 7, 6))
-    board.move(Coord.new(board, 7, 6), Coord.new(board, 7, 7))
-    board.move(Coord.new(board, 7, 0), Coord.new(board, 7, 1))
-    board.move(Coord.new(board, 7, 1), Coord.new(board, 7, 0))
+    move('h1g1', board)
+    move('g1h1', board)
+    move('a1b1', board)
+    move('b1a1', board)
     assert_board <<~TEXT
       8 ♜♞♝♛♚♝♞♜
       7 ♟♟♟♟♟♟♟♟
@@ -1059,7 +1089,7 @@ class TestChess < Test::Unit::TestCase
       6  ▒ ▒ ▒ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ▒ ▒ ▒
-      3 ▒ ▒ ♙ ▒
+      3 ▒ ▒ ♙ ▒  # Does not castle.
       2 ♙♙♙♙│♙♙♙
       1 ♖ ▒ ♔ ▒♖
         abcdefgh
@@ -1081,10 +1111,10 @@ class TestChess < Test::Unit::TestCase
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
-    board.move(Coord.new(board, 0, 0), Coord.new(board, 0, 1))
-    board.move(Coord.new(board, 0, 1), Coord.new(board, 0, 0))
-    board.move(Coord.new(board, 0, 7), Coord.new(board, 0, 6))
-    board.move(Coord.new(board, 0, 6), Coord.new(board, 0, 7))
+    move('a8b8', board)
+    move('b8a8', board)
+    move('h8g8', board)
+    move('g8h8', board)
     assert_board <<~TEXT
       8 ♜▒ ▒♚▒ ♜
       7 ♟♟♟♟♟♟♟♟
@@ -1101,7 +1131,7 @@ class TestChess < Test::Unit::TestCase
       8 ♜▒ ▒♚▒ ♜
       7 │♟♟♟♟♟♟♟
       6 │▒ ▒ ▒ ▒
-      5 ♟ ▒ ▒ ▒
+      5 ♟ ▒ ▒ ▒  # Does not castle.
       4  ▒ ▒ ▒ ▒
       3 ▒ ▒ ▒ ▒
       2 ♙♙♙♙♙♙♙♙
@@ -1273,6 +1303,10 @@ class TestChess < Test::Unit::TestCase
   private def clean(board_setup)
     board_setup.tr('▒│─╱╲┌┐└┘', '         ').gsub(/ +$/, '').gsub('| ', '')
                .gsub(/ *#.*/, '')
+  end
+
+  private def move(notation, board)
+    board.move(*Coord.from_move(board, notation))
   end
 end
 

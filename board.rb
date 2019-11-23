@@ -4,15 +4,19 @@
 require 'rainbow'
 require 'forwardable'
 require_relative 'coord'
+require_relative 'color'
 require_relative 'rule_book'
 
 # Represents the chess board and has some knowledge about the pieces.
 class Board # rubocop:disable Metrics/ClassLength
   extend Forwardable
+  include Color
 
   # Remembers if kings or rooks have moved, which is important for evaluation
   # of whether it's legal to castle.
   class MovementRecord
+    include Color
+
     def initialize(size)
       @size = size
       @record = {}
@@ -35,10 +39,9 @@ class Board # rubocop:disable Metrics/ClassLength
     def check_movement(piece, start_col)
       case piece
       when '♔', '♚'
-        color = piece == '♔' ? :white : :black
-        @record[color][:king] = true
+        @record[color_of(piece)][:king] = true
       when '♖', '♜'
-        color = piece == '♖' ? :white : :black
+        color = color_of(piece)
         case start_col
         when 0 then @record[color][:queen_side_rook] = true
         when @size - 1 then @record[color][:king_side_rook] = true
@@ -142,9 +145,7 @@ class Board # rubocop:disable Metrics/ClassLength
   end
 
   def color_at(coord)
-    return :none if empty?(coord)
-
-    WHITE_PIECES.include?(get(coord)) ? :white : :black
+    empty?(coord) ? :none : color_of(get(coord))
   end
 
   def taking?(start, dest)
@@ -176,8 +177,7 @@ class Board # rubocop:disable Metrics/ClassLength
     return unless start.col != dest.col && empty?(dest)
 
     taken_piece = @squares[start.row][dest.col]
-    taken_color = WHITE_PIECES.include?(taken_piece) ? :white : :black
-    @taken[taken_color] << taken_piece
+    @taken[color_of(taken_piece)] << taken_piece
 
     @squares[start.row][dest.col] = EMPTY_SQUARE
   end

@@ -2,9 +2,12 @@
 # frozen_string_literal: true
 
 require_relative 'coord'
+require_relative 'color'
 
 # Knows the rules of chess, for instace which moves are legal.
 class RuleBook # rubocop:disable Metrics/ClassLength
+  include Color
+
   A, B, C, D, E, F, G, H = (0..7).to_a
 
   ALL_DIRECTIONS =
@@ -22,8 +25,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
   end
 
   def is_checked?(color)
-    other_color = (color == :white) ? :black : :white
-    legal_moves(other_color, false) do |start, dest, take|
+    legal_moves(other_color(color), false) do |start, dest, take|
       return true if king_is_taken_by?(add_move_if_legal(start, dest, take))
     end
     false
@@ -146,7 +148,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
                  when '♛', '♕' then ALL_DIRECTIONS
                  end
     piece_color = @board.color_at(start)
-    other_color = (piece_color == :white) ? :black : :white
+    other_color = other_color(piece_color)
     directions.each do |y, x|
       (1...@board.size).each do |scale|
         dest = start + [y * scale, x * scale]
@@ -195,8 +197,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
   # rubocop:enable Metrics/PerceivedComplexity
 
   private def attacked?(current_coord, piece_color, unattacked_columns)
-    other_color = (piece_color == :white) ? :black : :white
-    legal_moves(other_color, false) do |_, dest, _|
+    legal_moves(other_color(piece_color), false) do |_, dest, _|
       if dest.row == current_coord.row &&
          unattacked_columns.include?(dest.col)
         return true

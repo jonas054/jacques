@@ -7,7 +7,7 @@ require_relative 'coord'
 require_relative 'rule_book'
 
 # Represents the chess board and has some knowledge about the pieces.
-class Board
+class Board # rubocop:disable Metrics/ClassLength
   extend Forwardable
 
   # Remembers if kings or rooks have moved, which is important for evaluation
@@ -77,7 +77,6 @@ class Board
                  :queen_side_rook_has_moved?,
                  :king_side_rook_has_moved?
   def_delegators :@rule_book, :insufficient_material?, :is_checked?
-
   def initialize(original: nil, show_taken_pieces: true, size: nil)
     @size = if size.nil?
               original ? original.size : 8
@@ -214,7 +213,7 @@ class Board
       @show_taken_pieces = show_taken_pieces
     end
 
-    def draw(squares, last_move)
+    def draw(squares, last_move) # rubocop:disable Metrics/AbcSize
       drawing = +''
       @size.times do |row|
         drawing << (@size - row).to_s

@@ -4,7 +4,7 @@
 require_relative 'coord'
 
 # Knows the rules of chess, for instace which moves are legal.
-class RuleBook
+class RuleBook # rubocop:disable Metrics/ClassLength
   A, B, C, D, E, F, G, H = (0..7).to_a
 
   ALL_DIRECTIONS =
@@ -79,7 +79,6 @@ class RuleBook
       end
     end
   end
-
   private def legal_moves_from(current_coord, is_top_level_call, &block)
     piece = @board.get(current_coord)
     case piece
@@ -119,7 +118,7 @@ class RuleBook
       find_castle_move(current_coord, B..D, B..E, 0, &block)
     end
   end
-
+  # rubocop:disable Metrics/AbcSize
   private def legal_pawn_moves(current_coord, piece, &block)
     direction = (piece == '♟') ? 1 : -1
     forward = current_coord + [direction, 0]
@@ -137,6 +136,8 @@ class RuleBook
       add_en_passant_if_legal(current_coord, -1, &block)
     end
   end
+
+  # rubocop:enable Metrics/AbcSize
 
   private def each_move_length(start)
     directions = case @board.get(start)
@@ -158,6 +159,9 @@ class RuleBook
     end
   end
 
+  # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/CyclomaticComplexity
   private def find_castle_move(current_coord, empty_columns,
                                unattacked_columns, rook_column)
     piece_color = @board.color_at(current_coord)
@@ -185,6 +189,10 @@ class RuleBook
     yield current_coord, Coord.new(@board, current_coord.row, king_destination),
           :cannot_take
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/AbcSize
+
+  # rubocop:enable Metrics/PerceivedComplexity
 
   private def attacked?(current_coord, piece_color, unattacked_columns)
     other_color = (piece_color == :white) ? :black : :white
@@ -196,7 +204,6 @@ class RuleBook
     end
     false
   end
-
   private def add_en_passant_if_legal(start, col_delta)
     return if @board.size < 8 # En passant not possible on smaller boards.
 

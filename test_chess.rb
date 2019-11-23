@@ -2,8 +2,6 @@
 
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'test/unit'
 require_relative 'chess'
 
@@ -1309,5 +1307,3 @@ class TestChess < Test::Unit::TestCase
     board.move(*Coord.from_move(board, notation))
   end
 end
-
-# rubocop:enable Metrics/MethodLength

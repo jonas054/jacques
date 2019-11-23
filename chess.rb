@@ -39,7 +39,6 @@ class Chess
       return result if result
     end
   end
-
   private def run_one_turn(args, index, positions)
     color = index.even? ? :white : :black
     turn = index / 2 + 1 # /

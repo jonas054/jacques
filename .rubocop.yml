@@ -27,6 +27,14 @@ Metrics/ClassLength:
   Exclude:
     - test_*.rb
 
+Metrics/MethodLength:
+  Exclude:
+    - test_*.rb
+
+Metrics/AbcSize:
+  Exclude:
+    - test_*.rb
+
 Style/MultipleComparison:
   Enabled: false
 

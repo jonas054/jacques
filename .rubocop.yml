@@ -38,5 +38,5 @@ Metrics/AbcSize:
 Style/MultipleComparison:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false

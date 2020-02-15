@@ -21,6 +21,7 @@ class Brain
     return mating_move if mating_move
 
     best_moves = checking_moves(legal_moves)
+    best_moves = remove_dangerous_moves(best_moves, who_to_move)
     best_moves = castling_moves(legal_moves) if best_moves.empty?
     best_moves = taking_moves(legal_moves) if best_moves.empty?
     best_moves = legal_moves if best_moves.empty?
@@ -100,6 +101,8 @@ class Brain
 
   # Return the given best moves except the ones that move to a square attacked
   # by the other player.
+  # TODO: Since we only consider legal moves for the other side, we miss
+  # guards, i.e. one piece protecting another of its own color.
   private def remove_dangerous_moves(best_moves, who_to_move)
     other_color = other_color(who_to_move)
     rule_book.legal_moves(other_color, @board) do |_, dest, take|

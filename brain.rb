@@ -10,8 +10,8 @@ class Brain
   include Color
   attr_writer :board
 
-  SCORE = { '♛' => 9, '♜' => 5, '♞' => 3, '♝' => 3, '♟' => 1,
-            '♕' => 9, '♖' => 5, '♘' => 3, '♗' => 3, '♙' => 1 }.freeze
+  VALUE_OF_PIECE = { '♛' => 9, '♜' => 5, '♞' => 3, '♝' => 3, '♟' => 1,
+                     '♕' => 9, '♖' => 5, '♘' => 3, '♗' => 3, '♙' => 1 }.freeze
   def choose_move(who_to_move)
     legal_moves = all_legal_moves_that_dont_put_me_in_check(who_to_move)
 
@@ -70,7 +70,7 @@ class Brain
 
   private def taking_moves(moves)
     taking = moves.select { |move| move =~ /x/ }
-    sorted = taking.sort_by { |move| SCORE[taken_piece(move)] }
+    sorted = taking.sort_by { |move| VALUE_OF_PIECE[taken_piece(move)] }
     return [] if sorted.empty?
 
     most_valuable_piece = taken_piece(sorted.last)

@@ -39,6 +39,7 @@ class Chess
       return result if result
     end
   end
+
   private def run_one_turn(args, index, positions)
     color = index.even? ? :white : :black
     turn = index / 2 + 1 # /
@@ -53,6 +54,10 @@ class Chess
     end
 
     puts draw(move)
+    check_special_end_rules(positions)
+  end
+
+  private def check_special_end_rules(positions)
     return 'Draw due to insufficient material' if @board.insufficient_material?
     return 'Draw due to 50 moves rule' if @board.fifty_moves?
 

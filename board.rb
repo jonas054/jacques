@@ -103,15 +103,37 @@ class Board # rubocop:disable Metrics/ClassLength
   end
 
   def setup(contents)
+    setup_any do
+      contents
+        .gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '').tr('▒', ' ')
+        .lines.map(&:chomp)
+    end
+  end
+
+  # Forsyth-Edwards notation
+  def setup_fen(fen)
+    setup_any do
+      fen[/\S+/]
+        .tr('prnbqkPRNBQK', '♟♜♞♝♛♚♙♖♘♗♕♔').gsub(/\d/) { |x| ' ' * x.to_i }
+        .split('/')
+    end
+  end
+
+  private def setup_any
     @previous = Board.new(original: self, show_taken_pieces: @show_taken_pieces)
-    lines = contents.gsub(/^\d ?/, '').gsub(/\n  abcdefgh\n/, '')
-                    .tr('▒', ' ').lines.map(&:chomp)
+    lines = yield
     lines += [''] * (@size - lines.size)
     @squares = lines.map { |row| row + ' ' * (@size - row.length) }
   end
 
   def notation
     @squares.join('/')
+  end
+
+  def fen
+    @squares
+      .join('/')
+      .tr('♟♜♞♝♛♚♙♖♘♗♕♔', 'prnbqkPRNBQK').gsub(/ +/) { |x| x.length.to_s }
   end
 
   def current

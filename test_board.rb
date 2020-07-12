@@ -12,6 +12,23 @@ class TestBoard < Test::Unit::TestCase
     Rainbow.enabled = false
   end
 
+  def test_fen
+    @board
+      .setup_fen 'r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1 w - - 0 1'
+    assert_current <<~TEXT
+      ♜▒♝▒ ♜♚▒
+      ♟♟▒♟▒♟♟
+       ♝ ♟ ▒♗▒
+      ♞ ♛♕▒ ♟
+       ▒ ▒ ▒ ▒
+      ▒ ▒ ▒♘▒
+      ♙▒ ▒♖♙♙♙
+      ▒ ▒ ♖ ♔
+    TEXT
+    assert_equal 'r1b2rk1/pp1p1pp1/1b1p2B1/n1qQ2p1/8/5N2/P3RPPP/4R1K1',
+                 @board.fen
+  end
+
   def test_initialization
     assert_current <<~TEXT
       ♜♞♝♛♚♝♞♜

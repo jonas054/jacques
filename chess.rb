@@ -25,7 +25,8 @@ class Chess
   def_delegators :@board, :setup, :draw
 
   def main(args)
-    @frozen_board = args.include?('-r')
+    f_index = args.index('-f')
+    @board.setup_fen(args[f_index + 1]) if f_index
     puts run(args)
   end
 

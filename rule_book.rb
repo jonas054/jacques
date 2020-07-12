@@ -120,25 +120,28 @@ class RuleBook # rubocop:disable Metrics/ClassLength
       find_castle_move(current_coord, B..D, B..E, 0, &block)
     end
   end
+
   # rubocop:disable Metrics/AbcSize
   private def legal_pawn_moves(current_coord, piece, &block)
-    direction = (piece == '♟') ? 1 : -1
+    black_to_move = piece == '♟'
+    direction = black_to_move ? 1 : -1
     forward = current_coord + [direction, 0]
     yield current_coord, forward, :cannot_take
+
     if current_coord.col < @board.size - 1
       yield current_coord, forward.right, :must_take
     end
     yield current_coord, forward.left, :must_take if current_coord.col > A
-    if current_coord.row == (piece == '♟' ? 1 : @board.size - 2) &&
+    if current_coord.row == (black_to_move ? 1 : @board.size - 2) &&
        @board.empty?(current_coord + [direction, 0])
       yield current_coord, current_coord + [2 * direction, 0], :cannot_take
     end
-    if current_coord.row == (piece == '♟' ? 4 : 3)
-      add_en_passant_if_legal(current_coord, 1, &block)
-      add_en_passant_if_legal(current_coord, -1, &block)
+    return unless current_coord.row == (black_to_move ? 4 : 3)
+
+    [1, -1].each do |col_delta|
+      add_en_passant_if_legal(current_coord, col_delta, &block)
     end
   end
-
   # rubocop:enable Metrics/AbcSize
 
   private def each_move_length(start)
@@ -193,7 +196,6 @@ class RuleBook # rubocop:disable Metrics/ClassLength
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/AbcSize
-
   # rubocop:enable Metrics/PerceivedComplexity
 
   private def attacked?(current_coord, piece_color, unattacked_columns)

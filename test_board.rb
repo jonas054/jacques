@@ -317,14 +317,14 @@ class TestBoard < Test::Unit::TestCase
     @board.move(Coord.new(@board, 6, 4), Coord.new(@board, 5, 4))
     Rainbow.enabled = true
     assert_equal <<~TEXT, @board.draw([6, 4, 5, 4])
-      8#{wh'♜'}#{bk'♞'}#{wh'♝'}#{bk'♛'}#{wh'♚'}#{bk'♝'}#{wh'♞'}#{bk'♜'}
-      7#{bk'♟'}#{wh'♟'}#{bk'♟'}#{wh'♟'}#{bk'♟'}#{wh'♟'}#{bk'♟'}#{wh'♟'}
-      6#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}
-      5#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}
-      4#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{bk' '}
-      3#{bk' '}#{wh' '}#{bk' '}#{wh' '}#{yl'♙'}#{wh' '}#{bk' '}#{wh' '}
-      2#{wh'♙'}#{bk'♙'}#{wh'♙'}#{bk'♙'}#{yl' '}#{bk'♙'}#{wh'♙'}#{bk'♙'}
-      1#{bk'♖'}#{wh'♘'}#{bk'♗'}#{wh'♕'}#{bk'♔'}#{wh'♗'}#{bk'♘'}#{wh'♖'}
+      8#{wh '♜'}#{bk '♞'}#{wh '♝'}#{bk '♛'}#{wh '♚'}#{bk '♝'}#{wh '♞'}#{bk '♜'}
+      7#{bk '♟'}#{wh '♟'}#{bk '♟'}#{wh '♟'}#{bk '♟'}#{wh '♟'}#{bk '♟'}#{wh '♟'}
+      6#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}
+      5#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}
+      4#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{bk ' '}
+      3#{bk ' '}#{wh ' '}#{bk ' '}#{wh ' '}#{yl '♙'}#{wh ' '}#{bk ' '}#{wh ' '}
+      2#{wh '♙'}#{bk '♙'}#{wh '♙'}#{bk '♙'}#{yl ' '}#{bk '♙'}#{wh '♙'}#{bk '♙'}
+      1#{bk '♖'}#{wh '♘'}#{bk '♗'}#{wh '♕'}#{bk '♔'}#{wh '♗'}#{bk '♘'}#{wh '♖'}
         a  b  c  d  e  f  g  h
     TEXT
   end

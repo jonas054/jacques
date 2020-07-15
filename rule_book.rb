@@ -81,6 +81,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
       end
     end
   end
+
   private def legal_moves_from(current_coord, is_top_level_call, &block)
     piece = @board.get(current_coord)
     case piece
@@ -112,7 +113,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
     end
     return unless is_top_level_call && current_coord.col == E
 
-    # TODO: Support catling for smaller boards
+    # TODO: Support castling for smaller boards
     if @board.size == 8
       # King-side castle
       find_castle_move(current_coord, F..G, E..G, 7, &block)
@@ -207,6 +208,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
     end
     false
   end
+
   private def add_en_passant_if_legal(start, col_delta)
     return if @board.size < 8 # En passant not possible on smaller boards.
 

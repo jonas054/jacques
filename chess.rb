@@ -5,6 +5,7 @@ require 'rainbow'
 require_relative 'board'
 require_relative 'rule_book'
 require_relative 'brain'
+require_relative 'stockfish'
 
 # TODO: These.
 # - Smarter selection of moves (scoring engine)
@@ -109,5 +110,6 @@ class Chess
 end
 
 if $PROGRAM_NAME == __FILE__
-  Chess.new(Brain.new, size: ENV['CHESS_SIZE'] || 8).main(ARGV)
+  computer_opponent = ARGV.include?('-s') ? Stockfish.new : Brain.new
+  Chess.new(computer_opponent, size: ENV['CHESS_SIZE'] || 8).main(ARGV)
 end

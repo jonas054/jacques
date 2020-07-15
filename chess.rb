@@ -110,7 +110,14 @@ class Chess
   end
 end
 
+def computer_opponent(args)
+  args.include?('-s') ? Stockfish.new : Brain.new
+end
+
+def board_size(env)
+  env['CHESS_SIZE'] || 8
+end
+
 if $PROGRAM_NAME == __FILE__
-  computer_opponent = ARGV.include?('-s') ? Stockfish.new : Brain.new
-  Chess.new(computer_opponent, size: ENV['CHESS_SIZE'] || 8).main(ARGV)
+  Chess.new(computer_opponent(ARGV), size: board_size(ENV)).main(ARGV)
 end

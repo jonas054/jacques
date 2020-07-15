@@ -1252,6 +1252,157 @@ class TestChess < Test::Unit::TestCase
     TEXT
   end
 
+  def test_board_size
+    assert_equal '6', board_size('CHESS_SIZE' => '6')
+    assert_equal 8, board_size({})
+  end
+
+  def test_computer_opponent
+    assert_true Stockfish === computer_opponent(%w[-s])
+    assert_true Brain === computer_opponent(%w[-h])
+  end
+
+  def test_main_fen_setup
+    fen = '8/8/k7/8/4R1QB/8/8/8 w - - 0 1'
+    result = @chess.main(['-f', fen])
+    assert_output_lines <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 ♚▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒♕♗
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      1.g4e2
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 ♚▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒╱♗
+      3 ▒ ▒ ▒╱▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      1...a6a5
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 │▒ ▒ ▒ ▒
+      5 ♚ ▒ ▒ ▒
+      4  ▒ ▒♖▒ ♗
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      2.h4d8
+      8  ▒ ♗ ▒ ▒
+      7 ▒ ▒ ╲ ▒
+      6  ▒ ▒ ╲ ▒
+      5 ♚ ▒ ▒ ╲
+      4  ▒ ▒♖▒ ╲
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      Checkmate
+    TEXT
+  end
+
+  def test_main_fen_setup_insufficient_material
+    fen = '8/8/k7/7K/8/8/8/8 w - - 0 1'
+    result = @chess.main(['-f', fen])
+    assert_output_lines <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 ♚▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒ ▒♔▒
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      Draw due to insufficient material
+    TEXT
+  end
+
+  def test_main_fen_setup_human_player
+    $stdin = StringIO.new(<<~TEXT)
+      g4e2
+      h4d8
+    TEXT
+    fen = '8/8/k7/8/4R1QB/8/8/8 w - - 0 1'
+    result = @chess.main(['-f', fen, '-h'])
+    assert_output_lines <<~TEXT
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 ♚▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒♕♗
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒ ▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      White move: 1.8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 ♚▒ ▒ ▒ ▒
+      5 ▒ ▒ ▒ ▒
+      4  ▒ ▒♖▒╱♗
+      3 ▒ ▒ ▒╱▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      1...a6a5
+      8  ▒ ▒ ▒ ▒
+      7 ▒ ▒ ▒ ▒
+      6 │▒ ▒ ▒ ▒
+      5 ♚ ▒ ▒ ▒
+      4  ▒ ▒♖▒ ♗
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      White move: 2.8        ▒ ♗
+      7 ▒ ▒ ╲ ▒
+      6  ▒ ▒ ╲ ▒
+      5 ♚ ▒ ▒ ╲
+      4  ▒ ▒♖▒ ╲
+      3 ▒ ▒ ▒ ▒
+      2  ▒ ▒♕▒ ▒
+      1 ▒ ▒ ▒ ▒
+        abcdefgh
+      Checkmate
+    TEXT
+  end
+
+  def test_main_human_playing_badly
+    srand 4
+    # The human player just moves the knight back and forth the whole game.
+    $stdin = StringIO.new(<<~INPUT * 11)
+      b1c3
+      c3b1
+    INPUT
+    @chess.main(['-h'])
+    assert_output_lines <<~TEXT
+      21...h1xf1
+      8  ♞♚♜ ▒♞♜ | ♝
+      7 ▒ ▒♟▒ ♟♟
+      6  ♟ ▒♟▒ ▒
+      5 ♟ ♟ ▒♟▒
+      4  ▒ ▒ ▒ ▒
+      3 ▒ ♘ ▒ ▒
+      2 ♙♙♙♙♙♙♝▒
+      1 ♖ ♗♕♔♛── | ♙♖♘♙♗
+        abcdefgh
+      Checkmate
+    TEXT
+  end
+
+  def test_legal_move
+    assert_true @chess.legal?('e2e4')
+    assert_false @chess.legal?('e2e9')
+  end
+
   private def move_white
     @last_move = @chess.make_move(@turn += 1, :white)
   end

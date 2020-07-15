@@ -35,17 +35,18 @@ class Chess
     puts @board.draw
     i = -1
     positions = []
+    white_player = args.include?('-h') ? :human : :computer
     loop do
       i += 1
-      result = run_one_turn(args, i, positions)
+      result = run_one_turn(white_player, i, positions)
       return result if result
     end
   end
 
-  private def run_one_turn(args, index, positions)
+  private def run_one_turn(white_player, index, positions)
     color = index.even? ? :white : :black
     turn = index / 2 + 1 # /
-    move = if args.include?('-h') && color == :white
+    move = if white_player == :human && color == :white
              get_human_move(turn)
            else
              make_move(turn, color)

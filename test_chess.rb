@@ -486,13 +486,13 @@ class TestChess < Test::Unit::TestCase
     end
     # White starts with two pawn moves, black with knights.
     assert_board <<~TEXT
-      8 ♜▒♝♛♚♝ ♜
+      8 ♜│♝♛♚♝│♜
       7 ♟♟♟♟♟♟♟♟
-      6  ▒♞▒ ♞ ▒
+      6  └♞▒ ♞┘▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ♙ ▒ ▒
-      3 ▒ ▒ ▒♙▒
-      2 ♙♙♙▒♙▒♙♙
+      3 ▒ ▒│▒♙▒
+      2 ♙♙♙│♙│♙♙
       1 ♖♘♗♕♔♗♘♖
         abcdefgh
     TEXT
@@ -505,9 +505,9 @@ class TestChess < Test::Unit::TestCase
       6  ▒♞▒ ♞ ▒
       5 ▒ ▒ ▒ ▒
       4  ▒ ♙ ▒ ▒
-      3 ▒ ▒ ▒♙▒♘
+      3 ▒ ▒ ▒♙┌♘
       2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗♕♔♗▒♖
+      1 ♖♘♗♕♔♗│♖
         abcdefgh
     TEXT
 
@@ -516,9 +516,9 @@ class TestChess < Test::Unit::TestCase
     assert_board <<~TEXT
       8 ♜▒♝♛♚♝ ♜
       7 ♟♟♟♟♟♟♟♟
-      6  ▒ ▒ ♞ ▒
-      5 ▒ ▒ ▒ ▒
-      4  ▒ ♞ ▒ ▒
+      6  ▒│▒ ♞ ▒
+      5 ▒ │ ▒ ▒
+      4  ▒└♞ ▒ ▒
       3 ▒ ▒ ▒♙▒♘
       2 ♙♙♙▒♙▒♙♙
       1 ♖♘♗♕♔♗▒♖
@@ -527,16 +527,16 @@ class TestChess < Test::Unit::TestCase
 
     move_white
     move_black
-    # White develops its queen too early, and black pushes another pawn.
+    # White queen takes a knight, and black pushes another pawn.
     assert_board <<~TEXT
       8 ♜▒♝♛♚♝ ♜
-      7 ▒♟♟♟♟♟♟♟
-      6  ▒ ▒ ♞ ▒
+      7 │♟♟♟♟♟♟♟
+      6 │▒ ▒ ♞ ▒
       5 ♟ ▒ ▒ ▒
       4  ▒ ♕ ▒ ▒
-      3 ▒ ▒ ▒♙▒♘
-      2 ♙♙♙▒♙▒♙♙
-      1 ♖♘♗ ♔♗▒♖
+      3 ▒ ▒│▒♙▒♘
+      2 ♙♙♙│♙▒♙♙
+      1 ♖♘♗│♔♗▒♖
         abcdefgh
     TEXT
 

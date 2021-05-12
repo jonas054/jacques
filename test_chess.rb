@@ -3,6 +3,7 @@
 # frozen_string_literal: true
 
 require 'test/unit'
+require 'stringio'
 require_relative 'chess'
 
 # Tests the methods in the Chess class.

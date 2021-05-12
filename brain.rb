@@ -88,7 +88,7 @@ class Brain
 
   private def all_legal_moves_that_dont_put_me_in_check(who_to_move)
     moves = []
-    rule_book.legal_moves(who_to_move) do |coord, dest, take|
+    rule_book.legal_moves(who_to_move, true) do |coord, dest, take|
       new_board = Board.new(original: @board)
       color_of_moving_piece = new_board.color_at(coord)
       new_board.move(coord, dest)
@@ -105,7 +105,7 @@ class Brain
   # guards, i.e. one piece protecting another of its own color.
   private def remove_dangerous_moves(best_moves, who_to_move)
     other_color = other_color(who_to_move)
-    rule_book.legal_moves(other_color, @board) do |_, dest, take|
+    rule_book.legal_moves(other_color, true) do |_, dest, take|
       next if take == :cannot_take
 
       best_moves = best_moves.reject { |m| m.end_with?(dest.position) }

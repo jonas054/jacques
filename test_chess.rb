@@ -1259,13 +1259,13 @@ class TestChess < Test::Unit::TestCase
   end
 
   def test_computer_opponent
-    assert_true Stockfish === computer_opponent(%w[-s])
-    assert_true Brain === computer_opponent(%w[-h])
+    assert_true computer_opponent(%w[-s]).is_a?(Stockfish)
+    assert_true computer_opponent(%w[-h]).is_a?(Brain)
   end
 
   def test_main_fen_setup
     fen = '8/8/k7/8/4R1QB/8/8/8 w - - 0 1'
-    result = @chess.main(['-f', fen])
+    @chess.main(['-f', fen])
     assert_output_lines <<~TEXT
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
@@ -1312,7 +1312,7 @@ class TestChess < Test::Unit::TestCase
 
   def test_main_fen_setup_insufficient_material
     fen = '8/8/k7/7K/8/8/8/8 w - - 0 1'
-    result = @chess.main(['-f', fen])
+    @chess.main(['-f', fen])
     assert_output_lines <<~TEXT
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒
@@ -1333,7 +1333,7 @@ class TestChess < Test::Unit::TestCase
       h4d8
     TEXT
     fen = '8/8/k7/8/4R1QB/8/8/8 w - - 0 1'
-    result = @chess.main(['-f', fen, '-h'])
+    @chess.main(['-f', fen, '-h'])
     assert_output_lines <<~TEXT
       8  ▒ ▒ ▒ ▒
       7 ▒ ▒ ▒ ▒

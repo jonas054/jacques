@@ -42,7 +42,9 @@ class TestBrain < Test::Unit::TestCase
   end
 
   private def assert_board(text)
+    # rubocop:disable Style/StringConcatenation
     assert_equal clean(text), @board.current.join("\n").gsub(/ +$/, '') + "\n"
+    # rubocop:enable Style/StringConcatenation
   end
 
   private def clean(board_setup)

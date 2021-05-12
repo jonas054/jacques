@@ -65,7 +65,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
     bishops_and_knights < 2
   end
 
-  def legal_moves(who_to_move, is_top_level_call = true, only_from = nil,
+  def legal_moves(who_to_move, is_top_level_call, only_from = nil,
                   &block)
     @board.size.times.each do |row|
       next if only_from && row != only_from[0]
@@ -122,7 +122,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
     end
   end
 
-  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
   private def legal_pawn_moves(current_coord, piece, &block)
     black_to_move = piece == '♟'
     direction = black_to_move ? 1 : -1
@@ -143,7 +143,7 @@ class RuleBook # rubocop:disable Metrics/ClassLength
       add_en_passant_if_legal(current_coord, col_delta, &block)
     end
   end
-  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
 
   private def each_move_length(start)
     directions = case @board.get(start)

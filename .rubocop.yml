@@ -1,7 +1,8 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 3.0
+  NewCops: enable
 
 # Craches in RuboCop 0.53.0
 Layout/SpaceInsideArrayLiteralBrackets:
@@ -95,3 +96,5 @@ Style/RedundantRegexpEscape:
 Style/SlicingWithRange:
   Enabled: true
  
+Naming/VariableNumber:
+  EnforcedStyle: snake_case

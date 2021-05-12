@@ -6,7 +6,7 @@ fastest = 1000
   output = `env SRAND=#{s} ruby test_chess.rb -n test_run_repetition_draw`
   output =~ /Finished in (\d+\.\d+).*/
   seconds = Regexp.last_match(1).to_f
-  finish = $&
+  finish = Regexp.last_match(0)
   if seconds < fastest && output =~ /0 failures/
     puts finish
     fastest = seconds

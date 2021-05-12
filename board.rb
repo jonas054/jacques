@@ -246,7 +246,9 @@ class Board # rubocop:disable Metrics/ClassLength
         end
         drawing << case row
                    when 0, @size - 1
+                     # rubocop:disable Style/StringConcatenation
                      draw_taken_pieces(row == 0 ? :black : :white) + "\n"
+                     # rubocop:enable Style/StringConcatenation
                    else
                      "\n"
                    end
@@ -267,7 +269,9 @@ class Board # rubocop:disable Metrics/ClassLength
 
     def draw_taken_pieces(color)
       if @show_taken_pieces && @taken[color].any?
-        ' ' + Rainbow(@taken[color].join('') + ' ').bg(:blue).fg(:black)
+        # rubocop:disable Style/StringConcatenation
+        ' ' + Rainbow(@taken[color].join + ' ').bg(:blue).fg(:black)
+        # rubocop:enable Style/StringConcatenation
       else
         ''
       end
